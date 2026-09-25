@@ -1,0 +1,12 @@
+{
+  "name": "drug-monograph-data-profile",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "analyze": "node analyze-data.mjs"
+  },
+  "dependencies": {
+    "csv-parse": "^5.6.0"
+  }
+}
