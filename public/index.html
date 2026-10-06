@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compare Drugs</title>
+    <style>
+      body { background: #fff; color: #000; font-family: Arial, sans-serif; margin: 2rem; }
+      label { display: block; margin: 1rem 0; }
+      input { display: block; margin-top: 0.35rem; max-width: 36rem; padding: 0.4rem; width: 100%; }
+      button { padding: 0.45rem 0.8rem; }
+      #error { color: #b00020; }
+      #results { margin-top: 2rem; }
+      .comparison { margin: 1.5rem 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Compare Drugs</h1>
+      <p>Compare source-listed adverse events for two products. This prototype is not medical advice.</p>
+
+      <form id="compare-form">
+        <label for="drug-a">Drug A
+          <input id="drug-a" name="drugA" list="drug-options" autocomplete="off" required>
+        </label>
+        <label for="drug-b">Drug B
+          <input id="drug-b" name="drugB" list="drug-options" autocomplete="off" required>
+        </label>
+        <datalist id="drug-options"></datalist>
+        <button type="submit">Compare</button>
+      </form>
+
+      <p id="error" role="alert"></p>
+      <section id="results" aria-live="polite"></section>
+    </main>
+
+    <script>
+      const form = document.querySelector('#compare-form');
+      const options = document.querySelector('#drug-options');
+      const results = document.querySelector('#results');
+      const error = document.querySelector('#error');
+
+      function appendList(parent, title, items) {
+        const section = document.createElement('section');
+        const heading = document.createElement('h3');
+        heading.textContent = `${title} (${items.length})`;
+        section.append(heading);
+        if (items.length === 0) {
+          const empty = document.createElement('p');
+          empty.textContent = 'None';
+          section.append(empty);
+        } else {
+          const list = document.createElement('ul');
+          for (const item of items) {
+            const listItem = document.createElement('li');
+            listItem.textContent = item;
+            list.append(listItem);
+          }
+          section.append(list);
+        }
+        parent.append(section);
+      }
+
+      function appendDrugInfo(parent, title, drug) {
+        const section = document.createElement('section');
+        section.className = 'comparison';
+        const heading = document.createElement('h2');
+        heading.textContent = title;
+        section.append(heading);
+        for (const [label, values] of [
+          ['Brand', drug.brandName],
+          ['Product ID(s)', drug.productIds],
+          ['Company', drug.company],
+          ['Ingredient(s)', drug.ingredients],
+        ]) {
+          const detail = document.createElement('p');
+          detail.textContent = `${label}: ${values.join('; ') || 'Not available'}`;
+          section.append(detail);
+        }
+        parent.append(section);
+      }
+
+      fetch('/api/drugs')
+        .then((response) => {
+          if (!response.ok) throw new Error('Could not load the drug suggestions.');
+          return response.json();
+        })
+        .then((drugs) => {
+          for (const drug of drugs) {
+            const option = document.createElement('option');
+            option.value = drug.id;
+            option.label = drug.label;
+            options.append(option);
+          }
+        })
+        .catch((loadError) => { error.textContent = loadError.message; });
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        error.textContent = '';
+        results.replaceChildren();
+
+        try {
+          const response = await fetch('/api/compare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              drugA: form.elements.drugA.value,
+              drugB: form.elements.drugB.value,
+            }),
+          });
+          const comparison = await response.json();
+          if (!response.ok) throw new Error(comparison.error || 'Comparison failed.');
+
+          appendDrugInfo(results, 'Drug A', comparison.drugA);
+          appendDrugInfo(results, 'Drug B', comparison.drugB);
+          appendList(results, 'Shared adverse effects', comparison.sharedAdverseEvents);
+          appendList(results, 'Only Drug A', comparison.uniqueToDrugA);
+          appendList(results, 'Only Drug B', comparison.uniqueToDrugB);
+        } catch (compareError) {
+          error.textContent = compareError.message;
+        }
+      });
+    </script>
+  </body>
+</html>

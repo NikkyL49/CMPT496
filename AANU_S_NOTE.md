@@ -24,3 +24,54 @@ Produce a short data-profile report with the dataset's structure, important qual
 ### Important note
 
 This is drug-monograph information, not personalized medical advice. Any future display should preserve the source context and avoid implying that listed adverse effects apply equally to every patient.
+
+## Set-based manufacturer concordance
+
+### 3.1 Pairwise Jaccard similarity
+
+For every active ingredient with at least two manufacturers, every unique pair of manufacturer profiles is compared. For a given clinical concept set A and B, Jaccard similarity is:
+
+$$
+J(A,B) = |A \cap B| / |A \cup B|
+$$
+
+A value of 1 means the two manufacturer profiles contain the same set of concepts. A value of 0 means the sets have no overlap. When both sets are empty, the ratio is left missing rather than treated as perfect agreement.
+
+### 3.2 Dice coefficient
+
+For concept overlap across two manufacturer profiles, Dice similarity is:
+
+$$
+D(A,B) = \frac{2|A \cap B|}{|A| + |B|}
+$$
+
+This measures overlap relative to the combined size of both concept sets. It is often more sensitive than Jaccard when both sets are moderate in size.
+
+### 3.3 Overlap coefficient
+
+To assess whether one manufacturer profile is largely contained within another, the overlap coefficient is:
+
+$$
+O(A,B) = \frac{|A \cap B|}{\min(|A|,|B|)}
+$$
+
+This is useful when one concept set is expected to be a subset of another. A value of 1 means the smaller set is fully contained in the larger set; a value of 0 means no overlap.
+
+### 3.4 Concept coverage
+
+A simple coverage measure for comparing a manufacturer profile against another is:
+
+$$
+C(A,B) = \frac{|A \cap B|}{|A|}
+$$
+
+This tells us how much of manufacturer A's concept set is also present in manufacturer B.
+
+### Interpretation notes for implementation
+
+- $A \cap B$ = shared adverse-event or concept terms between two manufacturers
+- $A \cup B$ = all unique terms across both manufacturers
+- $|A|$, $|B|$ = total concept counts in each set
+- Empty sets should be handled explicitly so they do not falsely produce a perfect similarity score
+
+These formulas can later be translated into JavaScript by converting each manufacturer profile into a Set of normalized concepts, then computing intersection, union, and counts.
