@@ -1,0 +1,119 @@
+/* MonoByte — Design Tokens (Broadsheet system) */
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap");
+
+:root {
+  /* Core */
+  --color-bg: #fbf6ee;
+  --color-surface: #ffffff;
+  --color-text: #000000;
+  --color-divider: #000000;
+
+  /* Accent ramp */
+  --accent-100: #eaf4fa;
+  --accent-200: #afd5e9;
+  --accent-300: #8fc4e0;
+  --accent-400: #6fb3d8;
+  --accent-500: #3083b0;
+  --accent-600: #2c77a0;
+  --accent-700: #276b90;
+  --accent-800: #236080;
+  --accent-900: #17414f;
+  --color-accent: var(--accent-500);
+
+  /* Cream ramp */
+  --cream-100: #fbf6ee;
+  --cream-200: #f4eada;
+  --cream-300: #ebdbc1;
+  --cream-400: #e6d2b2;
+
+  /* Severity */
+  --severity-hi: #c51b29;
+  --severity-md: #f4753e;
+  --severity-lo: #ffe047;
+
+  /* Severity grounds (backgrounds) */
+  --severity-hi-ground: #fbedee;
+  --severity-md-ground: #fdf1ea;
+  --severity-lo-ground: #fff9df;
+
+  /* Severity dark inks (text on grounds) */
+  --severity-hi-ink: #8d1420;
+  --severity-md-ink: #a6431c;
+  --severity-lo-ink: #8a7400;
+
+  /* Typography — Source Serif 4 */
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --text-hero: 600 42px/1.12 var(--font-serif);
+  --text-h1: 600 30px/1.12 var(--font-serif);
+  --text-h2: 600 19px/1.2 var(--font-serif);
+  --text-h3: 600 15px/1.2 var(--font-serif);
+  --text-body: 400 15px/1.45 var(--font-serif);
+  --text-kicker: 600 10px/1 var(--font-serif);
+}
+
+/* Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, p {
+  margin: 0;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+a {
+  color: var(--color-accent);
+}
+a:hover {
+  color: var(--accent-700);
+}
+
+/* Type ramp */
+.text-hero { font: var(--text-hero); }
+h1, .text-h1 { font: var(--text-h1); }
+h2, .text-h2 { font: var(--text-h2); }
+h3, .text-h3 { font: var(--text-h3); }
+.text-body { font: var(--text-body); }
+.kicker {
+  font: var(--text-kicker);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Surfaces */
+.surface {
+  background: var(--color-surface);
+}
+
+/* Severity badges / callouts */
+.severity-hi {
+  background: var(--severity-hi-ground);
+  color: var(--severity-hi-ink);
+  border-left: 3px solid var(--severity-hi);
+}
+.severity-md {
+  background: var(--severity-md-ground);
+  color: var(--severity-md-ink);
+  border-left: 3px solid var(--severity-md);
+}
+.severity-lo {
+  background: var(--severity-lo-ground);
+  color: var(--severity-lo-ink);
+  border-left: 3px solid var(--severity-lo);
+}
