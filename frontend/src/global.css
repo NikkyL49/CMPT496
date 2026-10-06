@@ -8,6 +8,8 @@
   --color-surface: #ffffff;
   --color-text: #000000;
   --color-divider: #000000;
+  --color-text-muted: #5c5c5c; /* not in token sheet — secondary text */
+  --color-border: #e2ddd4; /* not in token sheet — card/row borders */
 
   /* Accent ramp */
   --accent-100: #eaf4fa;
