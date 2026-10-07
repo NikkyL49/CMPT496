@@ -22,43 +22,6 @@
   color: var(--color-text-muted);
 }
 
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-}
-
-.search-icon {
-  padding-left: 6px;
-  color: var(--color-accent);
-}
-
-.search-box input {
-  flex: 1;
-  min-width: 0;
-  font: var(--text-body);
-  border: 0;
-  outline: none;
-  background: transparent;
-}
-
-.btn-primary {
-  font: var(--text-h3);
-  padding: 9px 16px;
-  color: #fff;
-  background: var(--color-accent);
-  border: 0;
-  border-radius: 2px;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background: var(--accent-700);
-}
-
 .filter-chips {
   display: flex;
   flex-wrap: wrap;
@@ -139,30 +102,6 @@ a.card:hover {
   font-size: 13px;
   color: var(--accent-700);
   text-decoration: none;
-}
-
-/* Badges */
-.badge {
-  display: inline-block;
-  padding: 4px 8px;
-  font: 600 12px/1.2 var(--font-serif);
-  border-radius: 2px;
-  white-space: nowrap;
-}
-
-.badge-solid-hi {
-  background: var(--severity-hi);
-  color: #fff;
-}
-
-.badge-solid-md {
-  background: var(--severity-md);
-  color: var(--color-text);
-}
-
-.badge-solid-lo {
-  background: var(--severity-lo);
-  color: var(--color-text);
 }
 
 .severity-legend .badge-solid-md {

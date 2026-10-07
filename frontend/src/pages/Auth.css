@@ -1,0 +1,187 @@
+/* Login + Create account. Inputs and buttons come from global.css */
+
+.auth-page {
+  padding: 72px 24px 80px;
+}
+
+.auth-form {
+  max-width: 486px;
+  margin: 0 auto;
+}
+
+.auth-kicker {
+  font-size: 13px;
+  color: var(--accent-700);
+  margin-bottom: 26px;
+}
+
+.auth-title {
+  font: var(--text-h1);
+  font-size: 34px;
+  margin-bottom: 24px;
+}
+
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 20px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: var(--text-h3);
+  cursor: pointer;
+}
+
+.checkbox input {
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+.pill-link {
+  font: var(--text-h3);
+  padding: 7px 13px;
+  color: var(--color-text);
+  background: var(--accent-100);
+  border: 1.5px solid var(--accent-900);
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+.pill-link:hover {
+  color: var(--color-text);
+  background: var(--accent-200);
+}
+
+.auth-form .btn-block + .btn-block {
+  margin-top: 22px;
+}
+
+/* Password strength meter */
+.strength {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  max-width: 486px;
+  margin-top: 22px;
+}
+
+.strength span {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--cream-300);
+}
+
+.strength-1 span:nth-child(-n + 1),
+.strength-2 span:nth-child(-n + 2),
+.strength-3 span:nth-child(-n + 3),
+.strength-4 span:nth-child(-n + 4) {
+  background: var(--seg-color);
+}
+
+.strength span:nth-child(1) { --seg-color: var(--severity-hi); }
+.strength span:nth-child(2) { --seg-color: var(--severity-md); }
+.strength span:nth-child(3) { --seg-color: var(--accent-500); }
+.strength span:nth-child(4) { --seg-color: var(--accent-800); }
+
+.strength-hint {
+  margin-top: 12px;
+  font: var(--text-h3);
+}
+
+/* Role picker */
+.role-picker {
+  margin: 36px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.role-picker legend {
+  font: var(--text-h3);
+  font-size: 17px;
+  padding: 0;
+  margin-bottom: 22px;
+}
+
+.role-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-pill {
+  font: var(--text-h3);
+  padding: 8px 13px;
+  color: var(--color-text);
+  background: var(--accent-100);
+  border: 1.5px solid var(--accent-900);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.role-pill:hover {
+  background: var(--accent-200);
+}
+
+.role-pill.is-active {
+  color: #fff;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.auth-note {
+  max-width: 486px;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: var(--severity-lo-ground);
+}
+
+.role-picker + .btn-block,
+.auth-note + .btn-block {
+  margin-top: 24px;
+}
+
+.auth-switch {
+  margin-top: 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 860px) {
+  .auth-page {
+    padding: 40px 16px 56px;
+  }
+
+  .auth-title {
+    font-size: 28px;
+  }
+}
+
+/* Forgot / reset password */
+.auth-lede {
+  margin: -8px 0 24px;
+  color: var(--color-text-muted);
+}
+
+.demo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px dashed var(--accent-500);
+}
+
+.demo-box .kicker {
+  color: var(--color-text-muted);
+}
+
+.demo-box a {
+  font: var(--text-h3);
+  font-size: 16px;
+}
