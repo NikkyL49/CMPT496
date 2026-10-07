@@ -19,8 +19,7 @@ function Overview() {
 
   function handleSearch(e) {
     e.preventDefault()
-    // TODO: route to search results once the API exists
-    console.log('search:', query)
+    window.location.hash = `#/search?q=${encodeURIComponent(query.trim())}`
   }
 
   return (
