@@ -75,3 +75,8 @@ This tells us how much of manufacturer A's concept set is also present in manufa
 - Empty sets should be handled explicitly so they do not falsely produce a perfect similarity score
 
 These formulas can later be translated into JavaScript by converting each manufacturer profile into a Set of normalized concepts, then computing intersection, union, and counts.
+
+
+typecripte
+
+
