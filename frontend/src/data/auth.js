@@ -41,3 +41,38 @@ export async function signup({ name, email, password, role }) {
   users.push({ name: name.trim(), email: email.trim(), password, role })
   return { name: name.trim(), email: email.trim(), role }
 }
+
+// ---- Password reset ----
+// Real flow: the backend emails a one-time link. The mock returns the token
+// so the Forgot password page can show the link on screen for testing.
+
+const RESET_TTL_MS = 30 * 60 * 1000 // links expire after 30 minutes
+const resetTokens = new Map() // token -> { email, expires }
+
+function makeToken() {
+  return crypto.randomUUID().replaceAll('-', '')
+}
+
+export async function requestPasswordReset(email) {
+  await delay(400)
+  const user = users.find(
+    (u) => u.email.toLowerCase() === email.trim().toLowerCase(),
+  )
+  // The page shows the same message either way; only the mock returns the token.
+  if (!user) return { demoToken: null }
+  const token = makeToken()
+  resetTokens.set(token, { email: user.email, expires: Date.now() + RESET_TTL_MS })
+  return { demoToken: token }
+}
+
+export async function resetPassword(token, newPassword) {
+  await delay(400)
+  const entry = resetTokens.get(token)
+  if (!entry || entry.expires < Date.now()) {
+    resetTokens.delete(token)
+    throw new AuthError('This reset link is invalid or has expired.')
+  }
+  const user = users.find((u) => u.email === entry.email)
+  user.password = newPassword
+  resetTokens.delete(token) // one-time use
+}

@@ -160,3 +160,28 @@
     font-size: 28px;
   }
 }
+
+/* Forgot / reset password */
+.auth-lede {
+  margin: -8px 0 24px;
+  color: var(--color-text-muted);
+}
+
+.demo-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px dashed var(--accent-500);
+}
+
+.demo-box .kicker {
+  color: var(--color-text-muted);
+}
+
+.demo-box a {
+  font: var(--text-h3);
+  font-size: 16px;
+}

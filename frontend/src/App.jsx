@@ -4,6 +4,8 @@ import Overview from './pages/Overview'
 import Search from './pages/Search'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -30,9 +32,13 @@ function App() {
     // key resets filters/sort whenever a new query is submitted
     page = <Search key={q} initialQuery={q} />
   } else if (path === '/login') {
-    page = <Login />
+    page = <Login key={params.get('notice')} notice={params.get('notice')} />
   } else if (path === '/signup') {
     page = <Signup />
+  } else if (path === '/forgot-password') {
+    page = <ForgotPassword />
+  } else if (path === '/reset-password') {
+    page = <ResetPassword key={params.get('token')} token={params.get('token')} />
   } else {
     page = <Overview />
   }

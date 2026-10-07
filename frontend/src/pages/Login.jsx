@@ -1,16 +1,24 @@
 import { useState } from 'react'
 import { login, AuthError } from '../data/auth'
+import { EMAIL_RE } from '../utils/validation'
 import './Auth.css'
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const NOTICES = {
+  created: 'Account created. Log in to continue.',
+  reset: 'Password updated. Log in with your new password.',
+}
 
-function Login() {
+function Login({ notice }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
   const [errors, setErrors] = useState({})
   const [formError, setFormError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  function clearError(field) {
+    setErrors((e) => (e[field] ? { ...e, [field]: undefined } : e))
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -44,6 +52,12 @@ function Login() {
         <p className="kicker auth-kicker">Welcome back</p>
         <h1 className="auth-title">Log in to MonoByte</h1>
 
+        {NOTICES[notice] && !formError && (
+          <p className="form-success" role="status">
+            {NOTICES[notice]}
+          </p>
+        )}
+
         {formError && (
           <p className="form-alert" role="alert">
             {formError}
@@ -58,7 +72,10 @@ function Login() {
             className="input"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              clearError('email')
+            }}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'login-email-err' : undefined}
           />
@@ -75,7 +92,10 @@ function Login() {
             className="input"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              clearError('password')
+            }}
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? 'login-password-err' : undefined}
           />
@@ -93,8 +113,7 @@ function Login() {
             />
             Keep me signed in
           </label>
-          {/* TODO: point at the reset-password page once it exists */}
-          <a href="#" className="pill-link">
+          <a href="#/forgot-password" className="pill-link">
             Forgot password?
           </a>
         </div>

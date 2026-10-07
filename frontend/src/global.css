@@ -263,3 +263,31 @@ a.btn-primary:hover {
   opacity: 0.6;
   cursor: wait;
 }
+
+/* Form-level success message */
+.form-success {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  color: var(--accent-900);
+  background: var(--accent-100);
+  border-left: 3px solid var(--color-accent);
+}
+
+/* Text-style button (Reset, Try again) */
+.link-button {
+  font: var(--text-body);
+  padding: 0;
+  color: var(--color-accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: var(--accent-700);
+}
+
+.link-button:disabled {
+  color: var(--color-text-muted);
+  cursor: default;
+}

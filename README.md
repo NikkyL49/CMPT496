@@ -34,6 +34,8 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/search?q=...`     | Search results   | Done: filters, sorting, save toggle, placeholder data |
 | `#/login`            | Log in           | Done: validation and wrong-credential errors, using mock auth |
 | `#/signup`           | Create account   | Done: password strength meter, role picker and duplicate-email error, using mock auth |
+| `#/forgot-password`  | Forgot password  | Done: request a reset link (mock shows the link on screen instead of emailing it) |
+| `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
 | —                    | Monograph detail, Discovery, Compare, Interaction check, Saved, Inconsistency report, Profile | Not started (see the MonoByte design PDF) |
 
 ## Project structure
@@ -50,18 +52,23 @@ CMPT496-housekeeping-filestructure/
         ├── global.css        Design tokens and shared components
         ├── components/
         │   ├── Header.jsx    Top nav, role selector, log-in link
-        │   └── Header.css
+        │   ├── Header.css
+        │   └── PasswordStrength.jsx  Strength meter (sign-up + reset)
         ├── pages/
         │   ├── Overview.jsx / .css
         │   ├── Search.jsx   / .css
         │   ├── Login.jsx
         │   ├── Signup.jsx
-        │   └── Auth.css      Shared by Login and Signup
+        │   ├── ForgotPassword.jsx
+        │   ├── ResetPassword.jsx
+        │   └── Auth.css      Shared by all auth pages
         ├── data/             Placeholder data (replace with API calls)
         │   ├── overview.js
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
-        │   └── auth.js       Mock login/signup — swap for real API calls
+        │   └── auth.js       Mock login/signup/password reset — swap for real API calls
+        ├── utils/
+        │   └── validation.js Email check + password strength scoring
         └── assets/
 ```
 
@@ -85,8 +92,8 @@ CMPT496-housekeeping-filestructure/
 
 ## Notes and TODOs
 
-- `TODO` comments mark the places that still need a real API: search and forgot password.
-- **Auth is mocked** in `data/auth.js`. Accounts are held in memory, and passwords are compared as plain text. That's fine for a demo, but the real backend has to hash passwords and handle sessions. To connect it, replace the bodies of `login()` and `signup()`. The pages already handle loading states and show any error thrown as an `AuthError`.
+- `TODO` comments mark the places that still need a real API: search, and the reset email.
+- **Auth is mocked** in `data/auth.js`. Accounts are held in memory, and passwords are compared as plain text. That's fine for a demo, but the real backend has to hash passwords and handle sessions. To connect it, replace the bodies of `login()`, `signup()`, `requestPasswordReset()` and `resetPassword()`. The real `requestPasswordReset()` must email the link and **not** return the token. Only the mock returns it, so the page can show a "Demo only" link. The pages already handle loading states and show any error thrown as an `AuthError`.
 - On the Search page, the severity filter shows only tags at the chosen levels and hides products with none. This behaviour is an assumption and needs team confirmation.
 - The header logo is a placeholder. Swap in the real MonoByte logo in `src/assets`.
 

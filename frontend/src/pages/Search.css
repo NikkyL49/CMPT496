@@ -31,24 +31,6 @@
   letter-spacing: 0.14em;
 }
 
-.link-button {
-  font: var(--text-body);
-  padding: 0;
-  color: var(--color-accent);
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.link-button:hover {
-  color: var(--accent-700);
-}
-
-.link-button:disabled {
-  color: var(--color-text-muted);
-  cursor: default;
-}
-
 .filter-group {
   margin: 0 0 20px;
   padding: 18px 20px;
