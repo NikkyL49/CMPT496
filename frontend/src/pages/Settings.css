@@ -1,0 +1,298 @@
+/* Settings page — buttons, inputs, switches come from global.css */
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: calc(100vh - 57px); /* fill below the header */
+}
+
+/* Sidebar */
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 32px 24px;
+  background: var(--cream-200);
+}
+
+
+.settings-link {
+  font: var(--text-body);
+  font-size: 17px;
+  padding: 8px 0;
+  color: var(--color-text-muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.settings-link:hover {
+  color: var(--color-text);
+}
+
+.settings-link.is-active {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-link.is-danger,
+.settings-link.is-danger:hover {
+  color: var(--severity-hi);
+}
+
+/* Main column */
+.settings-main {
+  max-width: 1320px;
+  width: 100%;
+  padding: 32px 36px 64px;
+}
+
+.settings-main > section {
+  scroll-margin-top: 24px;
+}
+
+/* Profile header */
+.settings-profile {
+  margin-bottom: 24px;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  flex-shrink: 0;
+  font: var(--text-h1);
+  font-size: 26px;
+  color: var(--accent-900);
+  background: var(--accent-200);
+  border-radius: 50%;
+}
+
+.profile-name {
+  font: var(--text-h2);
+  font-size: 22px;
+}
+
+.profile-meta {
+  margin-top: 6px;
+  color: var(--color-text-muted);
+}
+
+.profile-edit {
+  margin-left: auto;
+  padding: 14px 36px;
+}
+
+.profile-form {
+  max-width: 520px;
+  margin-top: 20px;
+}
+
+.form-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Cards */
+.settings-card {
+  margin-bottom: 24px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.card-heading {
+  font: var(--text-h2);
+  font-size: 19px;
+  margin-bottom: 16px;
+}
+
+.card-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.save-status {
+  font-size: 14px;
+  color: var(--accent-700);
+}
+
+.card-text {
+  color: var(--color-text-muted);
+}
+
+.card-split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+}
+
+.card-split .card-heading {
+  margin-bottom: 12px;
+}
+
+.card-split > .btn-primary,
+.card-split > .btn-danger-outline {
+  flex-shrink: 0;
+  padding: 12px 22px;
+  font-size: 17px;
+}
+
+/* Role chips */
+.role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-chip {
+  font: var(--text-h3);
+  padding: 8px 13px;
+  color: var(--color-text);
+  background: var(--accent-100);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.role-chip:hover {
+  background: var(--accent-200);
+}
+
+.role-chip.is-active {
+  color: #fff;
+  background: var(--color-accent);
+}
+
+.landing-field {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 18px;
+}
+
+.landing-field label {
+  font: var(--text-h3);
+}
+
+.landing-select {
+  width: auto;
+  min-width: 180px;
+}
+
+/* Notification switches */
+.switch-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.switch-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+  font-size: 17px;
+}
+
+/* Password */
+.password-form {
+  max-width: 486px;
+}
+
+/* Danger zone */
+.danger-zone {
+  padding: 22px 24px 22px 28px;
+  background: var(--severity-hi-ground);
+  border-left: 4px solid var(--severity-hi);
+}
+
+.danger-title {
+  font: var(--text-h2);
+  font-size: 20px;
+  color: var(--severity-hi-ink);
+  margin-bottom: 12px;
+}
+
+.danger-text {
+  font: var(--text-h3);
+  font-size: 16px;
+}
+
+/* Delete confirmation dialog */
+.confirm-dialog {
+  width: min(460px, calc(100vw - 32px));
+  padding: 28px;
+  border: 0;
+  border-top: 4px solid var(--severity-hi);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+}
+
+.confirm-dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.dialog-title {
+  font: var(--text-h2);
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.confirm-dialog .card-text {
+  margin-bottom: 20px;
+}
+
+/* Logged-out view */
+.settings-locked {
+  max-width: 486px;
+  margin: 0 auto;
+  padding: 72px 24px;
+}
+
+@media (max-width: 860px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-nav {
+    flex-direction: row;
+    gap: 18px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .settings-main {
+    padding: 24px 16px 48px;
+  }
+
+  .profile-row {
+    flex-wrap: wrap;
+  }
+
+  .profile-edit {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .card-split {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

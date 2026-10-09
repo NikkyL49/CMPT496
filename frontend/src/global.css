@@ -291,3 +291,158 @@ a.btn-primary:hover {
   color: var(--color-text-muted);
   cursor: default;
 }
+
+/* Pills (status labels and small actions) */
+.pill {
+  font: 600 14px/1 var(--font-serif);
+  padding: 8px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.pill-flag {
+  color: var(--severity-md-ink);
+  background: var(--severity-md-ground);
+}
+
+.pill-severity-md {
+  color: var(--severity-md-ink);
+  background: var(--severity-md-ground);
+}
+
+.pill-severity-lo {
+  color: var(--severity-lo-ink);
+  background: var(--severity-lo-ground);
+}
+
+.pill-quiet,
+.pill-action {
+  border: 0;
+  cursor: pointer;
+}
+
+.pill-quiet {
+  color: var(--color-text);
+  background: var(--cream-200);
+}
+
+.pill-quiet:hover {
+  background: var(--cream-300);
+}
+
+.pill-action {
+  color: var(--color-text);
+  background: var(--accent-100);
+}
+
+.pill-action:hover {
+  background: var(--accent-200);
+}
+
+.pill-quiet:disabled,
+.pill-action:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* Destructive buttons */
+.btn-danger,
+.btn-danger-outline {
+  font: var(--text-h3);
+  padding: 9px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  color: #fff;
+  background: var(--severity-hi);
+  border: 1.5px solid var(--severity-hi);
+}
+
+.btn-danger:hover {
+  background: var(--severity-hi-ink);
+}
+
+.btn-danger-outline {
+  color: var(--severity-hi);
+  background: var(--color-surface);
+  border: 1.5px solid var(--severity-hi);
+}
+
+.btn-danger-outline:hover {
+  background: var(--severity-hi-ground);
+}
+
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* On/off switch (components/Switch.jsx) */
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 58px;
+  height: 32px;
+  padding: 0;
+  background: var(--cream-300);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch-knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform 0.15s;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--color-accent);
+}
+
+.switch[aria-checked='true'] .switch-knob {
+  transform: translateX(26px);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent-800);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch-knob {
+    transition: none;
+  }
+}
+
+/* Simple centred message page (Coming soon, etc.) */
+.simple-page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 72px 24px;
+}
+
+.simple-page h1 {
+  font: var(--text-h1);
+  margin: 12px 0 12px;
+}
+
+.simple-page p {
+  color: var(--color-text-muted);
+  margin-bottom: 24px;
+}
+
+.simple-page .btn-primary {
+  display: inline-block;
+  text-decoration: none;
+}

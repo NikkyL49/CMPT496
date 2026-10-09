@@ -1,0 +1,136 @@
+/* Saved drugs page — pills, buttons and inputs come from global.css */
+
+.saved-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+.shared-banner {
+  margin-bottom: 24px;
+}
+
+.saved-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 20px;
+}
+
+.saved-title {
+  font: var(--text-h1);
+}
+
+.saved-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.share-fallback {
+  margin-bottom: 16px;
+}
+
+.share-fallback label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.undo-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 10px 16px;
+  font-size: 14px;
+  background: var(--cream-200);
+}
+
+.saved-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-bottom: 20px;
+  padding: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.saved-brand {
+  font: var(--text-h1);
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.saved-brand a {
+  color: var(--accent-800);
+  text-decoration: none;
+}
+
+.saved-brand a:hover {
+  text-decoration: underline;
+}
+
+.saved-sub {
+  color: var(--color-text-muted);
+}
+
+.saved-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.saved-footer {
+  margin-top: 4px;
+}
+
+.saved-footer .btn-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  font-size: 17px;
+  text-decoration: none;
+}
+
+.saved-hint {
+  color: var(--color-text-muted);
+}
+
+.saved-empty {
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.saved-empty p {
+  margin: 8px 0 20px;
+  color: var(--color-text-muted);
+}
+
+.saved-empty .btn-primary {
+  display: inline-block;
+  text-decoration: none;
+}
+
+@media (max-width: 860px) {
+  .saved-page {
+    padding: 28px 16px 48px;
+  }
+
+  .saved-card {
+    flex-direction: column;
+    padding: 18px 16px;
+  }
+
+  .saved-tags {
+    justify-content: flex-start;
+  }
+}

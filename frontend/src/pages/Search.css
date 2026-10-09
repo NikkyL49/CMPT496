@@ -182,18 +182,6 @@
   margin-left: auto;
 }
 
-.pill {
-  font: 600 14px/1 var(--font-serif);
-  padding: 8px 12px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.pill-flag {
-  color: var(--severity-md-ink);
-  background: var(--severity-md-ground);
-}
-
 .pill-save {
   color: var(--color-text);
   background: var(--cream-200);
