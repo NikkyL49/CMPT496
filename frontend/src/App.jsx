@@ -6,6 +6,9 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Saved from './pages/Saved'
+import Settings from './pages/Settings'
+import ComingSoon from './pages/ComingSoon'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -39,8 +42,21 @@ function App() {
     page = <ForgotPassword />
   } else if (path === '/reset-password') {
     page = <ResetPassword key={params.get('token')} token={params.get('token')} />
-  } else {
+  } else if (path === '/saved') {
+    const shared = params.get('shared')
+    page = (
+      <Saved
+        key={shared ?? 'mine'}
+        sharedIds={shared != null ? shared.split(',').filter(Boolean) : null}
+      />
+    )
+  } else if (path === '/settings') {
+    page = <Settings />
+  } else if (path === '/') {
     page = <Overview />
+  } else {
+    // Discovery, Compare, Interaction check, drug detail, etc.
+    page = <ComingSoon />
   }
 
   return (

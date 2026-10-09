@@ -6,6 +6,7 @@ import './Auth.css'
 const NOTICES = {
   created: 'Account created. Log in to continue.',
   reset: 'Password updated. Log in with your new password.',
+  deleted: 'Your account has been deleted.',
 }
 
 function Login({ notice }) {
@@ -32,8 +33,8 @@ function Login({ notice }) {
     setSubmitting(true)
     try {
       // TODO: pass `remember` to the real API (session vs. persistent token)
-      await login(email, password)
-      window.location.hash = '#/'
+      const user = await login(email, password)
+      window.location.hash = `#${user.landingPage || '/'}`
     } catch (err) {
       setFormError(
         err instanceof AuthError

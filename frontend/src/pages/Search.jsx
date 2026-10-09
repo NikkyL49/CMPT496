@@ -1,5 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { products, sortOptions, severityLevels } from '../data/search'
+import { savedStore, toggleSaved } from '../data/saved'
+import { recordSearch } from '../data/session'
+import { useStore } from '../utils/store'
 import './Search.css'
 
 const MAX_TAGS = 4
@@ -105,7 +108,12 @@ function Search({ initialQuery = '' }) {
   const [classes, setClasses] = useState(new Set())
   const [companies, setCompanies] = useState(new Set())
   const [severities, setSeverities] = useState(new Set())
-  const [savedIds, setSavedIds] = useState(new Set())
+  const savedIds = useStore(savedStore)
+
+  // Keep a search history for logged-in users (shown in their data export)
+  useEffect(() => {
+    recordSearch(initialQuery)
+  }, [initialQuery])
 
   // Results matching the text query only — facet counts are based on these
   const matched = useMemo(
@@ -257,8 +265,8 @@ function Search({ initialQuery = '' }) {
                 key={product.id}
                 product={product}
                 events={events}
-                saved={savedIds.has(product.id)}
-                onToggleSave={() => setSavedIds((s) => toggleInSet(s, product.id))}
+                saved={savedIds.includes(product.id)}
+                onToggleSave={() => toggleSaved(product.id)}
               />
             ))
           ) : (

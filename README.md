@@ -14,7 +14,7 @@ npm install
 npm run dev       # start the dev server (http://localhost:5173)
 ```
 
-Demo login (mock auth): **demo@monobyte.ca** / **Monobyte1!**. Accounts you create on the sign-up page also work until you reload the page.
+Demo login (mock auth): **demo@monobyte.ca** / **Monobyte1!**. Accounts you create on the sign-up page also work until you reload the page. Reloading also logs you out.
 
 Other scripts:
 
@@ -36,7 +36,9 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/signup`           | Create account   | Done: password strength meter, role picker and duplicate-email error, using mock auth |
 | `#/forgot-password`  | Forgot password  | Done: request a reset link (mock shows the link on screen instead of emailing it) |
 | `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
-| —                    | Monograph detail, Discovery, Compare, Interaction check, Saved, Inconsistency report, Profile | Not started (see the MonoByte design PDF) |
+| `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
+| `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
+| other `#/...`        | Coming soon      | Placeholder for pages not built yet: monograph detail, Discovery, Compare, Interaction check, Inconsistency report |
 
 ## Project structure
 
@@ -51,9 +53,10 @@ CMPT496-housekeeping-filestructure/
         ├── App.jsx           Hash router and page switch
         ├── global.css        Design tokens and shared components
         ├── components/
-        │   ├── Header.jsx    Top nav, role selector, log-in link
+        │   ├── Header.jsx    Top nav, role selector, log-in / account links
         │   ├── Header.css
-        │   └── PasswordStrength.jsx  Strength meter (sign-up + reset)
+        │   ├── PasswordStrength.jsx  Strength meter (sign-up, reset, settings)
+        │   └── Switch.jsx    On/off toggle
         ├── pages/
         │   ├── Overview.jsx / .css
         │   ├── Search.jsx   / .css
@@ -61,15 +64,22 @@ CMPT496-housekeeping-filestructure/
         │   ├── Signup.jsx
         │   ├── ForgotPassword.jsx
         │   ├── ResetPassword.jsx
-        │   └── Auth.css      Shared by all auth pages
+        │   ├── Auth.css      Shared by all auth pages
+        │   ├── Saved.jsx    / .css
+        │   ├── Settings.jsx / .css
+        │   └── ComingSoon.jsx  Placeholder for unbuilt pages
         ├── data/             Placeholder data (replace with API calls)
         │   ├── overview.js
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
-        │   └── auth.js       Mock login/signup/password reset — swap for real API calls
+        │   ├── auth.js       Mock auth + account settings — swap for real API calls
+        │   ├── session.js    Logged-in user, header role, search history
+        │   └── saved.js      Saved drugs list (shared by Search + Saved)
         ├── utils/
-        │   └── validation.js Email check + password strength scoring
-        └── assets/
+        │   ├── validation.js Email check + password strength scoring
+        │   ├── store.js      Tiny shared-state store (useStore hook)
+        │   └── download.js   File download + CSV helpers
+        └── assets/           logo-mark.png (header), logo-full.png
 ```
 
 ## Styling conventions
@@ -80,7 +90,10 @@ CMPT496-housekeeping-filestructure/
 
   Use these variables instead of hardcoded colours or fonts.
 - **Shared component classes live in `global.css` too:**
-  - `.btn-primary`, `.btn-secondary`, `.btn-block`
+  - `.btn-primary`, `.btn-secondary`, `.btn-block`, `.btn-danger`, `.btn-danger-outline`
+  - `.pill` with `.pill-flag`, `.pill-severity-md|lo`, `.pill-action`, `.pill-quiet`
+  - `.switch` (use the `Switch` component)
+  - `.form-alert`, `.form-success`, `.link-button`
   - `.search-box`
   - `.badge` and `.badge-solid-hi|md|lo`
   - `.field`, `.input`, `.field-error`
@@ -94,7 +107,11 @@ CMPT496-housekeeping-filestructure/
 
 - `TODO` comments mark the places that still need a real API: search, and the reset email.
 - **Auth is mocked** in `data/auth.js`. Accounts are held in memory, and passwords are compared as plain text. That's fine for a demo, but the real backend has to hash passwords and handle sessions. To connect it, replace the bodies of `login()`, `signup()`, `requestPasswordReset()` and `resetPassword()`. The real `requestPasswordReset()` must email the link and **not** return the token. Only the mock returns it, so the page can show a "Demo only" link. The pages already handle loading states and show any error thrown as an `AuthError`.
+- **Shared state** uses the small store in `utils/store.js`. Any component that calls `useStore(sessionStore)` or `useStore(savedStore)` updates when that data changes. That's how the Save button on Search, the Saved page and the header count stay in sync.
+- **Saved drugs are kept in the browser** (localStorage), so they survive a reload but aren't tied to an account yet. A first visit starts with the three drugs from the mockup. Once the backend exists, load and save the list per user through the API instead (see `data/saved.js`).
+- **Settings needs a login.** Changes are saved straight away, like the mockup, except name/email (Change Info) and password, which have their own Save buttons. Deleting an account asks for the password, and then clears the saved list.
+- The mockup's danger-zone text also mentions *deactivating* an account. Only delete is built; deactivate needs a decision on how it should work.
 - On the Search page, the severity filter shows only tags at the chosen levels and hides products with none. This behaviour is an assumption and needs team confirmation.
-- The header logo is a placeholder. Swap in the real MonoByte logo in `src/assets`.
+- **Logo files** are in `frontend/src/assets`: `logo-mark.png` (the capsule icon, used in the header) and `logo-full.png` (icon plus the MonoByte wordmark). Both have transparent backgrounds. The browser-tab icon is `frontend/public/favicon.png`.
 
 > Information only, not medical advice. Always confirm against the official Health Canada monograph.
