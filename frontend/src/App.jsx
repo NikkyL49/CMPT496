@@ -9,6 +9,7 @@ import ResetPassword from './pages/ResetPassword'
 import Saved from './pages/Saved'
 import Settings from './pages/Settings'
 import ComingSoon from './pages/ComingSoon'
+import Compare from './pages/Compare'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -50,12 +51,15 @@ function App() {
         sharedIds={shared != null ? shared.split(',').filter(Boolean) : null}
       />
     )
+  } else if (path === '/compare') {
+    const ids = (params.get('ids') ?? '').split(',').filter(Boolean)
+    page = <Compare ids={ids} />
   } else if (path === '/settings') {
     page = <Settings />
   } else if (path === '/') {
     page = <Overview />
   } else {
-    // Discovery, Compare, Interaction check, drug detail, etc.
+    // Discovery, Interaction check, drug detail, etc.
     page = <ComingSoon />
   }
 
