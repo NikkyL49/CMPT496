@@ -1,0 +1,1074 @@
+{
+  "meta": {
+    "title": "Analysis 2: Interaction reciprocity",
+    "description": "Drug pairs where at least one drug's labels name the other in their Drug Interactions text, with the share of each drug's products that name the other.",
+    "sheetTab": "Analysis 2: Reciprocity",
+    "sourceFile": "analysis2_reciprocity.csv",
+    "generatedAt": "2026-10-13T15:45:44.734Z",
+    "rowCount": 100,
+    "columns": [
+      {
+        "key": "id",
+        "type": "integer",
+        "description": "Row number in this JSON file"
+      },
+      {
+        "key": "sheetRow",
+        "type": "integer",
+        "description": "Row number in the spreadsheet tab, for tracing back"
+      },
+      {
+        "key": "drugA",
+        "label": "Drug A",
+        "sheetColumn": "A",
+        "type": "text",
+        "description": "First drug in the pair (for one-way pairs, the side that names the other)"
+      },
+      {
+        "key": "drugB",
+        "label": "Drug B",
+        "sheetColumn": "B",
+        "type": "text",
+        "description": "Second drug in the pair"
+      },
+      {
+        "key": "aToB",
+        "label": "A -> B",
+        "sheetColumn": "C",
+        "type": "decimal",
+        "description": "Share of Drug A's products whose interaction text names Drug B (0 to 1)"
+      },
+      {
+        "key": "bToA",
+        "label": "B -> A",
+        "sheetColumn": "D",
+        "type": "decimal",
+        "description": "Share of Drug B's products naming Drug A (0 to 1). null = Drug B has no single-ingredient labels to check ('none' in the sheet)"
+      },
+      {
+        "key": "status",
+        "label": "Status",
+        "sheetColumn": "E",
+        "type": "text",
+        "description": "Two-way, One-way, or One-way (In combination)"
+      },
+      {
+        "key": "bToAAvailable",
+        "type": "boolean",
+        "description": "Derived: false when B -> A was 'none' in the sheet"
+      }
+    ],
+    "summary": {
+      "pairs": 100,
+      "byStatus": {
+        "Two-way": 11,
+        "One-way (In combination)": 31,
+        "One-way": 58
+      },
+      "testablePairs": 69,
+      "twoWayShareOfTestable": 0.1594
+    }
+  },
+  "rows": [
+    {
+      "id": 1,
+      "sheetRow": 2,
+      "drugA": "Amlodipine",
+      "drugB": "Simvastatin",
+      "aToB": 0.91,
+      "bToA": 0.62,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 2,
+      "sheetRow": 3,
+      "drugA": "Atorvastatin",
+      "drugB": "Azithromycin",
+      "aToB": 0.91,
+      "bToA": 0.25,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 3,
+      "sheetRow": 4,
+      "drugA": "Metoprolol",
+      "drugB": "Paroxetine",
+      "aToB": 0.8,
+      "bToA": 0.13,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 4,
+      "sheetRow": 5,
+      "drugA": "Apixaban",
+      "drugB": "Diltiazem",
+      "aToB": 0.76,
+      "bToA": 0.33,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 5,
+      "sheetRow": 6,
+      "drugA": "Diazepam",
+      "drugB": "Omeprazole",
+      "aToB": 0.5,
+      "bToA": 1,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 6,
+      "sheetRow": 7,
+      "drugA": "Amlodipine",
+      "drugB": "Atorvastatin",
+      "aToB": 0.32,
+      "bToA": 0.75,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 7,
+      "sheetRow": 8,
+      "drugA": "Diazepam",
+      "drugB": "Esomeprazole",
+      "aToB": 0.13,
+      "bToA": 0.93,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 8,
+      "sheetRow": 9,
+      "drugA": "Diltiazem",
+      "drugB": "Simvastatin",
+      "aToB": 0.11,
+      "bToA": 0.55,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 9,
+      "sheetRow": 10,
+      "drugA": "Diltiazem",
+      "drugB": "Lovastatin",
+      "aToB": 0.06,
+      "bToA": 1,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 10,
+      "sheetRow": 11,
+      "drugA": "Atorvastatin",
+      "drugB": "Diltiazem",
+      "aToB": 0.05,
+      "bToA": 0.11,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 11,
+      "sheetRow": 12,
+      "drugA": "Furosemide",
+      "drugB": "Metformin",
+      "aToB": 0.04,
+      "bToA": 0.98,
+      "status": "Two-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 12,
+      "sheetRow": 13,
+      "drugA": "Canagliflozin",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 13,
+      "sheetRow": 14,
+      "drugA": "Canagliflozin + Metformin",
+      "drugB": "Rosuvastatin",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 14,
+      "sheetRow": 15,
+      "drugA": "Canagliflozin + Metformin",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 15,
+      "sheetRow": 16,
+      "drugA": "Empagliflozin",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 16,
+      "sheetRow": 17,
+      "drugA": "Empagliflozin + Metformin",
+      "drugB": "Ramipril",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 17,
+      "sheetRow": 18,
+      "drugA": "Empagliflozin + Metformin",
+      "drugB": "Simvastatin",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 18,
+      "sheetRow": 19,
+      "drugA": "Empagliflozin + Metformin",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 19,
+      "sheetRow": 20,
+      "drugA": "Fosinopril",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 20,
+      "sheetRow": 21,
+      "drugA": "Insulin Degludec + Liraglutide",
+      "drugB": "Atorvastatin",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 21,
+      "sheetRow": 22,
+      "drugA": "Losartan",
+      "drugB": "Trimethoprim",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 22,
+      "sheetRow": 23,
+      "drugA": "Perindopril",
+      "drugB": "Trimethoprim",
+      "aToB": 1,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 23,
+      "sheetRow": 24,
+      "drugA": "Metformin",
+      "drugB": "Trimethoprim",
+      "aToB": 0.92,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 24,
+      "sheetRow": 25,
+      "drugA": "Enalapril",
+      "drugB": "Trimethoprim",
+      "aToB": 0.9,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 25,
+      "sheetRow": 26,
+      "drugA": "Dapagliflozin",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 0.85,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 26,
+      "sheetRow": 27,
+      "drugA": "Telmisartan",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 0.62,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 27,
+      "sheetRow": 28,
+      "drugA": "Trandolapril",
+      "drugB": "Sulfamethoxazole",
+      "aToB": 0.6,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 28,
+      "sheetRow": 29,
+      "drugA": "Trandolapril",
+      "drugB": "Trimethoprim",
+      "aToB": 0.6,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 29,
+      "sheetRow": 30,
+      "drugA": "Quinapril",
+      "drugB": "Sulfamethoxazole",
+      "aToB": 0.57,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 30,
+      "sheetRow": 31,
+      "drugA": "Quinapril",
+      "drugB": "Trimethoprim",
+      "aToB": 0.57,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 31,
+      "sheetRow": 32,
+      "drugA": "Cilazapril",
+      "drugB": "Trimethoprim",
+      "aToB": 0.5,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 32,
+      "sheetRow": 33,
+      "drugA": "Azithromycin",
+      "drugB": "Sulfamethoxazole",
+      "aToB": 0.42,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 33,
+      "sheetRow": 34,
+      "drugA": "Azithromycin",
+      "drugB": "Trimethoprim",
+      "aToB": 0.42,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 34,
+      "sheetRow": 35,
+      "drugA": "Diazepam",
+      "drugB": "Dexamethasone",
+      "aToB": 0.38,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 35,
+      "sheetRow": 36,
+      "drugA": "Candesartan",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 0.37,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 36,
+      "sheetRow": 37,
+      "drugA": "Lisinopril + Hydrochlorothiazide",
+      "drugB": "Furosemide",
+      "aToB": 0.13,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 37,
+      "sheetRow": 38,
+      "drugA": "Perindopril",
+      "drugB": "Sulfamethoxazole",
+      "aToB": 0.07,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 38,
+      "sheetRow": 39,
+      "drugA": "Amoxicillin + Clavulanate",
+      "drugB": "Ampicillin",
+      "aToB": 0.07,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 39,
+      "sheetRow": 40,
+      "drugA": "Metoprolol",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 0.07,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 40,
+      "sheetRow": 41,
+      "drugA": "Candesartan",
+      "drugB": "Sulfamethoxazole",
+      "aToB": 0.04,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 41,
+      "sheetRow": 42,
+      "drugA": "Candesartan",
+      "drugB": "Trimethoprim",
+      "aToB": 0.04,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 42,
+      "sheetRow": 43,
+      "drugA": "Perindopril",
+      "drugB": "Hydrochlorothiazide",
+      "aToB": 0.02,
+      "bToA": null,
+      "status": "One-way (In combination)",
+      "bToAAvailable": false
+    },
+    {
+      "id": 43,
+      "sheetRow": 44,
+      "drugA": "Bisoprolol",
+      "drugB": "Diltiazem",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 44,
+      "sheetRow": 45,
+      "drugA": "Canagliflozin",
+      "drugB": "Metformin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 45,
+      "sheetRow": 46,
+      "drugA": "Canagliflozin",
+      "drugB": "Simvastatin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 46,
+      "sheetRow": 47,
+      "drugA": "Dapagliflozin",
+      "drugB": "Metformin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 47,
+      "sheetRow": 48,
+      "drugA": "Dulaglutide",
+      "drugB": "Atorvastatin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 48,
+      "sheetRow": 49,
+      "drugA": "Dulaglutide",
+      "drugB": "Lisinopril",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 49,
+      "sheetRow": 50,
+      "drugA": "Dulaglutide",
+      "drugB": "Metformin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 50,
+      "sheetRow": 51,
+      "drugA": "Dulaglutide",
+      "drugB": "Metoprolol",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 51,
+      "sheetRow": 52,
+      "drugA": "Empagliflozin",
+      "drugB": "Metformin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 52,
+      "sheetRow": 53,
+      "drugA": "Empagliflozin",
+      "drugB": "Ramipril",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 53,
+      "sheetRow": 54,
+      "drugA": "Empagliflozin",
+      "drugB": "Simvastatin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 54,
+      "sheetRow": 55,
+      "drugA": "Fluvastatin",
+      "drugB": "Amlodipine",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 55,
+      "sheetRow": 56,
+      "drugA": "Fluvastatin",
+      "drugB": "Losartan",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 56,
+      "sheetRow": 57,
+      "drugA": "Fluvastatin",
+      "drugB": "Omeprazole",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 57,
+      "sheetRow": 58,
+      "drugA": "Fosinopril",
+      "drugB": "Furosemide",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 58,
+      "sheetRow": 59,
+      "drugA": "Liraglutide",
+      "drugB": "Atorvastatin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 59,
+      "sheetRow": 60,
+      "drugA": "Lovastatin",
+      "drugB": "Lisinopril",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 60,
+      "sheetRow": 61,
+      "drugA": "Norfloxacin",
+      "drugB": "Nitrofurantoin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 61,
+      "sheetRow": 62,
+      "drugA": "Omeprazole",
+      "drugB": "Metoprolol",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 62,
+      "sheetRow": 63,
+      "drugA": "Rabeprazole",
+      "drugB": "Amoxicillin",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 63,
+      "sheetRow": 64,
+      "drugA": "Rabeprazole",
+      "drugB": "Diazepam",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 64,
+      "sheetRow": 65,
+      "drugA": "Rabeprazole",
+      "drugB": "Omeprazole",
+      "aToB": 1,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 65,
+      "sheetRow": 66,
+      "drugA": "Pantoprazole",
+      "drugB": "Amoxicillin",
+      "aToB": 0.95,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 66,
+      "sheetRow": 67,
+      "drugA": "Metoprolol",
+      "drugB": "Diltiazem",
+      "aToB": 0.93,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 67,
+      "sheetRow": 68,
+      "drugA": "Amlodipine",
+      "drugB": "Diltiazem",
+      "aToB": 0.92,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 68,
+      "sheetRow": 69,
+      "drugA": "Dapagliflozin",
+      "drugB": "Simvastatin",
+      "aToB": 0.62,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 69,
+      "sheetRow": 70,
+      "drugA": "Semaglutide",
+      "drugB": "Metformin",
+      "aToB": 0.62,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 70,
+      "sheetRow": 71,
+      "drugA": "Telmisartan",
+      "drugB": "Amlodipine",
+      "aToB": 0.58,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 71,
+      "sheetRow": 72,
+      "drugA": "Rivaroxaban",
+      "drugB": "Omeprazole",
+      "aToB": 0.58,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 72,
+      "sheetRow": 73,
+      "drugA": "Bisoprolol",
+      "drugB": "Metoprolol",
+      "aToB": 0.55,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 73,
+      "sheetRow": 74,
+      "drugA": "Telmisartan",
+      "drugB": "Ramipril",
+      "aToB": 0.54,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 74,
+      "sheetRow": 75,
+      "drugA": "Candesartan",
+      "drugB": "Enalapril",
+      "aToB": 0.53,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 75,
+      "sheetRow": 76,
+      "drugA": "Pantoprazole",
+      "drugB": "Diazepam",
+      "aToB": 0.51,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 76,
+      "sheetRow": 77,
+      "drugA": "Pantoprazole",
+      "drugB": "Metoprolol",
+      "aToB": 0.51,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 77,
+      "sheetRow": 78,
+      "drugA": "Liraglutide",
+      "drugB": "Lisinopril",
+      "aToB": 0.5,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 78,
+      "sheetRow": 79,
+      "drugA": "Atorvastatin",
+      "drugB": "Quinapril",
+      "aToB": 0.47,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 79,
+      "sheetRow": 80,
+      "drugA": "Semaglutide",
+      "drugB": "Atorvastatin",
+      "aToB": 0.38,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 80,
+      "sheetRow": 81,
+      "drugA": "Diazepam",
+      "drugB": "Diltiazem",
+      "aToB": 0.38,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 81,
+      "sheetRow": 82,
+      "drugA": "Ciprofloxacin",
+      "drugB": "Omeprazole",
+      "aToB": 0.35,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 82,
+      "sheetRow": 83,
+      "drugA": "Fosfomycin",
+      "drugB": "Ampicillin",
+      "aToB": 0.33,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 83,
+      "sheetRow": 84,
+      "drugA": "Fosfomycin",
+      "drugB": "Moxifloxacin",
+      "aToB": 0.33,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 84,
+      "sheetRow": 85,
+      "drugA": "Diltiazem",
+      "drugB": "Rivaroxaban",
+      "aToB": 0.33,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 85,
+      "sheetRow": 86,
+      "drugA": "Rivaroxaban",
+      "drugB": "Atorvastatin",
+      "aToB": 0.32,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 86,
+      "sheetRow": 87,
+      "drugA": "Semaglutide",
+      "drugB": "Furosemide",
+      "aToB": 0.23,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 87,
+      "sheetRow": 88,
+      "drugA": "Semaglutide",
+      "drugB": "Lisinopril",
+      "aToB": 0.23,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 88,
+      "sheetRow": 89,
+      "drugA": "Semaglutide",
+      "drugB": "Omeprazole",
+      "aToB": 0.23,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 89,
+      "sheetRow": 90,
+      "drugA": "Semaglutide",
+      "drugB": "Rosuvastatin",
+      "aToB": 0.23,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 90,
+      "sheetRow": 91,
+      "drugA": "Esomeprazole",
+      "drugB": "Omeprazole",
+      "aToB": 0.22,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 91,
+      "sheetRow": 92,
+      "drugA": "Rivaroxaban",
+      "drugB": "Apixaban",
+      "aToB": 0.21,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 92,
+      "sheetRow": 93,
+      "drugA": "Omeprazole",
+      "drugB": "Amoxicillin",
+      "aToB": 0.19,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 93,
+      "sheetRow": 94,
+      "drugA": "Pantoprazole",
+      "drugB": "Omeprazole",
+      "aToB": 0.17,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 94,
+      "sheetRow": 95,
+      "drugA": "Paroxetine",
+      "drugB": "Diazepam",
+      "aToB": 0.13,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 95,
+      "sheetRow": 96,
+      "drugA": "Lorazepam",
+      "drugB": "Diazepam",
+      "aToB": 0.11,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 96,
+      "sheetRow": 97,
+      "drugA": "Diltiazem",
+      "drugB": "Pravastatin",
+      "aToB": 0.05,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 97,
+      "sheetRow": 98,
+      "drugA": "Trandolapril",
+      "drugB": "Omeprazole",
+      "aToB": 0.04,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 98,
+      "sheetRow": 99,
+      "drugA": "Trandolapril",
+      "drugB": "Pantoprazole",
+      "aToB": 0.04,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 99,
+      "sheetRow": 100,
+      "drugA": "Ciprofloxacin",
+      "drugB": "Norfloxacin",
+      "aToB": 0.03,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    },
+    {
+      "id": 100,
+      "sheetRow": 101,
+      "drugA": "Perindopril",
+      "drugB": "Furosemide",
+      "aToB": 0.02,
+      "bToA": 0,
+      "status": "One-way",
+      "bToAAvailable": true
+    }
+  ]
+}

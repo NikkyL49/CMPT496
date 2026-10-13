@@ -1,0 +1,10 @@
+Combination,Component 1,Component 2,Combination Products,Component 1 Products,Component 2 Products,Most Common Category (Across Products),Common Category 1,Common Category 2,Matching Common? (1),Matching Common? (2),Most Common Category,Common Category 1,Common Category 2,Matching Common?(1),Matching Common?(2)
+Amoxicillin + Clavulanate,Amoxicillin,Clavulanate,28,29,0,NOT RECOMMENDED,USE WITH CAUTION,Not in dataset,Different,Not in dataset,USE WITH CAUTION,USE WITH CAUTION,Not in dataset,Same,Not in dataset
+Canagliflozin + Metformin,Canagliflozin,Metformin,3,6,49,CONTRAINDICATED,CONTRAINDICATED,SECTION_NOT_FOUND,Same,Missing data,CONTRAINDICATED,CONTRAINDICATED,CONTRAINDICATED,Same,Same
+Ciprofloxacin + Dexamethasone,Ciprofloxacin,Dexamethasone,1,31,0,USE WITH CAUTION,USE WITH CAUTION,Not in dataset,Same,Not in dataset,USE WITH CAUTION,USE WITH CAUTION,Not in dataset,Same,Not in dataset
+Ciprofloxacin + Fluocinolone Acetonide,Ciprofloxacin,Fluocinolone Acetonide,1,31,0,USE WITH CAUTION,USE WITH CAUTION,Not in dataset,Same,Not in dataset,NOT RECOMMENDED,USE WITH CAUTION,Not in dataset,Different,Not in dataset
+Dapagliflozin + Metformin,Dapagliflozin,Metformin,2,26,49,USE WITH CAUTION,CONTRAINDICATED,SECTION_NOT_FOUND,Different,Missing data,CONTRAINDICATED,CONTRAINDICATED,CONTRAINDICATED,Same,Same
+Empagliflozin + Metformin,Empagliflozin,Metformin,6,2,49,SECTION_NOT_FOUND,CONTRAINDICATED,SECTION_NOT_FOUND,Missing data,Missing data,CONTRAINDICATED,CONTRAINDICATED,CONTRAINDICATED,Same,Same
+Lisinopril + Hydrochlorothiazide,Lisinopril,Hydrochlorothiazide,8,19,0,USE WITH CAUTION,CONTRAINDICATED,Not in dataset,Different,Not in dataset,CONTRAINDICATED,CONTRAINDICATED,Not in dataset,Same,Not in dataset
+Insulin Degludec + Liraglutide,Insulin Degludec,Liraglutide,1,0,2,NOT RECOMMENDED,Not in dataset,NO INFORMATION,Not in dataset,Missing data,NOT RECOMMENDED,Not in dataset,CONTRAINDICATED,Not in dataset,Different
+Sulfamethoxazole + Trimethoprim,Sulfamethoxazole,Trimethoprim,4,0,0,SECTION_NOT_FOUND,Not in dataset,Not in dataset,Not in dataset,Not in dataset,CONTRAINDICATED,Not in dataset,Not in dataset,Not in dataset,Not in dataset

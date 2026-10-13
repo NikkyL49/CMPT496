@@ -1,0 +1,47 @@
+Drug,Products Scored,Correlation,Earliest (Year),Latest (Year),Average Coverage
+Amlodipine,57,0.27,2023,2025,43.03%
+Amoxicillin,29,No variation,2024,2025,0.00%
+Ampicillin,17,No variation,2019,2024,0.00%
+Apixaban,38,0.41,2022,2026,38.10%
+Atorvastatin,77,0.09,2022,2025,24.18%
+Azithromycin,23,0.28,2022,2025,36.11%
+Bisoprolol,22,0.85,2017,2024,77.27%
+Canagliflozin,6,No variation,2024,2026,100.00%
+Candesartan,44,-0.09,2016,2025,24.51%
+Cilazapril,6,-1.00,2020,2021,50.00%
+Ciprofloxacin,30,0.06,2018,2025,19.35%
+Dapagliflozin,24,0.23,2025,2026,82.05%
+Diazepam,7,0.09,2021,2022,17.19%
+Diltiazem,65,0.44,2021,2025,10.00%
+Dulaglutide,2,No variation,2024,2024,100.00%
+Empagliflozin,2,No variation,2025,2025,100.00%
+Enalapril,35,No variation,2021,2023,44.87%
+Esomeprazole,23,0.46,2021,2024,57.41%
+Fluvastatin,0,No variation,,,100.00%
+Fosfomycin,3,0.50,2018,2024,33.33%
+Fosinopril,6,No variation,2016,2024,100.00%
+Furosemide,24,0.17,2012,2024,0.83%
+Liraglutide,0,No variation,,,75.00%
+Lisinopril,16,No variation,2023,2024,0.00%
+Lorazepam,18,-1.00,2022,2023,11.11%
+Losartan,24,No variation,2022,2024,50.00%
+Lovastatin,0,No variation,,,100.00%
+Metformin,40,-0.30,2018,2025,27.11%
+Metoprolol,27,-0.11,2020,2025,25.40%
+Moxifloxacin,14,No variation,2017,2022,0.00%
+Nitrofurantoin,5,No variation,2020,2024,0.00%
+Norfloxacin,1,No variation,2025,2025,50.00%
+Omeprazole,16,-0.53,2015,2024,19.89%
+Pantoprazole,39,0.06,2020,2025,42.93%
+Paroxetine,53,-0.35,2022,2025,13.21%
+Perindopril,51,0.01,2022,2025,27.78%
+Pravastatin,39,No variation,2020,2025,0.00%
+Quinapril,7,No variation,2023,2023,38.10%
+Rabeprazole,8,No variation,2022,2023,100.00%
+Ramipril,58,No variation,2018,2024,0.00%
+Rivaroxaban,40,0.14,2024,2025,27.65%
+Rosuvastatin,84,No variation,2024,2025,0.00%
+Semaglutide,3,No variation,2025,2025,32.05%
+Simvastatin,55,0.06,2023,2025,19.44%
+Telmisartan,26,-0.10,2022,2025,57.69%
+Trandolapril,25,-0.05,2019,2022,32.00%
