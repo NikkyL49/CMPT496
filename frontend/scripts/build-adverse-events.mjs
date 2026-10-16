@@ -15,9 +15,10 @@
 //     "terms": ["Abdominal pain", "Abnormal dreams", ...],       // sorted A–Z
 //     "byId":  { "ACH-AMLODIPINE 10mg": [0, 1, 7, ...], ... }    // indexes into terms
 //   }
-import { readFileSync, writeFileSync } from 'node:fs'
+import { writeFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readCsv } from './csv.mjs'
 
 const csvPath = process.argv[2]
 if (!csvPath) {
@@ -26,47 +27,7 @@ if (!csvPath) {
 }
 const outPath = join(dirname(fileURLToPath(import.meta.url)), '../src/data/adverse_event_terms.json')
 
-// Minimal RFC 4180 CSV parser (quoted fields, "" escapes, newlines in quotes)
-function parseCsv(text) {
-  const rows = []
-  let row = []
-  let field = ''
-  let quoted = false
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i]
-    if (quoted) {
-      if (c === '"') {
-        if (text[i + 1] === '"') {
-          field += '"'
-          i++
-        } else quoted = false
-      } else field += c
-    } else if (c === '"') quoted = true
-    else if (c === ',') {
-      row.push(field)
-      field = ''
-    } else if (c === '\n' || c === '\r') {
-      if (c === '\r' && text[i + 1] === '\n') i++
-      row.push(field)
-      rows.push(row)
-      row = []
-      field = ''
-    } else field += c
-  }
-  if (field || row.length) {
-    row.push(field)
-    rows.push(row)
-  }
-  return rows
-}
-
-const text = readFileSync(csvPath, 'utf8').replace(/^﻿/, '') // strip BOM
-const [header, ...rows] = parseCsv(text).filter((r) => r.length > 1)
-const col = (name) => {
-  const i = header.indexOf(name)
-  if (i < 0) throw new Error(`Column not found: ${name}`)
-  return i
-}
+const { rows, col } = readCsv(csvPath)
 const ID = col('ID')
 const PTS = col('Adverse Event MedDRA Preferred Terms')
 const VERSION = col('Adverse Event MedDRA Version')

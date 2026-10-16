@@ -11,11 +11,13 @@ import ProductPicker from '../components/ProductPicker'
 import CompareTimeline from '../components/CompareTimeline'
 import AdverseEventGrid from '../components/AdverseEventGrid'
 import TermOverlapChart from '../components/TermOverlapChart'
+import SafetySunburst from '../components/SafetySunburst'
 import {
   useAdverseEvents,
   termsForProduct,
   inconsistencySummary,
 } from '../data/adverseEvents'
+import { useSafetySections, sectionsForProduct } from '../data/safetySections'
 import './Compare.css'
 
 const MAX_PRODUCTS = 6
@@ -178,6 +180,12 @@ function Compare({ ids = [] }) {
   )
   const termSummary = termSets && inconsistencySummary(termSets)
 
+  const safetyData = useSafetySections()
+  const sectionSets = useMemo(
+    () => (safetyData ? products.map((p) => sectionsForProduct(safetyData, p)) : null),
+    [safetyData, products],
+  )
+
   const allRows = buildRows(products, termSets)
   const rows = diffOnly ? allRows.filter((r) => !r.identical) : allRows
 
@@ -321,6 +329,17 @@ function Compare({ ids = [] }) {
                   ) : (
                     <p className="compare-hint">Loading adverse event terms…</p>
                   ))}
+                {sectionSets ? (
+                  <SafetySunburst
+                    // remount (zoomed all the way out) when the products change
+                    key={products.map((p) => p.id).join(',')}
+                    products={products}
+                    sectionsByProduct={sectionSets}
+                    aeTermSets={termSets}
+                  />
+                ) : (
+                  <p className="compare-hint">Loading safety sections…</p>
+                )}
                 <CompareTimeline products={products} colors={colors} />
               </>
             )}
