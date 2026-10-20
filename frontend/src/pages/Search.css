@@ -8,7 +8,14 @@
 
 .search-page .search-box {
   padding: 14px 16px;
+}
+
+.search-page .searchbox {
   margin-bottom: 28px;
+}
+
+.search-page .filter-chips {
+  justify-content: flex-start;
 }
 
 .search-layout {
@@ -249,4 +256,52 @@
     width: 100%;
     margin: 6px 0 0;
   }
+}
+
+.filter-more {
+  clear: both;
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.severity-toggle.rec-badge {
+  border: 0;
+  text-align: left;
+}
+
+.result-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.result-count {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.result-tags-label {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.result-actions .pill-flag {
+  text-decoration: none;
+}
+
+.results-loading {
+  padding: 32px 0;
+  color: var(--color-text-muted);
+}
+
+.results-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  color: var(--color-text-muted);
 }

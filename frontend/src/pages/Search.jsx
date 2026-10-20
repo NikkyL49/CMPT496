@@ -1,27 +1,41 @@
-import { useEffect, useMemo, useState } from 'react'
-import { products, sortOptions, severityLevels } from '../data/search'
+import { useEffect, useState } from 'react'
+import { useCatalog, matchScore, FLAG_THRESHOLD, SEARCH_MODES, EXACT } from '../data/catalog'
+import SearchBox from '../components/SearchBox'
+import { formatDate } from '../data/monographs'
+import { prettyRecommendation } from '../data/drugDetails'
 import { savedStore, toggleSaved } from '../data/saved'
 import { recordSearch } from '../data/session'
 import { useStore } from '../utils/store'
+import { drugHref } from '../utils/links'
 import './Search.css'
 
+const PAGE_SIZE = 20
+const FACET_PREVIEW = 8
 const MAX_TAGS = 4
 
-// Fields the search box looks through
-function matchScore(p, q) {
-  if (!q) return 1
-  const brand = p.brand.toLowerCase()
-  if (brand.startsWith(q)) return 4
-  if (brand.includes(q)) return 3
-  if (p.ingredient.toLowerCase().includes(q)) return 2
-  const rest = [p.indication, p.drugClass, p.company].join(' ').toLowerCase()
-  return rest.includes(q) ? 1 : 0
-}
+const SORTS = [
+  { id: 'relevance', label: 'Relevance' },
+  { id: 'newest', label: 'Newest revision' },
+  { id: 'fewest-terms', label: 'Fewest adverse event terms' },
+]
 
-// Count how many results fall into each value of a field (for the facet numbers)
+// Pregnancy advice levels (colour + words), most severe first
+const PREGNANCY = [
+  { id: 'hi', label: 'Contraindicated' },
+  { id: 'md', label: 'Not recommended' },
+  { id: 'lo', label: 'Use with caution' },
+  { id: 'ok', label: 'Considered safe' },
+  { id: 'none', label: 'Not stated' },
+]
+
+// Count how many results fall into each value of a field (for the facet numbers).
+// Works for list fields too (a combination product has several drug classes).
 function countBy(list, field) {
   const counts = new Map()
-  for (const p of list) counts.set(p[field], (counts.get(p[field]) ?? 0) + 1)
+  for (const r of list) {
+    const values = Array.isArray(r[field]) ? r[field] : [r[field]]
+    values.forEach((v) => counts.set(v, (counts.get(v) ?? 0) + 1))
+  }
   return [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
 }
 
@@ -33,41 +47,53 @@ function toggleInSet(set, value) {
 }
 
 function FilterGroup({ title, options, selected, onToggle }) {
+  const [expanded, setExpanded] = useState(false)
+  // always show ticked options, even if they'd be past the preview cut-off
+  const shown = expanded
+    ? options
+    : options.filter(([v], i) => i < FACET_PREVIEW || selected.has(v))
   return (
     <fieldset className="filter-group">
       <legend className="filter-title">{title}</legend>
-      {options.map(([value, count]) => (
+      {shown.map(([value, count]) => (
         <label key={value} className="filter-option">
-          <input
-            type="checkbox"
-            checked={selected.has(value)}
-            onChange={() => onToggle(value)}
-          />
+          <input type="checkbox" checked={selected.has(value)} onChange={() => onToggle(value)} />
           <span className="filter-label">{value}</span>
           <span className="filter-count">{count}</span>
         </label>
       ))}
+      {options.length > FACET_PREVIEW && (
+        <button type="button" className="link-button filter-more" onClick={() => setExpanded((v) => !v)}>
+          {expanded ? 'Show fewer' : `Show all ${options.length}`}
+        </button>
+      )}
     </fieldset>
   )
 }
 
-function ResultCard({ product: p, events, saved, onToggleSave }) {
-  const shown = events.slice(0, MAX_TAGS)
-  const hidden = p.adverseEventCount - shown.length
+function ResultCard({ r, saved, onToggleSave }) {
+  const tags = r.contraindications.slice(0, MAX_TAGS)
+  const hidden = r.contraindications.length - tags.length
 
   return (
     <article className="result-card">
       <div className="result-head">
         <h2 className="result-brand">
-          <a href="#">{p.brand}</a>
+          <a href={drugHref(r.id)}>{r.label}</a>
         </h2>
         <span className="result-meta">
-          {p.strength} · {p.company}
+          {r.strengths} · {r.company}
         </span>
 
         <div className="result-actions">
-          {p.inconsistencyFlagged && (
-            <span className="pill pill-flag">Inconsistency flagged</span>
+          {r.missingCommon >= FLAG_THRESHOLD && (
+            <a
+              href={drugHref(r.id)}
+              className="pill pill-flag"
+              title={`Leaves out ${r.missingCommon} adverse event terms that most other ${r.ingredient} brands list`}
+            >
+              Inconsistency flagged
+            </a>
           )}
           <button
             type="button"
@@ -81,33 +107,44 @@ function ResultCard({ product: p, events, saved, onToggleSave }) {
       </div>
 
       <p className="result-sub">
-        {p.ingredient} · {p.indication} · revised {p.revised}
+        {r.ingredient}
+        {r.indication && ` · ${r.indication.length > 90 ? `${r.indication.slice(0, 88)}…` : r.indication}`}
+        {' · '}
+        {r.product.revised ? `revised ${formatDate(r.product.revised)}` : 'no revision date'}
       </p>
 
-      <ul className="result-tags" aria-label="Top adverse events">
-        {shown.map((e) => (
-          <li key={e.term} className={`badge badge-solid-${e.severity}`}>
-            {e.term}
-          </li>
-        ))}
-        {hidden > 0 && (
-          <li className="result-more">
-            +{hidden} more of {p.adverseEventCount}
-          </li>
-        )}
-      </ul>
+      <div className="result-foot">
+        <span className={`rec-badge rec-${r.pregnancyLevel}`}>
+          Pregnancy: {prettyRecommendation(r.pregnancy)}
+        </span>
+        <span className="result-count">{r.aeCount} adverse event terms</span>
+      </div>
+
+      {tags.length > 0 && (
+        <ul className="result-tags" aria-label="Contraindications">
+          <li className="result-tags-label">Contraindications:</li>
+          {tags.map((t) => (
+            <li key={t} className="term-chip term-soft-md">
+              {t}
+            </li>
+          ))}
+          {hidden > 0 && <li className="result-more">+{hidden} more</li>}
+        </ul>
+      )}
     </article>
   )
 }
 
-function Search({ initialQuery = '' }) {
-  const [input, setInput] = useState(initialQuery)
+function Search({ initialQuery = '', mode = null }) {
+  const catalog = useCatalog()
   const query = initialQuery.trim().toLowerCase()
 
   const [sort, setSort] = useState('relevance')
   const [classes, setClasses] = useState(new Set())
+  const [ingredients, setIngredients] = useState(new Set())
   const [companies, setCompanies] = useState(new Set())
-  const [severities, setSeverities] = useState(new Set())
+  const [pregnancy, setPregnancy] = useState(new Set())
+  const [limit, setLimit] = useState(PAGE_SIZE)
   const savedIds = useStore(savedStore)
 
   // Keep a search history for logged-in users (shown in their data export)
@@ -116,159 +153,169 @@ function Search({ initialQuery = '' }) {
   }, [initialQuery])
 
   // Results matching the text query only — facet counts are based on these
-  const matched = useMemo(
-    () =>
-      products
-        .map((p) => ({ product: p, score: matchScore(p, query) }))
-        .filter((r) => r.score > 0),
-    [query],
-  )
+  const scored = (catalog ?? [])
+    .map((r) => ({ r, score: matchScore(r, query, mode) }))
+    .filter((m) => m.score > 0)
+  // A picked suggestion ("Dihydropyridine calcium channel blocker") shows exact
+  // matches only — not "Non-dihydropyridine…" which merely contains the words.
+  const exactOnly = mode && scored.some((m) => m.score === EXACT)
+  const matched = exactOnly ? scored.filter((m) => m.score === EXACT) : scored
+  const matchedRecords = matched.map((m) => m.r)
+  const classOptions = countBy(matchedRecords, 'classes')
+  const ingredientOptions = countBy(matchedRecords, 'ingredient')
+  const companyOptions = countBy(matchedRecords, 'company')
+  const pregnancyCounts = new Map(countBy(matchedRecords, 'pregnancyLevel'))
 
-  const classOptions = useMemo(
-    () => countBy(matched.map((r) => r.product), 'drugClass'),
-    [matched],
-  )
-  const companyOptions = useMemo(
-    () => countBy(matched.map((r) => r.product), 'company'),
-    [matched],
-  )
+  const results = matched
+    .filter(({ r }) => !classes.size || r.classes.some((c) => classes.has(c)))
+    .filter(({ r }) => !ingredients.size || ingredients.has(r.ingredient))
+    .filter(({ r }) => !companies.size || companies.has(r.company))
+    .filter(({ r }) => !pregnancy.size || pregnancy.has(r.pregnancyLevel))
+    .sort((a, b) => {
+      if (sort === 'newest') return b.r.revised.localeCompare(a.r.revised)
+      if (sort === 'fewest-terms') return a.r.aeCount - b.r.aeCount
+      return b.score - a.score || a.r.label.localeCompare(b.r.label)
+    })
 
-  const results = useMemo(() => {
-    const list = matched
-      .filter(({ product: p }) => !classes.size || classes.has(p.drugClass))
-      .filter(({ product: p }) => !companies.size || companies.has(p.company))
-      // Severity filter: only show tags at the chosen levels, and drop
-      // products with none. (Assumption — confirm intended behaviour with team.)
-      .map((r) => ({
-        ...r,
-        events: severities.size
-          ? r.product.topEvents.filter((e) => severities.has(e.severity))
-          : r.product.topEvents,
-      }))
-      .filter((r) => r.events.length > 0)
+  const hasFilters = classes.size || ingredients.size || companies.size || pregnancy.size
+  const modeInfo = SEARCH_MODES.find((m) => m.id === mode)
 
-    if (sort === 'newest') {
-      list.sort((a, b) => b.product.revised.localeCompare(a.product.revised))
-    } else if (sort === 'fewest-severe') {
-      list.sort((a, b) => a.product.severeCount - b.product.severeCount)
-    } else {
-      list.sort((a, b) => b.score - a.score)
-    }
-    return list
-  }, [matched, classes, companies, severities, sort])
-
-  const hasFilters = classes.size || companies.size || severities.size
-
-  function handleSearch(e) {
-    e.preventDefault()
-    // TODO: call the search API once it exists
-    window.location.hash = `#/search?q=${encodeURIComponent(input.trim())}`
-  }
+  // Any change to filters or sort starts the list from the top again
+  const resetLimit = () => setLimit(PAGE_SIZE)
 
   function resetFilters() {
     setClasses(new Set())
+    setIngredients(new Set())
     setCompanies(new Set())
-    setSeverities(new Set())
+    setPregnancy(new Set())
+    resetLimit()
   }
 
   return (
     <main className="search-page">
-      <form className="search-box" onSubmit={handleSearch} role="search">
-        <span className="search-icon" aria-hidden="true">⌕</span>
-        <input
-          type="search"
-          placeholder="Search by drug, ingredient or condition"
-          aria-label="Search by drug, ingredient or condition"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <button type="submit" className="btn-primary">
-          Search
-        </button>
-      </form>
+      <SearchBox initialQuery={initialQuery} initialMode={mode} rerunOnModeChange />
 
       <div className="search-layout">
         <aside className="filters" aria-label="Filters">
           <div className="filters-head">
             <span className="kicker filters-kicker">Filter</span>
-            <button
-              type="button"
-              className="link-button"
-              onClick={resetFilters}
-              disabled={!hasFilters}
-            >
+            <button type="button" className="link-button" onClick={resetFilters} disabled={!hasFilters}>
               Reset
             </button>
           </div>
 
-          <FilterGroup
-            title="Drug class"
-            options={classOptions}
-            selected={classes}
-            onToggle={(v) => setClasses((s) => toggleInSet(s, v))}
-          />
+          {catalog && (
+            <>
+              <FilterGroup
+                title="Drug class"
+                options={classOptions}
+                selected={classes}
+                onToggle={(v) => {
+                  setClasses((s) => toggleInSet(s, v))
+                  resetLimit()
+                }}
+              />
 
-          <FilterGroup
-            title="Company"
-            options={companyOptions}
-            selected={companies}
-            onToggle={(v) => setCompanies((s) => toggleInSet(s, v))}
-          />
+              <FilterGroup
+                title="Active ingredient"
+                options={ingredientOptions}
+                selected={ingredients}
+                onToggle={(v) => {
+                  setIngredients((s) => toggleInSet(s, v))
+                  resetLimit()
+                }}
+              />
 
-          <fieldset className="filter-group">
-            <legend className="filter-title">Adverse effect severity</legend>
-            <div className="severity-toggles">
-              {severityLevels.map((s) => {
-                const on = severities.has(s.id)
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-pressed={on}
-                    className={`badge badge-solid-${s.id} severity-toggle${
-                      severities.size && !on ? ' is-dimmed' : ''
-                    }`}
-                    onClick={() => setSeverities((set) => toggleInSet(set, s.id))}
-                  >
-                    {s.label}
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
+              <FilterGroup
+                title="Company"
+                options={companyOptions}
+                selected={companies}
+                onToggle={(v) => {
+                  setCompanies((s) => toggleInSet(s, v))
+                  resetLimit()
+                }}
+              />
+
+              <fieldset className="filter-group">
+                <legend className="filter-title">Pregnancy advice</legend>
+                <div className="severity-toggles">
+                  {PREGNANCY.filter((p) => pregnancyCounts.has(p.id)).map((p) => {
+                    const on = pregnancy.has(p.id)
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        aria-pressed={on}
+                        className={`rec-badge rec-${p.id} severity-toggle${pregnancy.size && !on ? ' is-dimmed' : ''}`}
+                        onClick={() => {
+                          setPregnancy((set) => toggleInSet(set, p.id))
+                          resetLimit()
+                        }}
+                      >
+                        {p.label} ({pregnancyCounts.get(p.id)})
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
+            </>
+          )}
         </aside>
 
         <section className="results" aria-live="polite">
           <div className="results-toolbar">
             <div className="sort-pills" role="group" aria-label="Sort results">
-              {sortOptions.map((o) => (
+              {SORTS.map((o) => (
                 <button
                   key={o.id}
                   type="button"
                   aria-pressed={sort === o.id}
                   className={`sort-pill${sort === o.id ? ' is-active' : ''}`}
-                  onClick={() => setSort(o.id)}
+                  onClick={() => {
+                    setSort(o.id)
+                    resetLimit()
+                  }}
                 >
                   {o.label}
                 </button>
               ))}
             </div>
-            <span className="results-count">
-              {results.length} {results.length === 1 ? 'result' : 'results'}
-              {initialQuery.trim() && <> for “{initialQuery.trim()}”</>}
-            </span>
+            {catalog && (
+              <span className="results-count">
+                {results.length} {results.length === 1 ? 'product' : 'products'}
+                {initialQuery.trim() && <> for “{initialQuery.trim()}”</>}
+                {modeInfo && <> in {modeInfo.group.toLowerCase()}</>}
+              </span>
+            )}
           </div>
 
-          {results.length > 0 ? (
-            results.map(({ product, events }) => (
-              <ResultCard
-                key={product.id}
-                product={product}
-                events={events}
-                saved={savedIds.includes(product.id)}
-                onToggleSave={() => toggleSaved(product.id)}
-              />
-            ))
+          {!catalog ? (
+            <p className="results-loading">Loading monographs…</p>
+          ) : results.length > 0 ? (
+            <>
+              {results.slice(0, limit).map(({ r }) => (
+                <ResultCard
+                  key={r.id}
+                  r={r}
+                  saved={savedIds.includes(r.id)}
+                  onToggleSave={() => toggleSaved(r.id)}
+                />
+              ))}
+              {results.length > limit && (
+                <div className="results-more">
+                  <span>
+                    Showing {limit} of {results.length}
+                  </span>
+                  <button
+                    type="button"
+                    className="btn-outline"
+                    onClick={() => setLimit((n) => n + PAGE_SIZE)}
+                  >
+                    Show {Math.min(PAGE_SIZE, results.length - limit)} more
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="results-empty">
               <h2>No monographs match</h2>
