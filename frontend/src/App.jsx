@@ -9,6 +9,7 @@ import ResetPassword from './pages/ResetPassword'
 import Saved from './pages/Saved'
 import Settings from './pages/Settings'
 import ComingSoon from './pages/ComingSoon'
+import Analysis from './pages/Analysis'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -54,6 +55,8 @@ function App() {
     page = <Settings />
   } else if (path === '/') {
     page = <Overview />
+  } else if (path === '/analysis') {
+    page = <Analysis />
   } else {
     // Discovery, Compare, Interaction check, drug detail, etc.
     page = <ComingSoon />
