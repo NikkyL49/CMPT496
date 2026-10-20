@@ -10,6 +10,7 @@ import Saved from './pages/Saved'
 import Settings from './pages/Settings'
 import ComingSoon from './pages/ComingSoon'
 import Compare from './pages/Compare'
+import Drug from './pages/Drug'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -34,7 +35,8 @@ function App() {
   let page
   if (path === '/search') {
     // key resets filters/sort whenever a new query is submitted
-    page = <Search key={q} initialQuery={q} />
+    const by = params.get('by') ?? ''
+    page = <Search key={`${q}|${by}`} initialQuery={q} mode={by || null} />
   } else if (path === '/login') {
     page = <Login key={params.get('notice')} notice={params.get('notice')} />
   } else if (path === '/signup') {
@@ -54,12 +56,22 @@ function App() {
   } else if (path === '/compare') {
     const ids = (params.get('ids') ?? '').split(',').filter(Boolean)
     page = <Compare ids={ids} />
+  } else if (path.startsWith('/drug/')) {
+    const productId = decodeURIComponent(path.slice('/drug/'.length))
+    page = (
+      <Drug
+        key={productId}
+        productId={productId}
+        listingId={params.get('s')}
+        tab={params.get('tab') ?? 'overview'}
+      />
+    )
   } else if (path === '/settings') {
     page = <Settings />
   } else if (path === '/') {
     page = <Overview />
   } else {
-    // Discovery, Interaction check, drug detail, etc.
+    // Discovery, Interaction check, etc.
     page = <ComingSoon />
   }
 

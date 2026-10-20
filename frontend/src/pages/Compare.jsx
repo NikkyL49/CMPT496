@@ -16,6 +16,7 @@ import {
   termsForProduct,
   inconsistencySummary,
 } from '../data/adverseEvents'
+import { drugHref } from '../utils/links'
 import './Compare.css'
 
 const MAX_PRODUCTS = 6
@@ -122,7 +123,9 @@ function CompareTable({ products, rows, colors, multiFamily }) {
                       aria-hidden="true"
                     />
                   )}
-                  {p.label}
+                  <a href={drugHref(p.id)} className="compare-drug-link">
+                    {p.label}
+                  </a>
                 </th>
               ))}
             </tr>

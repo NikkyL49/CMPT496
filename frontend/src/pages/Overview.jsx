@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import {
   stats,
-  searchFilters,
   inconsistencyCount,
   recentMonographs,
 } from '../data/overview'
+import { drugHrefForBrand } from '../utils/links'
+import SearchBox from '../components/SearchBox'
 import './Overview.css'
 
 // Divergence score → badge colour (thresholds are a guess; tune with the team)
@@ -15,13 +15,6 @@ function divergenceLevel(score) {
 }
 
 function Overview() {
-  const [query, setQuery] = useState('')
-
-  function handleSearch(e) {
-    e.preventDefault()
-    window.location.hash = `#/search?q=${encodeURIComponent(query.trim())}`
-  }
-
   return (
     <main className="overview">
       <section className="hero">
@@ -35,31 +28,11 @@ function Overview() {
           read in one place.
         </h1>
         <p className="hero-sub">
-          Search by drug, ingredient or condition. See the warnings that matter
-          before anything else.
+          Search by drug, ingredient, condition, contraindication or drug class.
+          See the warnings that matter before anything else.
         </p>
 
-        <form className="search-box" onSubmit={handleSearch} role="search">
-          <span className="search-icon" aria-hidden="true">⌕</span>
-          <input
-            type="search"
-            placeholder="Search by drug, ingredient or condition"
-            aria-label="Search by drug, ingredient or condition"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <button type="submit" className="btn-primary">
-            Search
-          </button>
-        </form>
-
-        <div className="filter-chips">
-          {searchFilters.map((f) => (
-            <button key={f} type="button" className="chip">
-              {f}
-            </button>
-          ))}
-        </div>
+        <SearchBox />
       </section>
 
       <section className="feature-cards">
@@ -123,7 +96,7 @@ function Overview() {
               {recentMonographs.map((m) => (
                 <tr key={m.id}>
                   <td>
-                    <a href="#" className="brand-link">
+                    <a href={drugHrefForBrand(m.brand, m.company)} className="brand-link">
                       {m.brand}
                     </a>
                   </td>
