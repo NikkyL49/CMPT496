@@ -1,0 +1,4 @@
+# Secrets (MongoDB connection string, JWT secret) — never commit these
+**/.env
+
+node_modules
