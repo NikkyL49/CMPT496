@@ -339,3 +339,13 @@
     min-width: 150px;
   }
 }
+
+.compare-drug-link {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.compare-drug-link:hover {
+  color: var(--accent-700);
+  text-decoration: underline;
+}

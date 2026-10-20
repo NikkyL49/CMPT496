@@ -503,3 +503,102 @@ a.btn-primary:hover {
   color: #fff;
   background: var(--color-accent);
 }
+
+/* Outlined button (Save / Compare on the drug page) */
+.btn-outline {
+  display: inline-block;
+  font: var(--text-h3);
+  padding: 9px 16px;
+  color: var(--accent-800);
+  background: var(--color-surface);
+  border: 1.5px solid var(--accent-800);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-outline:hover {
+  background: var(--accent-100);
+  color: var(--accent-900);
+}
+
+.btn-outline.is-on {
+  color: #fff;
+  background: var(--accent-800);
+}
+
+/* Term chips (drug page, search results) */
+.term-chip {
+  display: inline-block;
+  padding: 5px 12px;
+  font: 600 14px/1.25 var(--font-serif);
+  border-radius: 999px;
+}
+
+.term-outline {
+  border: 1.5px solid var(--color-text);
+}
+
+.term-caps {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--cream-200);
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 var(--cream-300);
+}
+
+.term-soft {
+  background: var(--accent-100);
+  color: var(--accent-900);
+}
+
+.term-soft-md {
+  background: var(--severity-md-ground);
+  color: var(--severity-md-ink);
+}
+
+.term-soft-hi {
+  background: var(--severity-hi-ground);
+  color: var(--severity-hi-ink);
+}
+
+/* Recommendation badges: colour + words */
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rec-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  font: 600 13px/1.2 var(--font-serif);
+  border-radius: 3px;
+}
+
+.rec-hi {
+  color: #fff;
+  background: var(--severity-hi);
+}
+
+.rec-md {
+  color: #000;
+  background: var(--severity-md);
+}
+
+.rec-lo {
+  color: #000;
+  background: var(--severity-lo);
+}
+
+.rec-ok {
+  color: var(--accent-900);
+  background: var(--accent-100);
+  box-shadow: inset 0 0 0 1px var(--accent-300);
+}
+
+.rec-none {
+  color: var(--color-text-muted);
+  background: var(--cream-200);
+}

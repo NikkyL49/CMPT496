@@ -8,9 +8,34 @@ import {
 } from '../data/saved'
 import { useStore } from '../utils/store'
 import { downloadFile, toCsv, today } from '../utils/download'
+import { monographById, strengthsLabel } from '../data/monographs'
+import { drugHref, drugHrefForBrand } from '../utils/links'
 import './Saved.css'
 
 const byId = new Map(products.map((p) => [p.id, p]))
+
+// Saved ids are either sample drugs (data/search.js) or real products saved
+// from a drug page (data/monographs.js). Both become the same card shape.
+function resolveSaved(id) {
+  const sample = byId.get(id)
+  if (sample) return { ...sample, href: drugHrefForBrand(sample.brand, sample.company) }
+  const m = monographById.get(id)
+  if (!m) return null
+  return {
+    id: m.id,
+    brand: m.label,
+    strength: strengthsLabel(m),
+    ingredient: m.family,
+    indication: strengthsLabel(m),
+    company: m.company,
+    drugClass: '',
+    revised: m.revised?.iso ?? '',
+    severeCount: null, // not in the monograph data
+    adverseEventCount: '',
+    inconsistencyFlagged: false,
+    href: drugHref(m.id),
+  }
+}
 
 function severePill(count) {
   // 3+ severe terms reads as moderate concern, fewer as low
@@ -38,8 +63,7 @@ function SavedCard({ product: p, onRemove }) {
     <article className="saved-card">
       <div className="saved-main">
         <h2 className="saved-brand">
-          {/* TODO: link to the monograph detail page once it's built */}
-          <a href={`#/drug/${p.id}`}>{p.brand}</a>
+          <a href={p.href}>{p.brand}</a>
         </h2>
         <p className="saved-sub">
           {p.ingredient} · {p.indication} · {p.company}
@@ -49,9 +73,11 @@ function SavedCard({ product: p, onRemove }) {
         {p.inconsistencyFlagged && (
           <span className="pill pill-flag">Inconsistency flagged</span>
         )}
-        <span className={`pill ${severePill(p.severeCount)}`}>
-          {p.severeCount} severe {p.severeCount === 1 ? 'term' : 'terms'}
-        </span>
+        {p.severeCount != null && (
+          <span className={`pill ${severePill(p.severeCount)}`}>
+            {p.severeCount} severe {p.severeCount === 1 ? 'term' : 'terms'}
+          </span>
+        )}
         {onRemove && (
           <button type="button" className="pill pill-quiet" onClick={onRemove}>
             Remove
@@ -69,7 +95,7 @@ function Saved({ sharedIds }) {
 
   const isShared = sharedIds != null
   const ids = isShared ? sharedIds : savedIds
-  const list = ids.map((id) => byId.get(id)).filter(Boolean)
+  const list = ids.map(resolveSaved).filter(Boolean)
   const count = list.length
 
   function handleRemove(p) {

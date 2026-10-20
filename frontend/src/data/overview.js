@@ -6,13 +6,6 @@ export const stats = {
   productCount: 4586,
 }
 
-export const searchFilters = [
-  'By ingredient',
-  'By condition',
-  'By contradiction',
-  'By drug class',
-]
-
 export const inconsistencyCount = 248
 
 export const recentMonographs = [

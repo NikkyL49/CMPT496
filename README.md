@@ -31,15 +31,16 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | URL                  | Page             | Status |
 | -------------------- | ---------------- | ------ |
 | `#/`                 | Overview (home)  | Done, placeholder data |
-| `#/search?q=...`     | Search results   | Done: filters, sorting, save toggle, placeholder data |
+| `#/search?q=...&by=...` | Search results | Done: all 565 products from the MedDRA CSV. Searches brand, ingredient, company, condition, contraindication, drug class and DIN. `by` = `ingredient`, `condition`, `contraindication` or `class` limits it to one category. Filters for drug class, active ingredient, company and pregnancy advice; 20 results per page |
 | `#/login`            | Log in           | Done: validation and wrong-credential errors, using mock auth |
 | `#/signup`           | Create account   | Done: password strength meter, role picker and duplicate-email error, using mock auth |
 | `#/forgot-password`  | Forgot password  | Done: request a reset link (mock shows the link on screen instead of emailing it) |
 | `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
 | `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
 | `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
-| `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
-| other `#/...`        | Coming soon      | Placeholder for pages not built yet: monograph detail, Discovery, Interaction check, Inconsistency report |
+| `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
+| `#/drug/<id>?s=...&tab=...` | Drug overview | Done: warnings, contraindications and same-ingredient banners; tabs for Overview, Adverse events, Conflicts, Graphs, Alternatives and Research papers (DIN, Health Canada link, PDF). Uses the MedDRA CSV. `s` = strength, `tab` = open tab |
+| other `#/...`        | Coming soon      | Placeholder for pages not built yet: Discovery, Interaction check, Inconsistency report |
 
 ## Project structure
 
@@ -48,7 +49,10 @@ CMPT496-housekeeping-filestructure/
 ├── README.md
 └── frontend/                 React 19 + Vite
     ├── scripts/
-    │   └── build-adverse-events.mjs  Makes adverse_event_terms.json from the MedDRA CSV
+    │   ├── build-adverse-events.mjs  Makes adverse_event_terms.json from the MedDRA CSV
+    │   ├── build-drug-details.mjs    Makes drug_details.json from the CSV + pdf_links_cache.json
+    │   ├── build-safety-sections.mjs Makes safety_sections.json from the MedDRA CSV
+    │   └── lib/csv.mjs               CSV reader shared by the build scripts
     ├── index.html
     ├── package.json
     └── src/
@@ -60,10 +64,12 @@ CMPT496-housekeeping-filestructure/
         │   ├── Header.css
         │   ├── PasswordStrength.jsx  Strength meter (sign-up, reset, settings)
         │   ├── Switch.jsx    On/off toggle
+        │   ├── SearchBox.jsx / .css  Search box with suggestions + "By …" buttons (home + Search)
         │   ├── ProductPicker.jsx     "+ Add More" search on Compare
         │   ├── CompareTimeline.jsx / .css  Timeline graph on Compare
         │   ├── AdverseEventGrid.jsx / .css Which MedDRA terms each product lists (Tables tab)
-        │   └── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
+        │   ├── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
+        │   └── SafetySunburst.jsx / .css   Zoomable d3 sunburst of safety sections (Graphs tab)
         ├── pages/
         │   ├── Overview.jsx / .css
         │   ├── Search.jsx   / .css
@@ -75,12 +81,20 @@ CMPT496-housekeeping-filestructure/
         │   ├── Saved.jsx    / .css
         │   ├── Settings.jsx / .css
         │   ├── Compare.jsx  / .css
+        │   ├── Drug.jsx     / .css  Drug overview page (header, banners, tabs)
+        │   ├── drug/        One file per tab + parts.jsx (shared badges/chips)
         │   └── ComingSoon.jsx  Placeholder for unbuilt pages
         ├── data/             Data files (mostly placeholders until the API exists)
         │   ├── drug_monographs_dates.json  Real monograph dates (1,434 entries)
         │   ├── monographs.js Cleans that file and groups it into products
         │   ├── adverse_event_terms.json    MedDRA adverse-event terms per monograph (generated)
         │   ├── adverseEvents.js  Loads that file on demand
+        │   ├── safety_sections.json        Organ categories per safety section, per monograph (generated)
+        │   ├── safetySections.js Loads that file on demand; section colours
+        │   ├── drug_details.json     Monograph content + DIN/links per monograph (generated)
+        │   ├── drugDetails.js    Loads that file on demand; recommendation helpers
+        │   ├── catalog.js    Search records, matching and suggestions for every product
+        │   ├── drugClasses.js  Drug class for each of the 60 ingredients (not in the CSV)
         │   ├── overview.js
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
@@ -93,6 +107,8 @@ CMPT496-housekeeping-filestructure/
         │   ├── dates.js      Date maths for the timeline
         │   ├── termOverlap.js  Splits terms into shared / only-this / missing
         │   ├── chartColors.js Colours for drug families in charts
+        │   ├── ingredientGroup.js  Other brands of the same ingredient; same-ingredient flag
+        │   ├── links.js      drugHref() and drugHrefForBrand() for linking to drug pages
         │   └── download.js   File download + CSV helpers
         └── assets/           logo-mark.png (header), logo-full.png
 ```
@@ -147,8 +163,38 @@ CMPT496-housekeeping-filestructure/
   - **Format:** each term string is stored once, and each monograph points to its terms by number. The file is 0.5 MB (48 KB compressed), and it only downloads when someone opens Compare.
   - **Merging:** a product's strengths are combined. The CSV lists PMS-QUINAPRIL 10mg twice with different terms, so the two lists are merged.
   - **Banner:** "X of Y MedDRA terms not reported consistently" only appears when every product is the same drug. Different drugs are supposed to list different terms.
+- **Safety sunburst on Compare (Graphs tab).** A zoomable [d3](https://d3js.org) sunburst: products → safety sections (adverse events, contraindications, warnings, pregnancy, breastfeeding) → the MedDRA organ categories each section mentions. Click a slice to zoom in, and the centre or the breadcrumb to zoom out. Arcs work with the keyboard (Tab, then Enter), and "Show as a table" lists the same data.
+  - Each organ category counts as 1, so a section's size is how many categories it covers, not how many terms.
+  - The CSV doesn't say which category each term belongs to (see below), so terms can't be the outer ring yet. Once the source data pairs each term with its category, add them as a fourth level in `buildTree()`.
+  - Section colours are in `data/safetySections.js`, checked with the dataviz validator.
+  - The data comes from `src/data/safety_sections.json`. To rebuild it: `node scripts/build-safety-sections.mjs path/to/the.csv`. The script skips rows with broken quoting. The Google Sheets export of the CSV has 18 of them, so 8 strengths currently have no sunburst data.
   - **Not in the CSV:** a severity rating for each adverse event. The CSV's term list and organ-category list also aren't matched up term by term, so the design's organ-category pie chart can't be built from it yet.
-- **Search and Saved still use the 7 sample drugs** in `data/search.js`, not the dates dataset. Once there's an API, all three pages should read from the same product list.
+- **The drug overview page** (`#/drug/...`) reads `src/data/drug_details.json`. That file is generated from the MedDRA CSV plus `pdf_links_cache.json`, keeping only the columns the page shows. Pharmacokinetics, Pharmacodynamics and the raw adverse-event text are left out, because they're most of the CSV's size and aren't on the page yet. To rebuild it:
+
+  ```bash
+  cd frontend
+  node scripts/build-drug-details.mjs path/to/canadian_drug_monographs_all_applicable_meddra_v27.csv path/to/pdf_links_cache.json
+  ```
+
+  - **Size:** 2.7 MB (≈250 KB compressed). It only downloads when someone opens a drug page.
+  - **Research papers tab:** one card per strength, each showing its DIN. The link is the Health Canada Drug Product Database page (`dpd_info_url`), and Open/Download PDF use `pdf_url`. "Download" opens the PDF in a new tab, because browsers block downloading files straight from other websites.
+  - **DIN warnings:** the links were matched automatically. 213 monographs have a match score below 0.8, and 138 DINs are attached to more than one monograph, often at a 1.0 score. For example, AG-AMLODIPINE and Angita's plain AMLODIPINE share DINs, and PRO-ENALAPRIL 2.5/10/20 mg all got the 5 mg DIN. The tab shows a warning in both cases. The matching should be fixed in the pipeline that makes `pdf_links_cache.json`.
+  - **Same-ingredient flag:** compares this monograph's adverse-event terms with the other brands that have the same "Normalized Active Ingredient". It counts the terms that 75% or more of them list but this one doesn't, and the terms this one lists that 25% or fewer of them do.
+  - **Graphs tab:** adverse-event term counts per brand of the same ingredient, and whether those brands agree on pregnancy, breastfeeding, kidney and liver advice.
+  - **Severity:** the CSV has no severity rating for adverse events, so their tags aren't colour-coded like in the mockup. Recommendations (pregnancy, kidney, …) do use the severity colours.
+  - **Data issue:** NRA-AMLODIPINE lists only 9 adverse-event terms, while the other amlodipine brands list 82–100. That's probably an extraction problem.
+- **Search box with suggestions** (`components/SearchBox.jsx`, on the home page and Search).
+  - **Suggestions:** as you type, a dropdown lists the ingredients, conditions, contraindications and drug classes that have a word starting with what you typed. "ac" gives *Acute* myocardial infarction, Lactic *ac*idosis, *AC*E inhibitor, and so on. Each suggestion shows how many products it appears in.
+  - **"By …" buttons:** with none selected, all four categories are suggested and searched. Click one to suggest and search only that category, and click it again to go back to all four. On the Search page, switching button re-runs the search.
+  - **Picking a suggestion** searches for that exact term. For example, "Dihydropyridine calcium channel blocker" doesn't also bring back the *Non-*dihydropyridine ones. Pressing Enter on partial text searches more broadly, including drug names and DINs.
+  - **Data loading:** on the home page, the data loads when you first click into the search box, not when the page opens.
+- **Drug classes** aren't in the CSV, so `data/drugClasses.js` maps each of the 60 "Normalized Active Ingredient" values to its class or classes (combination products have more than one). That gives 26 classes. They're used for the "By drug class" search, the Drug class filter, and the drug page's class line (e.g. "Amlodipine · Dihydropyridine calcium channel blocker"). Add new ingredients there when the data grows; anything missing shows as "Unclassified".
+- **Search uses the real data now** (`data/catalog.js`). It doesn't wait for MongoDB: it builds one record per product from `drug_details.json` and `adverse_event_terms.json`, the same files the drug page loads.
+  - **Searches:** brand name, active ingredient, company, indication, and a DIN (type the 8 digits).
+  - **Filters:** Drug class, Active ingredient, Company, and Pregnancy advice (instead of adverse-effect severity, which isn't in the CSV).
+  - **"Inconsistency flagged"** appears when a product leaves out at least `FLAG_THRESHOLD` (10) adverse-event terms that most other brands of the same ingredient list. That's 141 of 565 products. 448 miss at least one term, so a lower number would flag almost everything. It uses the same comparison as the drug page's same-ingredient banner, so the numbers match.
+  - **TODO:** swap `useCatalog()` for a search API call when the backend is connected.
+- **Saved** starts with three real products on a first visit. It still shows older saved sample drugs (`data/search.js`), linked to their real drug pages. `data/search.js` is now only used for that.
 - **Compare's table only shows rows the dataset has** (company, strengths, dates). The hi-fi design's adverse-event, contraindication and pregnancy rows need monograph content from the backend. The cell colours are already set up for them (`safety: true` rows tint pink when they differ).
 - **Timeline colours** come from `utils/chartColors.js`: blue, aqua and violet, checked to be colour-blind safe. Red, orange and yellow are kept for severity only. A fourth drug family and beyond share grey ("Other families").
 - On the Search page, the severity filter shows only tags at the chosen levels and hides products with none. This behaviour is an assumption and needs team confirmation.

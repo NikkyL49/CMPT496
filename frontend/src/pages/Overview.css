@@ -22,28 +22,6 @@
   color: var(--color-text-muted);
 }
 
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.chip {
-  font: 400 13px/1 var(--font-serif);
-  padding: 7px 12px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.chip:hover {
-  border-color: var(--color-accent);
-  color: var(--accent-700);
-}
-
 /* Feature cards */
 .feature-cards {
   display: grid;

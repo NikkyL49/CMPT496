@@ -12,15 +12,17 @@ export function loadAdverseEvents() {
 }
 
 // null while loading, then { meddraVersion, terms, byId }
-export function useAdverseEvents() {
+// enabled = false waits (e.g. until the user starts typing in a search box)
+export function useAdverseEvents(enabled = true) {
   const [data, setData] = useState(null)
   useEffect(() => {
+    if (!enabled) return
     let active = true
     loadAdverseEvents().then((d) => active && setData(d))
     return () => {
       active = false
     }
-  }, [])
+  }, [enabled])
   return data
 }
 

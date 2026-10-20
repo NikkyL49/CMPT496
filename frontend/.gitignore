@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Secrets (MongoDB connection string) and the export's output
+.env
+monographs.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
