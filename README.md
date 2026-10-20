@@ -51,7 +51,8 @@ CMPT496-housekeeping-filestructure/
     ├── scripts/
     │   ├── build-adverse-events.mjs  Makes adverse_event_terms.json from the MedDRA CSV
     │   ├── build-drug-details.mjs    Makes drug_details.json from the CSV + pdf_links_cache.json
-    │   └── lib/csv.mjs               CSV reader shared by both scripts
+    │   ├── build-safety-sections.mjs Makes safety_sections.json from the MedDRA CSV
+    │   └── lib/csv.mjs               CSV reader shared by the build scripts
     ├── index.html
     ├── package.json
     └── src/
@@ -67,7 +68,8 @@ CMPT496-housekeeping-filestructure/
         │   ├── ProductPicker.jsx     "+ Add More" search on Compare
         │   ├── CompareTimeline.jsx / .css  Timeline graph on Compare
         │   ├── AdverseEventGrid.jsx / .css Which MedDRA terms each product lists (Tables tab)
-        │   └── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
+        │   ├── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
+        │   └── SafetySunburst.jsx / .css   Zoomable d3 sunburst of safety sections (Graphs tab)
         ├── pages/
         │   ├── Overview.jsx / .css
         │   ├── Search.jsx   / .css
@@ -87,6 +89,8 @@ CMPT496-housekeeping-filestructure/
         │   ├── monographs.js Cleans that file and groups it into products
         │   ├── adverse_event_terms.json    MedDRA adverse-event terms per monograph (generated)
         │   ├── adverseEvents.js  Loads that file on demand
+        │   ├── safety_sections.json        Organ categories per safety section, per monograph (generated)
+        │   ├── safetySections.js Loads that file on demand; section colours
         │   ├── drug_details.json     Monograph content + DIN/links per monograph (generated)
         │   ├── drugDetails.js    Loads that file on demand; recommendation helpers
         │   ├── catalog.js    Search records, matching and suggestions for every product
@@ -159,6 +163,11 @@ CMPT496-housekeeping-filestructure/
   - **Format:** each term string is stored once, and each monograph points to its terms by number. The file is 0.5 MB (48 KB compressed), and it only downloads when someone opens Compare.
   - **Merging:** a product's strengths are combined. The CSV lists PMS-QUINAPRIL 10mg twice with different terms, so the two lists are merged.
   - **Banner:** "X of Y MedDRA terms not reported consistently" only appears when every product is the same drug. Different drugs are supposed to list different terms.
+- **Safety sunburst on Compare (Graphs tab).** A zoomable [d3](https://d3js.org) sunburst: products → safety sections (adverse events, contraindications, warnings, pregnancy, breastfeeding) → the MedDRA organ categories each section mentions. Click a slice to zoom in, and the centre or the breadcrumb to zoom out. Arcs work with the keyboard (Tab, then Enter), and "Show as a table" lists the same data.
+  - Each organ category counts as 1, so a section's size is how many categories it covers, not how many terms.
+  - The CSV doesn't say which category each term belongs to (see below), so terms can't be the outer ring yet. Once the source data pairs each term with its category, add them as a fourth level in `buildTree()`.
+  - Section colours are in `data/safetySections.js`, checked with the dataviz validator.
+  - The data comes from `src/data/safety_sections.json`. To rebuild it: `node scripts/build-safety-sections.mjs path/to/the.csv`. The script skips rows with broken quoting. The Google Sheets export of the CSV has 18 of them, so 8 strengths currently have no sunburst data.
   - **Not in the CSV:** a severity rating for each adverse event. The CSV's term list and organ-category list also aren't matched up term by term, so the design's organ-category pie chart can't be built from it yet.
 - **The drug overview page** (`#/drug/...`) reads `src/data/drug_details.json`. That file is generated from the MedDRA CSV plus `pdf_links_cache.json`, keeping only the columns the page shows. Pharmacokinetics, Pharmacodynamics and the raw adverse-event text are left out, because they're most of the CSV's size and aren't on the page yet. To rebuild it:
 

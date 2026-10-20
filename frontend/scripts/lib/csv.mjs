@@ -1,4 +1,6 @@
 // Shared by the build scripts in scripts/.
+import { readFileSync } from 'node:fs'
+
 // Minimal RFC 4180 CSV parser (quoted fields, "" escapes, newlines in quotes)
 export function parseCsv(text) {
   const rows = []
@@ -32,3 +34,18 @@ export function parseCsv(text) {
   }
   return rows
 }
+
+// Reads the CSV → { header, rows, col(name) → column index }
+export function readCsv(path) {
+  const text = readFileSync(path, 'utf8').replace(/^﻿/, '') // strip BOM
+  const [header, ...rows] = parseCsv(text).filter((r) => r.length > 1)
+  const col = (name) => {
+    const i = header.indexOf(name)
+    if (i < 0) throw new Error(`Column not found: ${name}`)
+    return i
+  }
+  return { header, rows, col }
+}
+
+// "a | b | c" → ['a', 'b', 'c']
+export const splitList = (s) => s.split('|').map((t) => t.trim()).filter(Boolean)

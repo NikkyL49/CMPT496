@@ -1,6 +1,9 @@
-require("dotenv").config();
-const { MongoClient } = require("mongodb");
-const fs = require("fs");
+// Exports the MongoDB monographs collection to monographs.json.
+// Usage (from the frontend folder): copy .env.example to .env, fill it in, then
+//   node export.js
+import "dotenv/config";
+import { MongoClient } from "mongodb";
+import fs from "node:fs";
 
 const uri = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME || "drugs";
