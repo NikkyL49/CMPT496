@@ -38,8 +38,7 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
 | `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
 | `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
-| `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
-| other `#/...`        | Coming soon      | Placeholder for pages not built yet: monograph detail, Discovery, Interaction check, Inconsistency report |
+| other `#/...`        | Coming soon      | Placeholder for pages not built yet: monograph detail, Discovery, Compare, Interaction check, Inconsistency report |
 
 ## Project structure
 
@@ -47,8 +46,6 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 CMPT496-housekeeping-filestructure/
 ├── README.md
 └── frontend/                 React 19 + Vite
-    ├── scripts/
-    │   └── build-adverse-events.mjs  Makes adverse_event_terms.json from the MedDRA CSV
     ├── index.html
     ├── package.json
     └── src/
@@ -59,11 +56,7 @@ CMPT496-housekeeping-filestructure/
         │   ├── Header.jsx    Top nav, role selector, log-in / account links
         │   ├── Header.css
         │   ├── PasswordStrength.jsx  Strength meter (sign-up, reset, settings)
-        │   ├── Switch.jsx    On/off toggle
-        │   ├── ProductPicker.jsx     "+ Add More" search on Compare
-        │   ├── CompareTimeline.jsx / .css  Timeline graph on Compare
-        │   ├── AdverseEventGrid.jsx / .css Which MedDRA terms each product lists (Tables tab)
-        │   └── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
+        │   └── Switch.jsx    On/off toggle
         ├── pages/
         │   ├── Overview.jsx / .css
         │   ├── Search.jsx   / .css
@@ -74,13 +67,8 @@ CMPT496-housekeeping-filestructure/
         │   ├── Auth.css      Shared by all auth pages
         │   ├── Saved.jsx    / .css
         │   ├── Settings.jsx / .css
-        │   ├── Compare.jsx  / .css
         │   └── ComingSoon.jsx  Placeholder for unbuilt pages
-        ├── data/             Data files (mostly placeholders until the API exists)
-        │   ├── drug_monographs_dates.json  Real monograph dates (1,434 entries)
-        │   ├── monographs.js Cleans that file and groups it into products
-        │   ├── adverse_event_terms.json    MedDRA adverse-event terms per monograph (generated)
-        │   ├── adverseEvents.js  Loads that file on demand
+        ├── data/             Placeholder data (replace with API calls)
         │   ├── overview.js
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
@@ -90,9 +78,6 @@ CMPT496-housekeeping-filestructure/
         ├── utils/
         │   ├── validation.js Email check + password strength scoring
         │   ├── store.js      Tiny shared-state store (useStore hook)
-        │   ├── dates.js      Date maths for the timeline
-        │   ├── termOverlap.js  Splits terms into shared / only-this / missing
-        │   ├── chartColors.js Colours for drug families in charts
         │   └── download.js   File download + CSV helpers
         └── assets/           logo-mark.png (header), logo-full.png
 ```
@@ -126,31 +111,6 @@ CMPT496-housekeeping-filestructure/
 - **Saved drugs are kept in the browser** (localStorage), so they survive a reload but aren't tied to an account yet. A first visit starts with the three drugs from the mockup. Once the backend exists, load and save the list per user through the API instead (see `data/saved.js`).
 - **Settings needs a login.** Changes are saved straight away, like the mockup, except name/email (Change Info) and password, which have their own Save buttons. Deleting an account asks for the password, and then clears the saved list.
 - The mockup's danger-zone text also mentions *deactivating* an account. Only delete is built; deactivate needs a decision on how it should work.
-- **Compare uses `drug_monographs_dates.json`.** `data/monographs.js` cleans it when the app loads:
-  - **Dates:** spreadsheet date numbers like `45180` and dates such as "November 28, 2019" are converted. "No date available", "NO INFORMATION" and "EXTRACTION_FAILED" count as missing.
-  - **Products:** strengths of the same brand and company are merged into one product (e.g. ACH-AMLODIPINE 2.5/5/10 mg), which turns 1,434 entries into 565 products. One exact duplicate (PMS-QUINAPRIL 10mg) is dropped.
-  - **Drug family:** worked out from the name. Manufacturer prefixes like APO-, TEVA- and ACH- are removed, and brand names are looked up in `BRAND_INGREDIENT` (e.g. NORVASC → Amlodipine). Add new brands to that list.
-  - **Data issues to fix at the source:**
-    - 4 products have a revision date earlier than their authorization date. The timeline greys these out and warns about them.
-    - Some entries are named only by company, with no drug name (e.g. "Apotex 500mg", "Teva 250mg5ml suspension"), so they can't be grouped properly.
-- **Adverse-event views on Compare.**
-  - **Graphs tab:** a stacked bar per product. Every bar has the same length (all terms listed by any selected product). It's split into *shared by all*, *shared with some*, *only this product* and a hatched *missing* part. Hovering a segment shows its terms, and clicking it opens the term grid on the Tables tab, filtered to those terms. The bar colours are one blue ramp, checked with the dataviz validator.
-  - **Tables tab:** the term grid, one row per term, where a filled dot means listed.
-
-  Both use `src/data/adverse_event_terms.json`. That file is generated from the full MedDRA CSV (16.8 MB, 55 columns), keeping only what these views need: each monograph's ID and its MedDRA preferred terms. To rebuild it after the CSV changes:
-
-  ```bash
-  cd frontend
-  node scripts/build-adverse-events.mjs path/to/canadian_drug_monographs_all_applicable_meddra_v27.csv
-  ```
-
-  - **Format:** each term string is stored once, and each monograph points to its terms by number. The file is 0.5 MB (48 KB compressed), and it only downloads when someone opens Compare.
-  - **Merging:** a product's strengths are combined. The CSV lists PMS-QUINAPRIL 10mg twice with different terms, so the two lists are merged.
-  - **Banner:** "X of Y MedDRA terms not reported consistently" only appears when every product is the same drug. Different drugs are supposed to list different terms.
-  - **Not in the CSV:** a severity rating for each adverse event. The CSV's term list and organ-category list also aren't matched up term by term, so the design's organ-category pie chart can't be built from it yet.
-- **Search and Saved still use the 7 sample drugs** in `data/search.js`, not the dates dataset. Once there's an API, all three pages should read from the same product list.
-- **Compare's table only shows rows the dataset has** (company, strengths, dates). The hi-fi design's adverse-event, contraindication and pregnancy rows need monograph content from the backend. The cell colours are already set up for them (`safety: true` rows tint pink when they differ).
-- **Timeline colours** come from `utils/chartColors.js`: blue, aqua and violet, checked to be colour-blind safe. Red, orange and yellow are kept for severity only. A fourth drug family and beyond share grey ("Other families").
 - On the Search page, the severity filter shows only tags at the chosen levels and hides products with none. This behaviour is an assumption and needs team confirmation.
 - **Logo files** are in `frontend/src/assets`: `logo-mark.png` (the capsule icon, used in the header) and `logo-full.png` (icon plus the MonoByte wordmark). Both have transparent backgrounds. The browser-tab icon is `frontend/public/favicon.png`.
 
