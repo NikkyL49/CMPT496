@@ -4,8 +4,8 @@
 import { createStore } from '../utils/store'
 
 const KEY = 'monobyte.saved'
-// First visit: start with the three drugs from the design mockup
-const DEFAULT_SAVED = ['aa-diltiaz', 'apo-simvastatin', 'apixaban']
+// First visit: start with the three drugs from the design mockup (real products)
+const DEFAULT_SAVED = ['aa-diltiaz-aa-pharma-inc', 'apo-simvastatin-apotex-inc', 'apixaban-sanis-health-inc']
 
 function load() {
   try {

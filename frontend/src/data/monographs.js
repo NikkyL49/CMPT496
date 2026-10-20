@@ -117,7 +117,13 @@ function familyOf(brand) {
   return core.charAt(0) + core.slice(1).toLowerCase()
 }
 
-const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const slug = (s) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // "Ltée" → "Ltee"
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 
 // Sort by amount, treating 1 g as 1000 mg
 function strengthValue(s) {
@@ -150,6 +156,7 @@ function buildProducts(rows) {
         family: familyOf(brand),
         strengths: [],
         listings: [],
+        variants: [], // [{ id: 'ACH-AMLODIPINE 10mg', strength: '10 mg' }] one per monograph ID
         authorized: null,
         revised: null,
       })
@@ -157,6 +164,7 @@ function buildProducts(rows) {
     const p = byKey.get(key)
     if (strength && !p.strengths.includes(strength)) p.strengths.push(strength)
     p.listings.push(row.ID)
+    p.variants.push({ id: row.ID, strength })
     const auth = parseDate(row['Initial Authorization'])
     const rev = parseDate(row['Revision Date'])
     // earliest authorization, latest revision across strengths
@@ -187,6 +195,7 @@ function buildProducts(rows) {
   const products = [...byKey.values()].map((p) => ({
     ...p,
     strengths: sortStrengths(p.strengths),
+    variants: [...p.variants].sort((a, b) => strengthValue(a.strength ?? '') - strengthValue(b.strength ?? '')),
     // Revision earlier than authorization means one of the two dates is wrong
     dateConflict: !!(p.authorized && p.revised && p.revised.iso < p.authorized.iso),
   }))
@@ -249,4 +258,19 @@ export function searchMonographs(query, excludeIds = new Set(), limit = 8) {
     .sort((a, b) => b[0] - a[0] || a[1].label.localeCompare(b[1].label))
     .slice(0, limit)
     .map(([, p]) => p)
+}
+
+// Find the product for a brand name (+ company), e.g. to link the sample
+// drugs on Search/Saved to their real drug page. Returns undefined if none.
+export function findProduct(brand, company = '') {
+  const b = brand.trim().toUpperCase()
+  const c = company.trim().toLowerCase().split(/\s+/)[0] ?? ''
+  const sameBrand = monographs.filter((p) => p.brand.toUpperCase() === b)
+  return sameBrand.find((p) => c && p.company.toLowerCase().startsWith(c)) ?? sameBrand[0]
+}
+
+// Product that a monograph ID ("ACH-AMLODIPINE 10mg") belongs to
+const productByListing = new Map(monographs.flatMap((p) => p.listings.map((id) => [id, p])))
+export function productForListing(id) {
+  return productByListing.get(id)
 }
