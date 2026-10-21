@@ -1,0 +1,329 @@
+{
+  "meta": {
+    "title": "Analysis 1: Combination vs. component alignment",
+    "description": "For each combination product, the most common breastfeeding and pregnancy recommendation compared with each of its components.",
+    "sheetTab": "Analysis 1: Pairs",
+    "sourceFile": "analysis1_pairs.csv",
+    "generatedAt": "2026-10-13T15:45:44.724Z",
+    "rowCount": 9,
+    "columns": [
+      {
+        "key": "id",
+        "type": "integer",
+        "description": "Row number in this JSON file"
+      },
+      {
+        "key": "sheetRow",
+        "type": "integer",
+        "description": "Row number in the spreadsheet tab, for tracing back"
+      },
+      {
+        "key": "combination",
+        "label": "Combination",
+        "sheetColumn": "A",
+        "type": "text",
+        "description": "Combination product (cleaned ingredient name)"
+      },
+      {
+        "key": "component1",
+        "label": "Component 1",
+        "sheetColumn": "B",
+        "type": "text",
+        "description": "First component"
+      },
+      {
+        "key": "component2",
+        "label": "Component 2",
+        "sheetColumn": "C",
+        "type": "text",
+        "description": "Second component"
+      },
+      {
+        "key": "combinationProducts",
+        "label": "Combination Products",
+        "sheetColumn": "D",
+        "type": "integer",
+        "description": "Products of the combination"
+      },
+      {
+        "key": "component1Products",
+        "label": "Component 1 Products",
+        "sheetColumn": "E",
+        "type": "integer",
+        "description": "Single-ingredient products of component 1 (0 = only exists inside combinations)"
+      },
+      {
+        "key": "component2Products",
+        "label": "Component 2 Products",
+        "sheetColumn": "F",
+        "type": "integer",
+        "description": "Single-ingredient products of component 2"
+      },
+      {
+        "key": "breastfeedingCombination",
+        "label": "Most Common Category (Across Products)",
+        "sheetColumn": "G",
+        "type": "text",
+        "description": "Breastfeeding: Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "breastfeedingComponent1",
+        "label": "Common Category 1",
+        "sheetColumn": "H",
+        "type": "text",
+        "description": "Breastfeeding: component 1. Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "breastfeedingComponent2",
+        "label": "Common Category 2",
+        "sheetColumn": "I",
+        "type": "text",
+        "description": "Breastfeeding: component 2. Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "breastfeedingMatch1",
+        "label": "Matching Common? (1)",
+        "sheetColumn": "J",
+        "type": "text",
+        "description": "Breastfeeding, combination vs component 1. Same / Different compare the combination with the component. 'Missing data' = one side is NO INFORMATION or SECTION_NOT_FOUND. 'Not in dataset' = component has no single-ingredient products."
+      },
+      {
+        "key": "breastfeedingMatch2",
+        "label": "Matching Common? (2)",
+        "sheetColumn": "K",
+        "type": "text",
+        "description": "Breastfeeding, combination vs component 2. Same / Different compare the combination with the component. 'Missing data' = one side is NO INFORMATION or SECTION_NOT_FOUND. 'Not in dataset' = component has no single-ingredient products."
+      },
+      {
+        "key": "pregnancyCombination",
+        "label": "Most Common Category",
+        "sheetColumn": "L",
+        "type": "text",
+        "description": "Pregnancy: Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "pregnancyComponent1",
+        "label": "Common Category 1",
+        "sheetColumn": "M",
+        "type": "text",
+        "description": "Pregnancy: component 1. Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "pregnancyComponent2",
+        "label": "Common Category 2",
+        "sheetColumn": "N",
+        "type": "text",
+        "description": "Pregnancy: component 2. Most common category across products. 'Not in dataset' = no single-ingredient products; NO INFORMATION and SECTION_NOT_FOUND = category missing."
+      },
+      {
+        "key": "pregnancyMatch1",
+        "label": "Matching Common?(1)",
+        "sheetColumn": "O",
+        "type": "text",
+        "description": "Pregnancy, combination vs component 1. Same / Different compare the combination with the component. 'Missing data' = one side is NO INFORMATION or SECTION_NOT_FOUND. 'Not in dataset' = component has no single-ingredient products."
+      },
+      {
+        "key": "pregnancyMatch2",
+        "label": "Matching Common?(2)",
+        "sheetColumn": "P",
+        "type": "text",
+        "description": "Pregnancy, combination vs component 2. Same / Different compare the combination with the component. 'Missing data' = one side is NO INFORMATION or SECTION_NOT_FOUND. 'Not in dataset' = component has no single-ingredient products."
+      }
+    ],
+    "summary": {
+      "breastfeedingMatchCounts": {
+        "Different": 3,
+        "Not in dataset": 7,
+        "Same": 3,
+        "Missing data": 5
+      },
+      "pregnancyMatchCounts": {
+        "Same": 9,
+        "Not in dataset": 7,
+        "Different": 2
+      }
+    }
+  },
+  "rows": [
+    {
+      "id": 1,
+      "sheetRow": 2,
+      "combination": "Amoxicillin + Clavulanate",
+      "component1": "Amoxicillin",
+      "component2": "Clavulanate",
+      "combinationProducts": 28,
+      "component1Products": 29,
+      "component2Products": 0,
+      "breastfeedingCombination": "NOT RECOMMENDED",
+      "breastfeedingComponent1": "USE WITH CAUTION",
+      "breastfeedingComponent2": "Not in dataset",
+      "breastfeedingMatch1": "Different",
+      "breastfeedingMatch2": "Not in dataset",
+      "pregnancyCombination": "USE WITH CAUTION",
+      "pregnancyComponent1": "USE WITH CAUTION",
+      "pregnancyComponent2": "Not in dataset",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Not in dataset"
+    },
+    {
+      "id": 2,
+      "sheetRow": 3,
+      "combination": "Canagliflozin + Metformin",
+      "component1": "Canagliflozin",
+      "component2": "Metformin",
+      "combinationProducts": 3,
+      "component1Products": 6,
+      "component2Products": 49,
+      "breastfeedingCombination": "CONTRAINDICATED",
+      "breastfeedingComponent1": "CONTRAINDICATED",
+      "breastfeedingComponent2": "SECTION_NOT_FOUND",
+      "breastfeedingMatch1": "Same",
+      "breastfeedingMatch2": "Missing data",
+      "pregnancyCombination": "CONTRAINDICATED",
+      "pregnancyComponent1": "CONTRAINDICATED",
+      "pregnancyComponent2": "CONTRAINDICATED",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Same"
+    },
+    {
+      "id": 3,
+      "sheetRow": 4,
+      "combination": "Ciprofloxacin + Dexamethasone",
+      "component1": "Ciprofloxacin",
+      "component2": "Dexamethasone",
+      "combinationProducts": 1,
+      "component1Products": 31,
+      "component2Products": 0,
+      "breastfeedingCombination": "USE WITH CAUTION",
+      "breastfeedingComponent1": "USE WITH CAUTION",
+      "breastfeedingComponent2": "Not in dataset",
+      "breastfeedingMatch1": "Same",
+      "breastfeedingMatch2": "Not in dataset",
+      "pregnancyCombination": "USE WITH CAUTION",
+      "pregnancyComponent1": "USE WITH CAUTION",
+      "pregnancyComponent2": "Not in dataset",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Not in dataset"
+    },
+    {
+      "id": 4,
+      "sheetRow": 5,
+      "combination": "Ciprofloxacin + Fluocinolone Acetonide",
+      "component1": "Ciprofloxacin",
+      "component2": "Fluocinolone Acetonide",
+      "combinationProducts": 1,
+      "component1Products": 31,
+      "component2Products": 0,
+      "breastfeedingCombination": "USE WITH CAUTION",
+      "breastfeedingComponent1": "USE WITH CAUTION",
+      "breastfeedingComponent2": "Not in dataset",
+      "breastfeedingMatch1": "Same",
+      "breastfeedingMatch2": "Not in dataset",
+      "pregnancyCombination": "NOT RECOMMENDED",
+      "pregnancyComponent1": "USE WITH CAUTION",
+      "pregnancyComponent2": "Not in dataset",
+      "pregnancyMatch1": "Different",
+      "pregnancyMatch2": "Not in dataset"
+    },
+    {
+      "id": 5,
+      "sheetRow": 6,
+      "combination": "Dapagliflozin + Metformin",
+      "component1": "Dapagliflozin",
+      "component2": "Metformin",
+      "combinationProducts": 2,
+      "component1Products": 26,
+      "component2Products": 49,
+      "breastfeedingCombination": "USE WITH CAUTION",
+      "breastfeedingComponent1": "CONTRAINDICATED",
+      "breastfeedingComponent2": "SECTION_NOT_FOUND",
+      "breastfeedingMatch1": "Different",
+      "breastfeedingMatch2": "Missing data",
+      "pregnancyCombination": "CONTRAINDICATED",
+      "pregnancyComponent1": "CONTRAINDICATED",
+      "pregnancyComponent2": "CONTRAINDICATED",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Same"
+    },
+    {
+      "id": 6,
+      "sheetRow": 7,
+      "combination": "Empagliflozin + Metformin",
+      "component1": "Empagliflozin",
+      "component2": "Metformin",
+      "combinationProducts": 6,
+      "component1Products": 2,
+      "component2Products": 49,
+      "breastfeedingCombination": "SECTION_NOT_FOUND",
+      "breastfeedingComponent1": "CONTRAINDICATED",
+      "breastfeedingComponent2": "SECTION_NOT_FOUND",
+      "breastfeedingMatch1": "Missing data",
+      "breastfeedingMatch2": "Missing data",
+      "pregnancyCombination": "CONTRAINDICATED",
+      "pregnancyComponent1": "CONTRAINDICATED",
+      "pregnancyComponent2": "CONTRAINDICATED",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Same"
+    },
+    {
+      "id": 7,
+      "sheetRow": 8,
+      "combination": "Lisinopril + Hydrochlorothiazide",
+      "component1": "Lisinopril",
+      "component2": "Hydrochlorothiazide",
+      "combinationProducts": 8,
+      "component1Products": 19,
+      "component2Products": 0,
+      "breastfeedingCombination": "USE WITH CAUTION",
+      "breastfeedingComponent1": "CONTRAINDICATED",
+      "breastfeedingComponent2": "Not in dataset",
+      "breastfeedingMatch1": "Different",
+      "breastfeedingMatch2": "Not in dataset",
+      "pregnancyCombination": "CONTRAINDICATED",
+      "pregnancyComponent1": "CONTRAINDICATED",
+      "pregnancyComponent2": "Not in dataset",
+      "pregnancyMatch1": "Same",
+      "pregnancyMatch2": "Not in dataset"
+    },
+    {
+      "id": 8,
+      "sheetRow": 9,
+      "combination": "Insulin Degludec + Liraglutide",
+      "component1": "Insulin Degludec",
+      "component2": "Liraglutide",
+      "combinationProducts": 1,
+      "component1Products": 0,
+      "component2Products": 2,
+      "breastfeedingCombination": "NOT RECOMMENDED",
+      "breastfeedingComponent1": "Not in dataset",
+      "breastfeedingComponent2": "NO INFORMATION",
+      "breastfeedingMatch1": "Not in dataset",
+      "breastfeedingMatch2": "Missing data",
+      "pregnancyCombination": "NOT RECOMMENDED",
+      "pregnancyComponent1": "Not in dataset",
+      "pregnancyComponent2": "CONTRAINDICATED",
+      "pregnancyMatch1": "Not in dataset",
+      "pregnancyMatch2": "Different"
+    },
+    {
+      "id": 9,
+      "sheetRow": 10,
+      "combination": "Sulfamethoxazole + Trimethoprim",
+      "component1": "Sulfamethoxazole",
+      "component2": "Trimethoprim",
+      "combinationProducts": 4,
+      "component1Products": 0,
+      "component2Products": 0,
+      "breastfeedingCombination": "SECTION_NOT_FOUND",
+      "breastfeedingComponent1": "Not in dataset",
+      "breastfeedingComponent2": "Not in dataset",
+      "breastfeedingMatch1": "Not in dataset",
+      "breastfeedingMatch2": "Not in dataset",
+      "pregnancyCombination": "CONTRAINDICATED",
+      "pregnancyComponent1": "Not in dataset",
+      "pregnancyComponent2": "Not in dataset",
+      "pregnancyMatch1": "Not in dataset",
+      "pregnancyMatch2": "Not in dataset"
+    }
+  ]
+}

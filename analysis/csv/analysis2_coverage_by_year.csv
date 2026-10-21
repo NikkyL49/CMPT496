@@ -1,0 +1,16 @@
+Revision Year (Helper),Coverage by Year,COUNTA of Record Key,
+2012,0.00%,2,
+2015,18.18%,1,
+2016,52.27%,11,
+2017,22.22%,9,"Products whose labels were last revised in 2017, across all drugs, name on average 22.22% of the interaction partners documented elsewhere in the dataset."
+2018,8.16%,28,
+2019,19.72%,30,
+2020,12.27%,75,"Products revised 2018 to 2021 have an average coverage of about 15% (204 products)"
+2021,19.58%,71,
+2022,31.81%,143,
+2023,30.99%,280,"Products revised 2022 to 2025 have an average coverage of about 27% (954 products)"
+2024,24.67%,251,
+2025,24.05%,280,
+2026,87.50%,8,
+No date,27.06%,138,
+Grand Total,26.01%,1327,
