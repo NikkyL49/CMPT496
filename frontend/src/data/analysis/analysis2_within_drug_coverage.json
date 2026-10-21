@@ -1,0 +1,586 @@
+{
+  "meta": {
+    "title": "Analysis 2: Within-drug coverage check",
+    "description": "For each drug, the correlation between revision year and coverage across its own products, so differences between drugs do not affect the result.",
+    "sheetTab": "Analysis 2: Within-drug Coverage Check",
+    "sourceFile": "analysis2_within_drug.csv",
+    "generatedAt": "2026-10-13T15:45:44.739Z",
+    "rowCount": 46,
+    "columns": [
+      {
+        "key": "id",
+        "type": "integer",
+        "description": "Row number in this JSON file"
+      },
+      {
+        "key": "sheetRow",
+        "type": "integer",
+        "description": "Row number in the spreadsheet tab, for tracing back"
+      },
+      {
+        "key": "drug",
+        "label": "Drug",
+        "sheetColumn": "A",
+        "type": "text",
+        "description": "Active ingredient (cleaned Ingredients column)"
+      },
+      {
+        "key": "productsScored",
+        "label": "Products Scored",
+        "sheetColumn": "B",
+        "type": "integer",
+        "description": "Products with both a revision year and a coverage score"
+      },
+      {
+        "key": "correlation",
+        "label": "Correlation",
+        "sheetColumn": "C",
+        "type": "decimal",
+        "description": "Pearson correlation of revision year and coverage (-1 to 1). null = 'No variation'"
+      },
+      {
+        "key": "earliestYear",
+        "label": "Earliest (Year)",
+        "sheetColumn": "D",
+        "type": "year",
+        "description": "Oldest revision year among scored products"
+      },
+      {
+        "key": "latestYear",
+        "label": "Latest (Year)",
+        "sheetColumn": "E",
+        "type": "year",
+        "description": "Most recent revision year among scored products"
+      },
+      {
+        "key": "averageCoverage",
+        "label": "Average Coverage",
+        "sheetColumn": "F",
+        "type": "number (0 to 1)",
+        "description": "Average coverage across the drug's products (0 to 1)"
+      },
+      {
+        "key": "correlationStatus",
+        "type": "text",
+        "description": "Derived: 'calculated' or 'no_variation'"
+      }
+    ],
+    "summary": {
+      "drugs": 46,
+      "positive": 16,
+      "negative": 9,
+      "noVariation": 21,
+      "positiveWith10PlusProducts": 14,
+      "negativeWith10PlusProducts": 8,
+      "weightedAverageCorrelation": 0.0645
+    }
+  },
+  "rows": [
+    {
+      "id": 1,
+      "sheetRow": 2,
+      "drug": "Amlodipine",
+      "productsScored": 57,
+      "correlation": 0.27,
+      "earliestYear": 2023,
+      "latestYear": 2025,
+      "averageCoverage": 0.4303,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 2,
+      "sheetRow": 3,
+      "drug": "Amoxicillin",
+      "productsScored": 29,
+      "correlation": null,
+      "earliestYear": 2024,
+      "latestYear": 2025,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 3,
+      "sheetRow": 4,
+      "drug": "Ampicillin",
+      "productsScored": 17,
+      "correlation": null,
+      "earliestYear": 2019,
+      "latestYear": 2024,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 4,
+      "sheetRow": 5,
+      "drug": "Apixaban",
+      "productsScored": 38,
+      "correlation": 0.41,
+      "earliestYear": 2022,
+      "latestYear": 2026,
+      "averageCoverage": 0.381,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 5,
+      "sheetRow": 6,
+      "drug": "Atorvastatin",
+      "productsScored": 77,
+      "correlation": 0.09,
+      "earliestYear": 2022,
+      "latestYear": 2025,
+      "averageCoverage": 0.2418,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 6,
+      "sheetRow": 7,
+      "drug": "Azithromycin",
+      "productsScored": 23,
+      "correlation": 0.28,
+      "earliestYear": 2022,
+      "latestYear": 2025,
+      "averageCoverage": 0.3611,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 7,
+      "sheetRow": 8,
+      "drug": "Bisoprolol",
+      "productsScored": 22,
+      "correlation": 0.85,
+      "earliestYear": 2017,
+      "latestYear": 2024,
+      "averageCoverage": 0.7727,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 8,
+      "sheetRow": 9,
+      "drug": "Canagliflozin",
+      "productsScored": 6,
+      "correlation": null,
+      "earliestYear": 2024,
+      "latestYear": 2026,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 9,
+      "sheetRow": 10,
+      "drug": "Candesartan",
+      "productsScored": 44,
+      "correlation": -0.09,
+      "earliestYear": 2016,
+      "latestYear": 2025,
+      "averageCoverage": 0.2451,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 10,
+      "sheetRow": 11,
+      "drug": "Cilazapril",
+      "productsScored": 6,
+      "correlation": -1,
+      "earliestYear": 2020,
+      "latestYear": 2021,
+      "averageCoverage": 0.5,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 11,
+      "sheetRow": 12,
+      "drug": "Ciprofloxacin",
+      "productsScored": 30,
+      "correlation": 0.06,
+      "earliestYear": 2018,
+      "latestYear": 2025,
+      "averageCoverage": 0.1935,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 12,
+      "sheetRow": 13,
+      "drug": "Dapagliflozin",
+      "productsScored": 24,
+      "correlation": 0.23,
+      "earliestYear": 2025,
+      "latestYear": 2026,
+      "averageCoverage": 0.8205,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 13,
+      "sheetRow": 14,
+      "drug": "Diazepam",
+      "productsScored": 7,
+      "correlation": 0.09,
+      "earliestYear": 2021,
+      "latestYear": 2022,
+      "averageCoverage": 0.1719,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 14,
+      "sheetRow": 15,
+      "drug": "Diltiazem",
+      "productsScored": 65,
+      "correlation": 0.44,
+      "earliestYear": 2021,
+      "latestYear": 2025,
+      "averageCoverage": 0.1,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 15,
+      "sheetRow": 16,
+      "drug": "Dulaglutide",
+      "productsScored": 2,
+      "correlation": null,
+      "earliestYear": 2024,
+      "latestYear": 2024,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 16,
+      "sheetRow": 17,
+      "drug": "Empagliflozin",
+      "productsScored": 2,
+      "correlation": null,
+      "earliestYear": 2025,
+      "latestYear": 2025,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 17,
+      "sheetRow": 18,
+      "drug": "Enalapril",
+      "productsScored": 35,
+      "correlation": null,
+      "earliestYear": 2021,
+      "latestYear": 2023,
+      "averageCoverage": 0.4487,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 18,
+      "sheetRow": 19,
+      "drug": "Esomeprazole",
+      "productsScored": 23,
+      "correlation": 0.46,
+      "earliestYear": 2021,
+      "latestYear": 2024,
+      "averageCoverage": 0.5741,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 19,
+      "sheetRow": 20,
+      "drug": "Fluvastatin",
+      "productsScored": 0,
+      "correlation": null,
+      "earliestYear": null,
+      "latestYear": null,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 20,
+      "sheetRow": 21,
+      "drug": "Fosfomycin",
+      "productsScored": 3,
+      "correlation": 0.5,
+      "earliestYear": 2018,
+      "latestYear": 2024,
+      "averageCoverage": 0.3333,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 21,
+      "sheetRow": 22,
+      "drug": "Fosinopril",
+      "productsScored": 6,
+      "correlation": null,
+      "earliestYear": 2016,
+      "latestYear": 2024,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 22,
+      "sheetRow": 23,
+      "drug": "Furosemide",
+      "productsScored": 24,
+      "correlation": 0.17,
+      "earliestYear": 2012,
+      "latestYear": 2024,
+      "averageCoverage": 0.0083,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 23,
+      "sheetRow": 24,
+      "drug": "Liraglutide",
+      "productsScored": 0,
+      "correlation": null,
+      "earliestYear": null,
+      "latestYear": null,
+      "averageCoverage": 0.75,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 24,
+      "sheetRow": 25,
+      "drug": "Lisinopril",
+      "productsScored": 16,
+      "correlation": null,
+      "earliestYear": 2023,
+      "latestYear": 2024,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 25,
+      "sheetRow": 26,
+      "drug": "Lorazepam",
+      "productsScored": 18,
+      "correlation": -1,
+      "earliestYear": 2022,
+      "latestYear": 2023,
+      "averageCoverage": 0.1111,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 26,
+      "sheetRow": 27,
+      "drug": "Losartan",
+      "productsScored": 24,
+      "correlation": null,
+      "earliestYear": 2022,
+      "latestYear": 2024,
+      "averageCoverage": 0.5,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 27,
+      "sheetRow": 28,
+      "drug": "Lovastatin",
+      "productsScored": 0,
+      "correlation": null,
+      "earliestYear": null,
+      "latestYear": null,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 28,
+      "sheetRow": 29,
+      "drug": "Metformin",
+      "productsScored": 40,
+      "correlation": -0.3,
+      "earliestYear": 2018,
+      "latestYear": 2025,
+      "averageCoverage": 0.2711,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 29,
+      "sheetRow": 30,
+      "drug": "Metoprolol",
+      "productsScored": 27,
+      "correlation": -0.11,
+      "earliestYear": 2020,
+      "latestYear": 2025,
+      "averageCoverage": 0.254,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 30,
+      "sheetRow": 31,
+      "drug": "Moxifloxacin",
+      "productsScored": 14,
+      "correlation": null,
+      "earliestYear": 2017,
+      "latestYear": 2022,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 31,
+      "sheetRow": 32,
+      "drug": "Nitrofurantoin",
+      "productsScored": 5,
+      "correlation": null,
+      "earliestYear": 2020,
+      "latestYear": 2024,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 32,
+      "sheetRow": 33,
+      "drug": "Norfloxacin",
+      "productsScored": 1,
+      "correlation": null,
+      "earliestYear": 2025,
+      "latestYear": 2025,
+      "averageCoverage": 0.5,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 33,
+      "sheetRow": 34,
+      "drug": "Omeprazole",
+      "productsScored": 16,
+      "correlation": -0.53,
+      "earliestYear": 2015,
+      "latestYear": 2024,
+      "averageCoverage": 0.1989,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 34,
+      "sheetRow": 35,
+      "drug": "Pantoprazole",
+      "productsScored": 39,
+      "correlation": 0.06,
+      "earliestYear": 2020,
+      "latestYear": 2025,
+      "averageCoverage": 0.4293,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 35,
+      "sheetRow": 36,
+      "drug": "Paroxetine",
+      "productsScored": 53,
+      "correlation": -0.35,
+      "earliestYear": 2022,
+      "latestYear": 2025,
+      "averageCoverage": 0.1321,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 36,
+      "sheetRow": 37,
+      "drug": "Perindopril",
+      "productsScored": 51,
+      "correlation": 0.01,
+      "earliestYear": 2022,
+      "latestYear": 2025,
+      "averageCoverage": 0.2778,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 37,
+      "sheetRow": 38,
+      "drug": "Pravastatin",
+      "productsScored": 39,
+      "correlation": null,
+      "earliestYear": 2020,
+      "latestYear": 2025,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 38,
+      "sheetRow": 39,
+      "drug": "Quinapril",
+      "productsScored": 7,
+      "correlation": null,
+      "earliestYear": 2023,
+      "latestYear": 2023,
+      "averageCoverage": 0.381,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 39,
+      "sheetRow": 40,
+      "drug": "Rabeprazole",
+      "productsScored": 8,
+      "correlation": null,
+      "earliestYear": 2022,
+      "latestYear": 2023,
+      "averageCoverage": 1,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 40,
+      "sheetRow": 41,
+      "drug": "Ramipril",
+      "productsScored": 58,
+      "correlation": null,
+      "earliestYear": 2018,
+      "latestYear": 2024,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 41,
+      "sheetRow": 42,
+      "drug": "Rivaroxaban",
+      "productsScored": 40,
+      "correlation": 0.14,
+      "earliestYear": 2024,
+      "latestYear": 2025,
+      "averageCoverage": 0.2765,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 42,
+      "sheetRow": 43,
+      "drug": "Rosuvastatin",
+      "productsScored": 84,
+      "correlation": null,
+      "earliestYear": 2024,
+      "latestYear": 2025,
+      "averageCoverage": 0,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 43,
+      "sheetRow": 44,
+      "drug": "Semaglutide",
+      "productsScored": 3,
+      "correlation": null,
+      "earliestYear": 2025,
+      "latestYear": 2025,
+      "averageCoverage": 0.3205,
+      "correlationStatus": "no_variation"
+    },
+    {
+      "id": 44,
+      "sheetRow": 45,
+      "drug": "Simvastatin",
+      "productsScored": 55,
+      "correlation": 0.06,
+      "earliestYear": 2023,
+      "latestYear": 2025,
+      "averageCoverage": 0.1944,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 45,
+      "sheetRow": 46,
+      "drug": "Telmisartan",
+      "productsScored": 26,
+      "correlation": -0.1,
+      "earliestYear": 2022,
+      "latestYear": 2025,
+      "averageCoverage": 0.5769,
+      "correlationStatus": "calculated"
+    },
+    {
+      "id": 46,
+      "sheetRow": 47,
+      "drug": "Trandolapril",
+      "productsScored": 25,
+      "correlation": -0.05,
+      "earliestYear": 2019,
+      "latestYear": 2022,
+      "averageCoverage": 0.32,
+      "correlationStatus": "calculated"
+    }
+  ]
+}

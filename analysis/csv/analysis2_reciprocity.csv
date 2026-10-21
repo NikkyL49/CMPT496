@@ -1,0 +1,101 @@
+Drug A,Drug B,A -> B,B -> A,Status
+Amlodipine,Simvastatin,0.91,0.62,Two-way
+Atorvastatin,Azithromycin,0.91,0.25,Two-way
+Metoprolol,Paroxetine,0.80,0.13,Two-way
+Apixaban,Diltiazem,0.76,0.33,Two-way
+Diazepam,Omeprazole,0.50,1.00,Two-way
+Amlodipine,Atorvastatin,0.32,0.75,Two-way
+Diazepam,Esomeprazole,0.13,0.93,Two-way
+Diltiazem,Simvastatin,0.11,0.55,Two-way
+Diltiazem,Lovastatin,0.06,1.00,Two-way
+Atorvastatin,Diltiazem,0.05,0.11,Two-way
+Furosemide,Metformin,0.04,0.98,Two-way
+Canagliflozin,Hydrochlorothiazide,1.00,none,One-way (In combination)
+Canagliflozin + Metformin,Rosuvastatin,1.00,none,One-way (In combination)
+Canagliflozin + Metformin,Hydrochlorothiazide,1.00,none,One-way (In combination)
+Empagliflozin,Hydrochlorothiazide,1.00,none,One-way (In combination)
+Empagliflozin + Metformin,Ramipril,1.00,none,One-way (In combination)
+Empagliflozin + Metformin,Simvastatin,1.00,none,One-way (In combination)
+Empagliflozin + Metformin,Hydrochlorothiazide,1.00,none,One-way (In combination)
+Fosinopril,Hydrochlorothiazide,1.00,none,One-way (In combination)
+Insulin Degludec + Liraglutide,Atorvastatin,1.00,none,One-way (In combination)
+Losartan,Trimethoprim,1.00,none,One-way (In combination)
+Perindopril,Trimethoprim,1.00,none,One-way (In combination)
+Metformin,Trimethoprim,0.92,none,One-way (In combination)
+Enalapril,Trimethoprim,0.90,none,One-way (In combination)
+Dapagliflozin,Hydrochlorothiazide,0.85,none,One-way (In combination)
+Telmisartan,Hydrochlorothiazide,0.62,none,One-way (In combination)
+Trandolapril,Sulfamethoxazole,0.60,none,One-way (In combination)
+Trandolapril,Trimethoprim,0.60,none,One-way (In combination)
+Quinapril,Sulfamethoxazole,0.57,none,One-way (In combination)
+Quinapril,Trimethoprim,0.57,none,One-way (In combination)
+Cilazapril,Trimethoprim,0.50,none,One-way (In combination)
+Azithromycin,Sulfamethoxazole,0.42,none,One-way (In combination)
+Azithromycin,Trimethoprim,0.42,none,One-way (In combination)
+Diazepam,Dexamethasone,0.38,none,One-way (In combination)
+Candesartan,Hydrochlorothiazide,0.37,none,One-way (In combination)
+Lisinopril + Hydrochlorothiazide,Furosemide,0.13,none,One-way (In combination)
+Perindopril,Sulfamethoxazole,0.07,none,One-way (In combination)
+Amoxicillin + Clavulanate,Ampicillin,0.07,none,One-way (In combination)
+Metoprolol,Hydrochlorothiazide,0.07,none,One-way (In combination)
+Candesartan,Sulfamethoxazole,0.04,none,One-way (In combination)
+Candesartan,Trimethoprim,0.04,none,One-way (In combination)
+Perindopril,Hydrochlorothiazide,0.02,none,One-way (In combination)
+Bisoprolol,Diltiazem,1.00,0.00,One-way
+Canagliflozin,Metformin,1.00,0.00,One-way
+Canagliflozin,Simvastatin,1.00,0.00,One-way
+Dapagliflozin,Metformin,1.00,0.00,One-way
+Dulaglutide,Atorvastatin,1.00,0.00,One-way
+Dulaglutide,Lisinopril,1.00,0.00,One-way
+Dulaglutide,Metformin,1.00,0.00,One-way
+Dulaglutide,Metoprolol,1.00,0.00,One-way
+Empagliflozin,Metformin,1.00,0.00,One-way
+Empagliflozin,Ramipril,1.00,0.00,One-way
+Empagliflozin,Simvastatin,1.00,0.00,One-way
+Fluvastatin,Amlodipine,1.00,0.00,One-way
+Fluvastatin,Losartan,1.00,0.00,One-way
+Fluvastatin,Omeprazole,1.00,0.00,One-way
+Fosinopril,Furosemide,1.00,0.00,One-way
+Liraglutide,Atorvastatin,1.00,0.00,One-way
+Lovastatin,Lisinopril,1.00,0.00,One-way
+Norfloxacin,Nitrofurantoin,1.00,0.00,One-way
+Omeprazole,Metoprolol,1.00,0.00,One-way
+Rabeprazole,Amoxicillin,1.00,0.00,One-way
+Rabeprazole,Diazepam,1.00,0.00,One-way
+Rabeprazole,Omeprazole,1.00,0.00,One-way
+Pantoprazole,Amoxicillin,0.95,0.00,One-way
+Metoprolol,Diltiazem,0.93,0.00,One-way
+Amlodipine,Diltiazem,0.92,0.00,One-way
+Dapagliflozin,Simvastatin,0.62,0.00,One-way
+Semaglutide,Metformin,0.62,0.00,One-way
+Telmisartan,Amlodipine,0.58,0.00,One-way
+Rivaroxaban,Omeprazole,0.58,0.00,One-way
+Bisoprolol,Metoprolol,0.55,0.00,One-way
+Telmisartan,Ramipril,0.54,0.00,One-way
+Candesartan,Enalapril,0.53,0.00,One-way
+Pantoprazole,Diazepam,0.51,0.00,One-way
+Pantoprazole,Metoprolol,0.51,0.00,One-way
+Liraglutide,Lisinopril,0.50,0.00,One-way
+Atorvastatin,Quinapril,0.47,0.00,One-way
+Semaglutide,Atorvastatin,0.38,0.00,One-way
+Diazepam,Diltiazem,0.38,0.00,One-way
+Ciprofloxacin,Omeprazole,0.35,0.00,One-way
+Fosfomycin,Ampicillin,0.33,0.00,One-way
+Fosfomycin,Moxifloxacin,0.33,0.00,One-way
+Diltiazem,Rivaroxaban,0.33,0.00,One-way
+Rivaroxaban,Atorvastatin,0.32,0.00,One-way
+Semaglutide,Furosemide,0.23,0.00,One-way
+Semaglutide,Lisinopril,0.23,0.00,One-way
+Semaglutide,Omeprazole,0.23,0.00,One-way
+Semaglutide,Rosuvastatin,0.23,0.00,One-way
+Esomeprazole,Omeprazole,0.22,0.00,One-way
+Rivaroxaban,Apixaban,0.21,0.00,One-way
+Omeprazole,Amoxicillin,0.19,0.00,One-way
+Pantoprazole,Omeprazole,0.17,0.00,One-way
+Paroxetine,Diazepam,0.13,0.00,One-way
+Lorazepam,Diazepam,0.11,0.00,One-way
+Diltiazem,Pravastatin,0.05,0.00,One-way
+Trandolapril,Omeprazole,0.04,0.00,One-way
+Trandolapril,Pantoprazole,0.04,0.00,One-way
+Ciprofloxacin,Norfloxacin,0.03,0.00,One-way
+Perindopril,Furosemide,0.02,0.00,One-way

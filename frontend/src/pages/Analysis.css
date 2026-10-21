@@ -1,0 +1,20 @@
+.analysis-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.analysis-page h1 {
+  margin: 0 0 0.5rem;
+}
+
+.analysis-intro {
+  margin: 0 0 2.5rem;
+  max-width: 70ch;
+  line-height: 1.5;
+}
+
+.analysis-section + .analysis-section {
+  padding-top: 2rem;
+  border-top: 1px solid var(--border, #ddd);
+}
