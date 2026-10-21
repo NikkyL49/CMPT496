@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "Analysis 2: Interaction coverage by revision year",
+    "description": "Average coverage (share of a product's expected interaction partners that its label names), grouped by the year the label was last revised. Pools all single-ingredient drugs.",
+    "sheetTab": "Analysis 2: Coverage by Year",
+    "sourceFile": "analysis2_coverage_by_year.csv",
+    "generatedAt": "2026-10-13T15:45:44.736Z",
+    "rowCount": 14,
+    "columns": [
+      {
+        "key": "id",
+        "type": "integer",
+        "description": "Row number in this JSON file"
+      },
+      {
+        "key": "sheetRow",
+        "type": "integer",
+        "description": "Row number in the spreadsheet tab, for tracing back"
+      },
+      {
+        "key": "revisionYear",
+        "label": "Revision Year (Helper)",
+        "sheetColumn": "A",
+        "type": "year",
+        "description": "Year of the label's latest revision. null = no usable date (see revisionYearLabel)"
+      },
+      {
+        "key": "averageCoverage",
+        "label": "Coverage by Year",
+        "sheetColumn": "B",
+        "type": "number (0 to 1)",
+        "description": "Average coverage for products revised that year (0 to 1)"
+      },
+      {
+        "key": "products",
+        "label": "COUNTA of Record Key",
+        "sheetColumn": "C",
+        "type": "integer",
+        "description": "Number of products in that year"
+      },
+      {
+        "key": "revisionYearLabel",
+        "type": "text",
+        "description": "Year as shown in the sheet, including 'No date'"
+      }
+    ],
+    "notes": [
+      "Products whose labels were last revised in 2017, across all drugs, name on average 22.22% of the interaction partners documented elsewhere in the dataset.",
+      "Products revised 2018 to 2021 have an average coverage of about 15% (204 products)",
+      "Products revised 2022 to 2025 have an average coverage of about 27% (954 products)"
+    ],
+    "grandTotal": {
+      "averageCoverage": 0.2601,
+      "products": 1327
+    },
+    "summary": {
+      "periods": [
+        {
+          "from": 2018,
+          "to": 2021,
+          "products": 204,
+          "averageCoverage": 0.1535
+        },
+        {
+          "from": 2022,
+          "to": 2025,
+          "products": 954,
+          "averageCoverage": 0.2741
+        }
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": 1,
+      "sheetRow": 2,
+      "revisionYear": 2012,
+      "averageCoverage": 0,
+      "products": 2,
+      "revisionYearLabel": "2012"
+    },
+    {
+      "id": 2,
+      "sheetRow": 3,
+      "revisionYear": 2015,
+      "averageCoverage": 0.1818,
+      "products": 1,
+      "revisionYearLabel": "2015"
+    },
+    {
+      "id": 3,
+      "sheetRow": 4,
+      "revisionYear": 2016,
+      "averageCoverage": 0.5227,
+      "products": 11,
+      "revisionYearLabel": "2016"
+    },
+    {
+      "id": 4,
+      "sheetRow": 5,
+      "revisionYear": 2017,
+      "averageCoverage": 0.2222,
+      "products": 9,
+      "revisionYearLabel": "2017"
+    },
+    {
+      "id": 5,
+      "sheetRow": 6,
+      "revisionYear": 2018,
+      "averageCoverage": 0.0816,
+      "products": 28,
+      "revisionYearLabel": "2018"
+    },
+    {
+      "id": 6,
+      "sheetRow": 7,
+      "revisionYear": 2019,
+      "averageCoverage": 0.1972,
+      "products": 30,
+      "revisionYearLabel": "2019"
+    },
+    {
+      "id": 7,
+      "sheetRow": 8,
+      "revisionYear": 2020,
+      "averageCoverage": 0.1227,
+      "products": 75,
+      "revisionYearLabel": "2020"
+    },
+    {
+      "id": 8,
+      "sheetRow": 9,
+      "revisionYear": 2021,
+      "averageCoverage": 0.1958,
+      "products": 71,
+      "revisionYearLabel": "2021"
+    },
+    {
+      "id": 9,
+      "sheetRow": 10,
+      "revisionYear": 2022,
+      "averageCoverage": 0.3181,
+      "products": 143,
+      "revisionYearLabel": "2022"
+    },
+    {
+      "id": 10,
+      "sheetRow": 11,
+      "revisionYear": 2023,
+      "averageCoverage": 0.3099,
+      "products": 280,
+      "revisionYearLabel": "2023"
+    },
+    {
+      "id": 11,
+      "sheetRow": 12,
+      "revisionYear": 2024,
+      "averageCoverage": 0.2467,
+      "products": 251,
+      "revisionYearLabel": "2024"
+    },
+    {
+      "id": 12,
+      "sheetRow": 13,
+      "revisionYear": 2025,
+      "averageCoverage": 0.2405,
+      "products": 280,
+      "revisionYearLabel": "2025"
+    },
+    {
+      "id": 13,
+      "sheetRow": 14,
+      "revisionYear": 2026,
+      "averageCoverage": 0.875,
+      "products": 8,
+      "revisionYearLabel": "2026"
+    },
+    {
+      "id": 14,
+      "sheetRow": 15,
+      "revisionYear": null,
+      "averageCoverage": 0.2706,
+      "products": 138,
+      "revisionYearLabel": "No date"
+    }
+  ]
+}

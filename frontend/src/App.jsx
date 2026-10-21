@@ -9,6 +9,7 @@ import ResetPassword from './pages/ResetPassword'
 import Saved from './pages/Saved'
 import Settings from './pages/Settings'
 import ComingSoon from './pages/ComingSoon'
+import Analysis from './pages/Analysis'
 import Compare from './pages/Compare'
 import Drug from './pages/Drug'
 
@@ -70,6 +71,8 @@ function App() {
     page = <Settings />
   } else if (path === '/') {
     page = <Overview />
+  } else if (path === '/analysis') {
+    page = <Analysis />
   } else {
     // Discovery, Interaction check, etc.
     page = <ComingSoon />
