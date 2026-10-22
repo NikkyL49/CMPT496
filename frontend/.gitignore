@@ -26,3 +26,7 @@ monographs.json
 *.njsproj
 *.sln
 *.sw?
+
+.env
+node_modules/
+monographs.json
