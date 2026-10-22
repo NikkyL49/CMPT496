@@ -1,5 +1,5 @@
 // Who is logged in, which role the site is showing, and recent searches.
-// Lives in memory only — a page refresh logs you out (mock auth).
+// The login itself is a cookie; restoreSession() (auth.js) refills user on refresh.
 import { createStore } from '../utils/store'
 import { DEFAULT_ROLE } from './roles'
 

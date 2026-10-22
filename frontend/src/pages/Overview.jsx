@@ -36,7 +36,7 @@ function Overview() {
       </section>
 
       <section className="feature-cards">
-        <a href="#" className="card">
+        <a href="#/discovery" className="card">
           <p className="kicker card-kicker">Discovery</p>
           <h2 className="card-title">Explore by category</h2>
           <p className="card-body">

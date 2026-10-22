@@ -1,168 +1,99 @@
-// MOCK auth service — stands in for the real backend until it exists.
-// Swap the function bodies for fetch() calls to the API; the pages only
-// depend on these functions resolving or throwing AuthError.
+// Auth service — talks to the backend's /api/auth and /api/users routes.
+// The pages only depend on these functions resolving or throwing AuthError.
 //
-// Accounts and the login session live in memory, so a page refresh logs you
-// out and forgets any accounts created with signup().
+// The login session is an httpOnly cookie set by the backend, so a page
+// refresh keeps you logged in (restoreSession() runs on startup).
 import { sessionStore } from './session'
-import { DEFAULT_ROLE } from './roles'
+import { api, ApiError } from './api'
+import { loadAccountSaved, mergeGuestSaved, resetToGuestSaved } from './saved'
 
-const DEFAULT_NOTIFICATIONS = {
-  inconsistency: true, // a new inconsistency is flagged
-  interactions: true, // interaction alerts for saved drugs
-  news: false, // product news
+export { ApiError as AuthError }
+
+function setUser(user) {
+  sessionStore.set((s) => ({ ...s, user }))
 }
 
-const users = [
-  {
-    name: 'Demo User',
-    email: 'demo@monobyte.ca',
-    password: 'Monobyte1!',
-    defaultRole: 'General Public',
-    landingPage: '/',
-    notifications: { ...DEFAULT_NOTIFICATIONS },
-  },
-]
+// Local logged-out state (the cookie is cleared by the server, or already gone)
+function clearSession() {
+  sessionStore.set((s) => ({ ...s, user: null, searchHistory: [] }))
+  resetToGuestSaved()
+}
 
-const delay = (ms) => new Promise((r) => setTimeout(r, ms))
-
-export class AuthError extends Error {}
-
-const sameEmail = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase()
-
-// What the frontend is allowed to see (never the password)
-function publicUser(u) {
-  return {
-    name: u.name,
-    email: u.email,
-    defaultRole: u.defaultRole,
-    landingPage: u.landingPage,
-    notifications: { ...u.notifications },
+// Any call that answers 401 means the cookie expired — show the user as logged out
+async function authed(method, path, body) {
+  try {
+    return await api(method, path, body)
+  } catch (err) {
+    if (err.status === 401) clearSession()
+    throw err
   }
 }
 
-function currentRecord() {
-  const me = sessionStore.get().user
-  const user = me && users.find((u) => sameEmail(u.email, me.email))
-  if (!user) throw new AuthError('You need to log in again.')
-  return user
-}
+// ---- Startup ----
 
-function refreshSession(user) {
-  sessionStore.set((s) => ({ ...s, user: publicUser(user) }))
+// Called once from main.jsx: who does the cookie belong to?
+export async function restoreSession() {
+  try {
+    const { user, savedDrugs } = await api('GET', '/auth/me')
+    if (!user) return
+    sessionStore.set((s) => ({ ...s, user, viewRole: user.defaultRole }))
+    loadAccountSaved(savedDrugs)
+  } catch {
+    // backend down — stay logged out, the rest of the site still works
+  }
 }
 
 // ---- Log in / sign up / log out ----
 
 export async function login(email, password) {
-  await delay(400) // simulate network
-  const user = users.find((u) => sameEmail(u.email, email))
-  // Same message for unknown email and wrong password, so the form
-  // doesn't reveal which emails have accounts.
-  if (!user || user.password !== password) {
-    throw new AuthError('Incorrect email or password.')
-  }
-  sessionStore.set((s) => ({
-    ...s,
-    user: publicUser(user),
-    viewRole: user.defaultRole,
-  }))
-  return publicUser(user)
+  const { user, savedDrugs } = await api('POST', '/auth/login', { email, password })
+  sessionStore.set((s) => ({ ...s, user, viewRole: user.defaultRole }))
+  loadAccountSaved(savedDrugs)
+  await mergeGuestSaved() // drugs saved while logged out join the account
+  return user
 }
 
+// Sign up doesn't log you in — the page sends you to the login page.
 export async function signup({ name, email, password, role }) {
-  await delay(400)
-  if (users.some((u) => sameEmail(u.email, email))) {
-    throw new AuthError('An account with this email already exists.')
-  }
-  const user = {
-    name: name.trim(),
-    email: email.trim(),
-    password,
-    defaultRole: role || DEFAULT_ROLE,
-    landingPage: '/',
-    notifications: { ...DEFAULT_NOTIFICATIONS },
-  }
-  users.push(user)
-  return publicUser(user)
+  const { user } = await api('POST', '/auth/signup', { name, email, password, role })
+  return user
 }
 
 export function logout() {
-  sessionStore.set((s) => ({ ...s, user: null, searchHistory: [] }))
+  clearSession()
+  api('POST', '/auth/logout').catch(() => {}) // cookie cleared server side
 }
 
 // ---- Settings ----
 
 export async function updateProfile({ name, email }) {
-  await delay(300)
-  const user = currentRecord()
-  const taken = users.some((u) => u !== user && sameEmail(u.email, email))
-  if (taken) throw new AuthError('Another account already uses this email.')
-  user.name = name.trim()
-  user.email = email.trim()
-  refreshSession(user)
+  const { user } = await authed('PATCH', '/users/me', { name, email })
+  setUser(user)
 }
 
 export async function changePassword(currentPassword, newPassword) {
-  await delay(400)
-  const user = currentRecord()
-  if (user.password !== currentPassword) {
-    throw new AuthError('Your current password is incorrect.')
-  }
-  user.password = newPassword
+  await authed('POST', '/users/me/password', { currentPassword, newPassword })
 }
 
 // patch: any of { defaultRole, landingPage, notifications: {...} }
 export async function updatePreferences(patch) {
-  await delay(200)
-  const user = currentRecord()
-  if (patch.defaultRole) user.defaultRole = patch.defaultRole
-  if (patch.landingPage) user.landingPage = patch.landingPage
-  if (patch.notifications) {
-    user.notifications = { ...user.notifications, ...patch.notifications }
-  }
-  refreshSession(user)
+  const { user } = await authed('PATCH', '/users/me/preferences', patch)
+  setUser(user)
 }
 
 export async function deleteAccount(password) {
-  await delay(400)
-  const user = currentRecord()
-  if (user.password !== password) {
-    throw new AuthError('Incorrect password.')
-  }
-  users.splice(users.indexOf(user), 1)
-  logout()
+  await authed('DELETE', '/users/me', { password })
+  clearSession()
 }
 
 // ---- Password reset ----
-// Real flow: the backend emails a one-time link. The mock returns the token
-// so the Forgot password page can show the link on screen for testing.
-
-const RESET_TTL_MS = 30 * 60 * 1000 // links expire after 30 minutes
-const resetTokens = new Map() // token -> { email, expires }
-
-function makeToken() {
-  return crypto.randomUUID().replaceAll('-', '')
-}
+// TODO: the backend should email the link. Until it has an email service, it
+// returns the token outside production so the Forgot password page can show it.
 
 export async function requestPasswordReset(email) {
-  await delay(400)
-  const user = users.find((u) => sameEmail(u.email, email))
-  // The page shows the same message either way; only the mock returns the token.
-  if (!user) return { demoToken: null }
-  const token = makeToken()
-  resetTokens.set(token, { email: user.email, expires: Date.now() + RESET_TTL_MS })
-  return { demoToken: token }
+  return api('POST', '/auth/forgot-password', { email }) // { demoToken }
 }
 
 export async function resetPassword(token, newPassword) {
-  await delay(400)
-  const entry = resetTokens.get(token)
-  const user = entry && users.find((u) => u.email === entry.email)
-  if (!entry || entry.expires < Date.now() || !user) {
-    resetTokens.delete(token)
-    throw new AuthError('This reset link is invalid or has expired.')
-  }
-  user.password = newPassword
-  resetTokens.delete(token) // one-time use
+  await api('POST', '/auth/reset-password', { token, password: newPassword })
 }
