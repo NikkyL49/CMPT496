@@ -60,6 +60,7 @@ function buildCatalog(details, aeData) {
       pregnancy: summary?.pregnancy,
       pregnancyLevel: recommendationLevel(summary?.pregnancy),
       contraindications,
+      warnings: summary?.warningTerms ?? [], // MedDRA terms from the Warnings section (Discovery's "Caution")
       aeCount: termsForProduct(aeData, p)?.size ?? 0,
       missingCommon: flag?.missingCommon.length ?? 0,
       dins,

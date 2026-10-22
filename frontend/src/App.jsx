@@ -12,6 +12,7 @@ import ComingSoon from './pages/ComingSoon'
 import Analysis from './pages/Analysis'
 import Compare from './pages/Compare'
 import Drug from './pages/Drug'
+import Discovery from './pages/Discovery'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -67,6 +68,8 @@ function App() {
         tab={params.get('tab') ?? 'overview'}
       />
     )
+  } else if (path === '/discovery') {
+    page = <Discovery />
   } else if (path === '/settings') {
     page = <Settings />
   } else if (path === '/') {
@@ -74,7 +77,7 @@ function App() {
   } else if (path === '/analysis') {
     page = <Analysis />
   } else {
-    // Discovery, Interaction check, etc.
+    // Interaction check, Inconsistency report, etc.
     page = <ComingSoon />
   }
 
