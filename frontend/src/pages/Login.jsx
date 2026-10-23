@@ -9,7 +9,7 @@ const NOTICES = {
   deleted: 'Your account has been deleted.',
 }
 
-function Login({ notice }) {
+function Login({ notice, returnTo }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(true)
@@ -34,7 +34,8 @@ function Login({ notice }) {
     try {
       // TODO: pass `remember` to the real API (session vs. persistent token)
       const user = await login(email, password)
-      window.location.hash = `#${user.landingPage || '/'}`
+      // Back to the page that asked them to log in, else their landing page
+      window.location.hash = returnTo?.startsWith('#/') ? returnTo : `#${user.landingPage || '/'}`
     } catch (err) {
       setFormError(
         err instanceof AuthError

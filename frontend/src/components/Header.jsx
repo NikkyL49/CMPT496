@@ -1,8 +1,8 @@
-import { ROLES } from '../data/roles'
 import { sessionStore, setViewRole } from '../data/session'
 import { savedStore } from '../data/saved'
 import { logout } from '../data/auth'
 import { useStore } from '../utils/store'
+import { canAccess, effectiveRole, rolesFor } from '../data/access'
 import logoMark from '../assets/logo-mark.png'
 import './Header.css'
 
@@ -12,10 +12,16 @@ const navLinks = [
   { label: 'Compare', path: '/compare' },
   { label: 'Interaction check', path: '/interactions' },
   { label: 'Saved', path: '/saved' },
+  { label: 'Analysis', path: '/analysis' }, // researchers only
 ]
 
 function Header({ currentPath = '/' }) {
-  const { user, viewRole } = useStore(sessionStore)
+  const session = useStore(sessionStore)
+  const { user } = session
+  const role = effectiveRole(session)
+  const roleOptions = rolesFor(user)
+  // Only show the pages this role can open (rules in data/access.js)
+  const links = navLinks.filter(({ path }) => canAccess(path, role))
   const savedCount = useStore(savedStore).length
 
   function handleLogout() {
@@ -31,7 +37,7 @@ function Header({ currentPath = '/' }) {
       </a>
 
       <nav className="site-nav" aria-label="Main">
-        {navLinks.map(({ label, path }) => {
+        {links.map(({ label, path }) => {
           const active = path === currentPath
           return (
             <a
@@ -54,8 +60,13 @@ function Header({ currentPath = '/' }) {
       <div className="header-actions">
         <label className="role-select">
           <span>Role:</span>
-          <select value={viewRole} onChange={(e) => setViewRole(e.target.value)}>
-            {ROLES.map((r) => (
+          <select
+            value={role}
+            onChange={(e) => setViewRole(e.target.value)}
+            disabled={roleOptions.length < 2}
+            title={user ? 'View the site as this role' : 'Log in to use your account role'}
+          >
+            {roleOptions.map((r) => (
               <option key={r}>{r}</option>
             ))}
           </select>

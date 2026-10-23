@@ -5,6 +5,9 @@ import {
 } from '../data/overview'
 import { drugHrefForBrand } from '../utils/links'
 import SearchBox from '../components/SearchBox'
+import { useStore } from '../utils/store'
+import { sessionStore } from '../data/session'
+import { useCan } from '../data/access'
 import './Overview.css'
 
 // Divergence score → badge colour (thresholds are a guess; tune with the team)
@@ -14,7 +17,25 @@ function divergenceLevel(score) {
   return 'lo'
 }
 
+// Text under a card the current role can't open
+function LockNote({ path, who }) {
+  const { user } = useStore(sessionStore)
+  return user ? (
+    <p className="unlock-link">{who} only</p>
+  ) : (
+    <a href={`#/login?next=${encodeURIComponent(`#${path}`)}`} className="unlock-link">
+      Log in to unlock →
+    </a>
+  )
+}
+
 function Overview() {
+  const canCheckInteractions = useCan('/interactions')
+  const canSeeReport = useCan('/inconsistency')
+  // A card is a link when the role can open the page, a locked box otherwise
+  const InteractionCard = canCheckInteractions ? 'a' : 'div'
+  const ReportCard = canSeeReport ? 'a' : 'div'
+
   return (
     <main className="overview">
       <section className="hero">
@@ -45,7 +66,10 @@ function Overview() {
           </p>
         </a>
 
-        <a href="#" className="card card-raised">
+        <InteractionCard
+          {...(canCheckInteractions ? { href: '#/interactions' } : {})}
+          className={`card card-raised${canCheckInteractions ? '' : ' card-locked'}`}
+        >
           <p className="kicker card-kicker">Check interactions</p>
           <h2 className="card-title">Enter a medication list</h2>
           <p className="card-body">
@@ -57,19 +81,27 @@ function Overview() {
             <span className="badge badge-solid-md">Moderate</span>
             <span className="badge badge-solid-lo">Minor</span>
           </div>
-        </a>
+          {!canCheckInteractions && (
+            <LockNote path="/interactions" who="Pharmacists, physicians and researchers" />
+          )}
+        </InteractionCard>
 
-        <div className="card card-raised card-locked">
+        <ReportCard
+          {...(canSeeReport ? { href: '#/inconsistency' } : {})}
+          className={`card card-raised${canSeeReport ? '' : ' card-locked'}`}
+        >
           <p className="kicker card-kicker">Researcher</p>
           <h2 className="card-title">Inconsistency Report</h2>
           <p className="card-body">
             {inconsistencyCount} same-ingredient inconsistencies flagged for
             review.
           </p>
-          <a href="#" className="unlock-link">
-            Log in to unlock →
-          </a>
-        </div>
+          {canSeeReport ? (
+            <span className="unlock-link">Open report →</span>
+          ) : (
+            <LockNote path="/inconsistency" who="Researchers" />
+          )}
+        </ReportCard>
       </section>
 
       <section className="recent">
