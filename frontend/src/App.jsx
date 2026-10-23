@@ -13,6 +13,8 @@ import Analysis from './pages/Analysis'
 import Compare from './pages/Compare'
 import Drug from './pages/Drug'
 import Discovery from './pages/Discovery'
+import Restricted from './pages/Restricted'
+import { canAccess, useRole } from './data/access'
 
 // Tiny hash router (#/search?q=...) — swap for react-router if the app grows
 function parseHash(hash) {
@@ -33,14 +35,20 @@ function useHashRoute() {
 function App() {
   const { path, params } = useHashRoute()
   const q = params.get('q') ?? ''
+  const role = useRole()
 
   let page
-  if (path === '/search') {
+  if (!canAccess(path, role)) {
+    // Page this role can't open (see data/access.js)
+    page = <Restricted path={path} />
+  } else if (path === '/search') {
     // key resets filters/sort whenever a new query is submitted
     const by = params.get('by') ?? ''
     page = <Search key={`${q}|${by}`} initialQuery={q} mode={by || null} />
   } else if (path === '/login') {
-    page = <Login key={params.get('notice')} notice={params.get('notice')} />
+    page = (
+      <Login key={params.get('notice')} notice={params.get('notice')} returnTo={params.get('next')} />
+    )
   } else if (path === '/signup') {
     page = <Signup />
   } else if (path === '/forgot-password') {
@@ -76,8 +84,10 @@ function App() {
     page = <Overview />
   } else if (path === '/analysis') {
     page = <Analysis />
+  } else if (path === '/inconsistency') {
+    page = <ComingSoon title="Inconsistency report" />
   } else {
-    // Interaction check, Inconsistency report, etc.
+    // Interaction check, etc.
     page = <ComingSoon />
   }
 

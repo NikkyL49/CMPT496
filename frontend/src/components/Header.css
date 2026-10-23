@@ -69,6 +69,13 @@
   cursor: pointer;
 }
 
+/* Only one role available (logged out, or nothing to switch to) */
+.role-select select:disabled {
+  cursor: default;
+  appearance: none;
+  opacity: 1;
+}
+
 .login-link {
   color: var(--color-text);
   text-decoration: none;

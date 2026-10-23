@@ -6,6 +6,7 @@ import { useStore } from '../utils/store'
 import { productsByIngredient, sameIngredientFlag } from '../utils/ingredientGroup'
 import { drugHref, searchHref } from '../utils/links'
 import { classesFor } from '../data/drugClasses'
+import { useCan } from '../data/access'
 import OverviewTab from './drug/OverviewTab'
 import AdverseEventsTab from './drug/AdverseEventsTab'
 import ConflictsTab from './drug/ConflictsTab'
@@ -20,7 +21,7 @@ const TABS = [
   { id: 'conflicts', label: 'Conflicts' },
   { id: 'graphs', label: 'Graphs' },
   { id: 'alternatives', label: 'Alternatives' },
-  { id: 'research', label: 'Research papers' },
+  { id: 'research', label: 'Source' },
 ]
 
 function SameIngredientBanner({ flag, ingredient, compareHref }) {
@@ -54,9 +55,11 @@ function SameIngredientBanner({ flag, ingredient, compareHref }) {
           </>
         )}
       </p>
-      <a href={compareHref} className="banner-link">
-        See the comparison →
-      </a>
+      {compareHref && (
+        <a href={compareHref} className="banner-link">
+          See the comparison →
+        </a>
+      )}
     </section>
   )
 }
@@ -66,6 +69,8 @@ function Drug({ productId, listingId, tab = 'overview' }) {
   const details = useDrugDetails()
   const aeData = useAdverseEvents()
   const savedIds = useStore(savedStore)
+  const canCompare = useCan('/compare')
+  const canCheckInteractions = useCan('/interactions')
 
   // Selected strength: from the URL, else the highest strength (as in the design)
   const variant =
@@ -153,13 +158,17 @@ function Drug({ productId, listingId, tab = 'overview' }) {
           >
             {saved ? '♥ Saved' : '♡ Save'}
           </button>
-          <a href={`#/compare?ids=${product.id}`} className="btn-outline">
-            Compare
-          </a>
+          {canCompare && (
+            <a href={`#/compare?ids=${product.id}`} className="btn-outline">
+              Compare
+            </a>
+          )}
           {/* TODO: Interaction check page isn't built yet */}
-          <a href={`#/interactions?ids=${product.id}`} className="btn-primary">
-            Add to interaction check
-          </a>
+          {canCheckInteractions && (
+            <a href={`#/interactions?ids=${product.id}`} className="btn-primary">
+              Add to interaction check
+            </a>
+          )}
         </div>
       </div>
 
@@ -183,7 +192,11 @@ function Drug({ productId, listingId, tab = 'overview' }) {
             </section>
           )}
 
-          <SameIngredientBanner flag={flag} ingredient={info.ingredient} compareHref={compareHref} />
+          <SameIngredientBanner
+            flag={flag}
+            ingredient={info.ingredient}
+            compareHref={canCompare ? compareHref : null}
+          />
 
           <div className="tabs drug-tabs" role="tablist" aria-label="Monograph sections">
             {TABS.map((t) => (
@@ -225,7 +238,13 @@ function Drug({ productId, listingId, tab = 'overview' }) {
               />
             )}
             {activeTab === 'alternatives' && (
-              <AlternativesTab product={product} others={others} details={details} aeData={aeData} />
+              <AlternativesTab
+                product={product}
+                others={others}
+                details={details}
+                aeData={aeData}
+                canCompare={canCompare}
+              />
             )}
             {activeTab === 'research' && (
               <ResearchTab product={product} variant={variant} details={details} />

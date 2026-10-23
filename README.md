@@ -40,7 +40,22 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
 | `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
 | `#/drug/<id>?s=...&tab=...` | Drug overview | Done: warnings, contraindications and same-ingredient banners; tabs for Overview, Adverse events, Conflicts, Graphs, Alternatives and Research papers (DIN, Health Canada link, PDF). Uses the MedDRA CSV. `s` = strength, `tab` = open tab |
-| other `#/...`        | Coming soon      | Placeholder for pages not built yet: Discovery, Interaction check, Inconsistency report |
+| `#/discovery`        | Discovery        | Explore by category |
+| `#/analysis`         | Analysis         | Researchers only. Charts across the whole dataset |
+| `#/inconsistency`    | Inconsistency report | Researchers only. Coming soon |
+| other `#/...`        | Coming soon      | Placeholder for pages not built yet: Interaction check |
+
+### Who can see what
+
+| Role | Pages |
+| ---- | ----- |
+| General Public (or logged out) | Home, Search, Drug overview, Saved, Discovery, Settings |
+| Pharmacist, Physician | Everything except Analysis and the Inconsistency report |
+| Researcher | Everything |
+
+The rules live in `frontend/src/data/access.js` (`RESTRICTED`). The role comes from the logged-in account (`defaultRole`); logged out counts as General Public. The header's Role dropdown only offers the account's own role and the roles below it, so a researcher can preview the public view but a pharmacist can't switch to Researcher. Opening a page your role can't use shows a "Restricted" page (log in, or switch back to your role). Nav links and buttons that lead to those pages (Compare, Add to interaction check, Check interactions, Compare with this, the Inconsistency Report card) are hidden or locked.
+
+This only hides pages in the browser. Data that must stay private (e.g. the analysis data) also has to be protected by the backend, and right now users pick their own role at sign-up and in Settings.
 
 ## Project structure
 
@@ -83,6 +98,7 @@ CMPT496-housekeeping-filestructure/
         │   ├── Compare.jsx  / .css
         │   ├── Drug.jsx     / .css  Drug overview page (header, banners, tabs)
         │   ├── drug/        One file per tab + parts.jsx (shared badges/chips)
+        │   ├── Restricted.jsx  Shown when your role can't open a page
         │   └── ComingSoon.jsx  Placeholder for unbuilt pages
         ├── data/             Data files (mostly placeholders until the API exists)
         │   ├── drug_monographs_dates.json  Real monograph dates (1,434 entries)
@@ -98,6 +114,7 @@ CMPT496-housekeeping-filestructure/
         │   ├── overview.js
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
+        │   ├── access.js     Which roles can open which pages; useRole(), useCan()
         │   ├── auth.js       Mock auth + account settings — swap for real API calls
         │   ├── session.js    Logged-in user, header role, search history
         │   └── saved.js      Saved drugs list (shared by Search + Saved)

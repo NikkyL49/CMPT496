@@ -37,7 +37,7 @@ const LANDING_PAGES = [
 ]
 
 const NOTIFICATIONS = [
-  { key: 'inconsistency', label: 'A new inconsistency is flagged' },
+  { key: 'inconsistency', label: 'A new inconsistency is flagged', researcherOnly: true },
   { key: 'interactions', label: 'Interaction alerts for saved drugs' },
   { key: 'news', label: 'Product news' },
 ]
@@ -290,7 +290,7 @@ function NotificationsSection({ user }) {
         </p>
       )}
       <ul className="switch-list">
-        {NOTIFICATIONS.map((n) => (
+        {NOTIFICATIONS.filter((n) => !n.researcherOnly || user.defaultRole === 'Researcher').map((n) => (
           <li key={n.key}>
             <span id={`notif-${n.key}`}>{n.label}</span>
             <Switch
