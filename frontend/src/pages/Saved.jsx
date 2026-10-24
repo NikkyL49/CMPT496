@@ -7,6 +7,7 @@ import {
   addManySaved,
 } from '../data/saved'
 import { useStore } from '../utils/store'
+import { useCan } from '../data/access'
 import { downloadFile, toCsv, today } from '../utils/download'
 import { monographById, strengthsLabel } from '../data/monographs'
 import { drugHref, drugHrefForBrand } from '../utils/links'
@@ -90,6 +91,7 @@ function SavedCard({ product: p, onRemove }) {
 
 function Saved({ sharedIds }) {
   const savedIds = useStore(savedStore)
+  const canCheckInteractions = useCan('/interactions')
   const [undo, setUndo] = useState(null) // { id, index, brand }
   const [shareState, setShareState] = useState(null) // 'copied' | url (fallback)
 
@@ -202,18 +204,20 @@ function Saved({ sharedIds }) {
             />
           ))}
 
-          <div className="saved-footer">
-            {/* TODO: Interaction check page isn't built yet */}
-            {count >= 2 ? (
-              <a href={interactionsHref} className="btn-primary">
-                Check interactions across {isShared ? 'this' : 'my'} list
-              </a>
-            ) : (
-              <p className="saved-hint">
-                Save at least two drugs to check interactions between them.
-              </p>
-            )}
-          </div>
+          {canCheckInteractions && (
+            <div className="saved-footer">
+              {/* TODO: Interaction check page isn't built yet */}
+              {count >= 2 ? (
+                <a href={interactionsHref} className="btn-primary">
+                  Check interactions across {isShared ? 'this' : 'my'} list
+                </a>
+              ) : (
+                <p className="saved-hint">
+                  Save at least two drugs to check interactions between them.
+                </p>
+              )}
+            </div>
+          )}
         </>
       ) : (
         <div className="saved-empty">

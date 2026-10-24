@@ -8,7 +8,7 @@ import { RecBadge } from './parts'
 const PAGE = 10
 
 // Other brands with the same active ingredient
-function AlternativesTab({ product, others, details, aeData }) {
+function AlternativesTab({ product, others, details, aeData, canCompare = true }) {
   const [showAll, setShowAll] = useState(false)
   if (!others.length) {
     return <p className="muted drug-empty">No other brands with this active ingredient are in the dataset.</p>
@@ -42,9 +42,11 @@ function AlternativesTab({ product, others, details, aeData }) {
                 {s && <RecBadge label="Pregnancy" value={s.pregnancy} />}
               </div>
             </div>
-            <a href={`#/compare?ids=${product.id},${p.id}`} className="pill pill-action alt-compare">
-              Compare with this
-            </a>
+            {canCompare && (
+              <a href={`#/compare?ids=${product.id},${p.id}`} className="pill pill-action alt-compare">
+                Compare with this
+              </a>
+            )}
           </article>
         )
       })}
