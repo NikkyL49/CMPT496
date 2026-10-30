@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema(
         // Password reset: we store a hash of the emailed token, not the token itself
         resetTokenHash: { type: String, select: false },
         resetTokenExpires: { type: Date, select: false },
+        // Goes up by 1 on every password change / reset. Login tokens carry the
+        // number they were made with, so older tokens stop working (other devices log out).
+        tokenVersion: { type: Number, default: 0 },
     },
     { timestamps: true } // makes createdAt, updatedAt
 )

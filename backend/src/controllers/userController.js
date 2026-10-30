@@ -1,6 +1,6 @@
 import User from "../models/User.js"
 import { ROLES } from "../models/User.js"
-import { EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, clearAuthCookie } from "../utils/auth.js"
+import { EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, setAuthCookie, clearAuthCookie } from "../utils/auth.js"
 
 // Settings page. Every route here runs after requireAuth, so req.user is the logged-in user.
 
@@ -57,7 +57,9 @@ export async function changePassword(req, res) {
     if (!passwordIsStrong(newPassword)) return res.status(400).json({ message: "Please choose a stronger password." })
 
     user.passwordHash = await hashPassword(newPassword)
+    user.tokenVersion += 1 // other devices are logged out...
     await user.save()
+    setAuthCookie(res, user) // ...but this one gets a fresh cookie and stays logged in
     res.status(200).json({ message: "Password changed." })
 }
 

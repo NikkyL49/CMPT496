@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import User from "../models/User.js"
 
 const SALT_ROUNDS = 12
 const COOKIE_NAME = "token"
@@ -20,8 +21,12 @@ export const checkPassword = (pw, hash) => bcrypt.compare(pw, hash)
 
 // Log in = put a signed token (holding the user id) in an httpOnly cookie.
 // httpOnly means page JavaScript can't read it, so an XSS bug can't steal it.
-export function setAuthCookie(res, userId) {
-    const token = jwt.sign({ sub: String(userId) }, process.env.JWT_SECRET, { expiresIn: `${SESSION_DAYS}d` })
+// ver = the user's tokenVersion right now. Raising tokenVersion (password
+// change / reset) makes every older token stop working.
+export function setAuthCookie(res, user) {
+    const token = jwt.sign({ sub: String(user._id), ver: user.tokenVersion }, process.env.JWT_SECRET, {
+        expiresIn: `${SESSION_DAYS}d`,
+    })
     res.cookie(COOKIE_NAME, token, {
         httpOnly: true,
         sameSite: "lax",
@@ -34,13 +39,19 @@ export function clearAuthCookie(res) {
     res.clearCookie(COOKIE_NAME, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production" })
 }
 
-// The user id from the cookie, or null if missing / expired / tampered with
-export function userIdFromRequest(req) {
+// The logged-in user, or null if the cookie is missing / expired / tampered
+// with, or was issued before the user's last password change
+export async function userFromRequest(req) {
     const token = req.cookies?.[COOKIE_NAME]
     if (!token) return null
+    let payload
     try {
-        return jwt.verify(token, process.env.JWT_SECRET).sub
+        payload = jwt.verify(token, process.env.JWT_SECRET)
     } catch {
         return null
     }
+    const user = await User.findById(payload.sub)
+    // Tokens from before tokenVersion existed have no ver: count them as 0
+    if (!user || (payload.ver ?? 0) !== user.tokenVersion) return null
+    return user
 }

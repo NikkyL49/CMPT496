@@ -213,63 +213,83 @@
   background: var(--accent-500);
 }
 
-/* Mock map */
+/* Live map (Leaflet). isolation keeps Leaflet's high z-indexes inside the map,
+   so they can't cover the header's menus. */
 .disc-map {
   position: relative;
-  height: 300px;
+  height: 360px;
   overflow: hidden;
+  isolation: isolate;
   background: var(--map-ground);
-  box-shadow: inset 0 -4px 0 rgb(0 0 0 / 0.08);
 }
 
-.disc-map-streets {
-  position: absolute;
-  inset: 0;
+.disc-map-canvas {
   width: 100%;
   height: 100%;
+  font: inherit;
 }
 
-.disc-map-streets path {
-  fill: none;
-  stroke: var(--map-street);
-  vector-effect: non-scaling-stroke;
-  stroke-width: 6px;
+/* Marker fills — CSS beats Leaflet's fill attribute */
+.disc-map .place-pharmacy { fill: var(--accent-500); }
+.disc-map .place-clinic { fill: var(--severity-md); }
+.disc-map .place-hospital { fill: var(--severity-hi); }
+.disc-map .place-you { fill: #2b7de9; stroke: #fff; }
+.disc-map .place-accuracy { fill: #2b7de9; stroke: #2b7de9; }
+
+/* Postal code / address search above the map */
+.disc-locate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.disc-map-streets .disc-map-shore {
-  stroke: var(--map-shore);
-  stroke-width: 10px;
+.disc-locate-input {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 8px 12px;
+  font: inherit;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
 }
 
-.disc-dot {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  transform: translate(-50%, -50%);
-  border: 2.5px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
-  cursor: pointer;
-}
-
-.disc-dot:hover,
-.disc-dot.is-picked {
-  width: 24px;
-  height: 24px;
-  box-shadow: 0 0 0 3px var(--color-text);
+.disc-locate-warn {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: var(--severity-md-ink);
+  background: var(--color-surface);
+  border-left: 3px solid var(--severity-md);
 }
 
 .dot-pharmacy { background: var(--accent-500); }
 .dot-clinic { background: var(--severity-md); }
 .dot-hospital { background: var(--severity-hi); }
 
+.disc-map-research,
+.disc-map-status {
+  position: absolute;
+  z-index: 1000;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.disc-map-status {
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.18);
+}
+
 .disc-legend {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
+  z-index: 1000;
+  right: 10px;
+  top: 10px;
   margin: 0;
-  padding: 10px 14px;
+  padding: 8px 12px;
   list-style: none;
   font: var(--text-h3);
   background: var(--color-surface);
@@ -277,7 +297,7 @@
 }
 
 .disc-legend li + li {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .disc-legend li::before {
@@ -287,6 +307,69 @@
 .legend-pharmacy { color: var(--accent-600); }
 .legend-clinic { color: var(--severity-md-ink); }
 .legend-hospital { color: var(--severity-hi); }
+
+.disc-map-count {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.disc-nearby-title {
+  margin-top: 14px;
+  font: var(--text-h3);
+}
+
+/* Nearest places list (also the keyboard way to pick a place) */
+.disc-nearby {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  background: var(--color-surface);
+}
+
+.disc-nearby button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.disc-nearby li + li button {
+  border-top: 1px solid var(--color-border, rgb(0 0 0 / 0.08));
+}
+
+.disc-nearby button:hover,
+.disc-nearby button.is-picked {
+  background: var(--accent-100);
+}
+
+.disc-nearby-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.disc-nearby-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.disc-nearby-dist {
+  flex: none;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
 
 /* Selected place */
 .disc-place {

@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Circle, CircleMarker, Tooltip, useMap, useMapEvents } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
 import { useCatalog, suggest } from '../data/catalog'
-import { places, PLACE_TYPES } from '../data/places'
+import { PLACE_TYPES, DEFAULT_CENTER, RADIUS_KM, getUserLocation, geocode, fetchNearbyPlaces } from '../data/places'
 import { drugHref } from '../utils/links'
 import './Discovery.css'
 
@@ -149,13 +151,86 @@ function DrugCard({ r, status }) {
   )
 }
 
-// Mock map: drawn streets + clickable dots. Sample places only (data/places.js).
+function formatDistance(km) {
+  return km < 1 ? `${Math.round(km * 100) * 10} m` : `${km.toFixed(1)} km`
+}
+
+// Keeps the map on the searched spot, and reports when the user drags it away
+function MapSync({ search, onDrag }) {
+  const map = useMap()
+  useEffect(() => {
+    if (search) map.setView([search.lat, search.lng], 13)
+  }, [map, search])
+  useMapEvents({ dragend: () => onDrag(map.getCenter()) })
+  return null
+}
+
+// Live map: OpenStreetMap tiles + real places from data/places.js
 function PlacesMap() {
   const [types, setTypes] = useState(PLACE_TYPES.map((t) => t.id))
-  const [pickedId, setPickedId] = useState(places[0].id)
-  const shown = places.filter((p) => types.includes(p.type))
+  // The spot we searched around: { lat, lng, label?, mine?, accuracyM?, fallback? }
+  const [search, setSearch] = useState(null)
+  const [result, setResult] = useState({ status: 'locating', places: [], error: '' })
+  const [pickedId, setPickedId] = useState(null)
+  const [dragged, setDragged] = useState(null) // map center after the user pans away
+  const [address, setAddress] = useState('')
+
+  function searchAt(spot) {
+    setResult((r) => ({ ...r, status: 'loading', error: '' }))
+    setDragged(null)
+    setSearch(spot)
+  }
+
+  // Start at the user's location, or the default city if they don't share it
+  useEffect(() => {
+    getUserLocation().then((loc) => searchAt(loc ? { ...loc, mine: true } : { ...DEFAULT_CENTER, fallback: true }))
+  }, [])
+
+  function locateMe() {
+    setResult((r) => ({ ...r, status: 'locating', error: '' }))
+    getUserLocation().then((loc) => {
+      if (loc) searchAt({ ...loc, mine: true })
+      else setResult((r) => ({ ...r, status: 'error', error: 'Location is blocked. Allow it in your browser, or enter a postal code.' }))
+    })
+  }
+
+  async function searchAddress(e) {
+    e.preventDefault()
+    if (!address.trim()) return
+    setResult((r) => ({ ...r, status: 'loading', error: '' }))
+    try {
+      const spot = await geocode(address.trim())
+      if (spot) searchAt(spot)
+      else setResult((r) => ({ ...r, status: 'error', error: `Couldn't find "${address.trim()}". Try a full postal code like M4S 2B8.` }))
+    } catch (err) {
+      setResult((r) => ({ ...r, status: 'error', error: err.message }))
+    }
+  }
+
+  useEffect(() => {
+    if (!search) return
+    const ctrl = new AbortController()
+    fetchNearbyPlaces(search, { signal: ctrl.signal })
+      .then((places) => {
+        setResult({ status: 'ready', places, error: '' })
+        setPickedId(places[0]?.id ?? null)
+      })
+      .catch((err) => {
+        if (err.name !== 'AbortError') setResult({ status: 'error', places: [], error: err.message })
+      })
+    return () => ctrl.abort()
+  }, [search])
+
+  const shown = result.places.filter((p) => types.includes(p.type))
   const picked = shown.find((p) => p.id === pickedId) ?? shown[0]
   const typeLabel = (id) => PLACE_TYPES.find((t) => t.id === id).label
+  const where = search?.mine
+    ? 'you'
+    : search?.fallback
+      ? `${search.label} (location not shared)`
+      : search?.label || 'this area'
+  // Laptops without GPS guess location from the network and can be km off
+  const roughKm = search?.mine && search.accuracyM > 1000 ? Math.round(search.accuracyM / 1000) : 0
 
   return (
     <section className="disc-map-col" aria-label="Places near you">
@@ -173,27 +248,88 @@ function PlacesMap() {
         ))}
       </div>
 
-      <div className="disc-map">
-        <svg className="disc-map-streets" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0 18 L100 14" />
-          <path d="M0 42 L100 46" />
-          <path d="M30 0 L26 60" />
-          <path d="M66 0 L70 60" />
-          <path d="M0 58 Q40 50 100 56" className="disc-map-shore" />
-        </svg>
+      <form className="disc-locate" onSubmit={searchAddress}>
+        <input
+          type="search"
+          className="disc-locate-input"
+          placeholder="Postal code or address"
+          aria-label="Postal code or address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
+        <button type="submit" className="btn-primary">
+          Search
+        </button>
+        <button type="button" className="btn-outline" onClick={locateMe}>
+          Use my location
+        </button>
+      </form>
+      {roughKm > 0 && (
+        <p className="disc-locate-warn" role="status">
+          Your browser only knows your location to within about {roughKm} km (the shaded circle). Enter your postal
+          code for accurate results.
+        </p>
+      )}
 
-        {shown.map((p) => (
-          <button
-            key={p.id}
-            type="button"
-            className={`disc-dot dot-${p.type}${picked?.id === p.id ? ' is-picked' : ''}`}
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
-            aria-label={`${p.name}, ${typeLabel(p.type)}`}
-            aria-pressed={picked?.id === p.id}
-            title={p.name}
-            onClick={() => setPickedId(p.id)}
+      <div className="disc-map">
+        <MapContainer center={[DEFAULT_CENTER.lat, DEFAULT_CENTER.lng]} zoom={13} className="disc-map-canvas">
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        ))}
+          <MapSync search={search} onDrag={setDragged} />
+          {roughKm > 0 && (
+            <Circle
+              center={[search.lat, search.lng]}
+              radius={search.accuracyM}
+              pathOptions={{ className: 'place-accuracy', weight: 1, fillOpacity: 0.08 }}
+            />
+          )}
+          {search && !search.fallback && (search.mine || search.label) && (
+            <CircleMarker
+              center={[search.lat, search.lng]}
+              radius={8}
+              pathOptions={{ className: 'place-you', weight: 3, fillOpacity: 1 }}
+            >
+              <Tooltip>{search.mine ? 'You are here' : search.label}</Tooltip>
+            </CircleMarker>
+          )}
+          {shown.map((p) => (
+            <CircleMarker
+              key={p.id}
+              center={[p.lat, p.lng]}
+              radius={picked?.id === p.id ? 11 : 7}
+              pathOptions={{
+                className: `place-${p.type}`,
+                color: picked?.id === p.id ? '#111' : '#fff',
+                weight: picked?.id === p.id ? 3 : 2,
+                fillOpacity: 1,
+              }}
+              eventHandlers={{ click: () => setPickedId(p.id) }}
+            >
+              <Tooltip>{p.name}</Tooltip>
+            </CircleMarker>
+          ))}
+        </MapContainer>
+
+        {dragged && (
+          <button
+            type="button"
+            className="btn-primary disc-map-research"
+            onClick={() => searchAt({ lat: dragged.lat, lng: dragged.lng, mine: false })}
+          >
+            Search this area
+          </button>
+        )}
+        {result.status !== 'ready' && (
+          <p className="disc-map-status" role="status">
+            {result.status === 'locating'
+              ? 'Finding your location…'
+              : result.status === 'loading'
+                ? 'Loading places…'
+                : result.error}
+          </p>
+        )}
 
         <ul className="disc-legend" aria-label="Legend">
           {PLACE_TYPES.map((t) => (
@@ -204,32 +340,75 @@ function PlacesMap() {
         </ul>
       </div>
 
+      {result.status === 'ready' && (
+        <p className="disc-map-count">
+          {shown.length} {shown.length === 1 ? 'place' : 'places'} within {RADIUS_KM} km of {where}
+        </p>
+      )}
+
       {picked ? (
         <div className="disc-place">
           <h2 className="disc-place-name">{picked.name}</h2>
           <span className="term-chip term-soft disc-place-type">{typeLabel(picked.type)}</span>
           <p className="disc-place-meta">
-            {picked.distance} · {picked.hours} · {picked.phone}
+            {[formatDistance(picked.distanceKm), picked.hours, picked.phone].filter(Boolean).join(' · ')}
           </p>
-          <p className="disc-place-address">{picked.address}</p>
+          {picked.address && <p className="disc-place-address">{picked.address}</p>}
           <div className="disc-place-actions">
             <a
               className="btn-primary"
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(picked.address)}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${picked.lat},${picked.lng}`}
               target="_blank"
               rel="noopener noreferrer"
             >
               Directions
             </a>
-            <a className="btn-outline" href={`tel:${picked.phone.replace(/\D/g, '')}`}>
-              Call
-            </a>
+            {picked.phone && (
+              <a className="btn-outline" href={`tel:${picked.phone.replace(/[^\d+]/g, '')}`}>
+                Call
+              </a>
+            )}
+            {picked.website && (
+              <a className="btn-outline" href={picked.website} target="_blank" rel="noopener noreferrer">
+                Website
+              </a>
+            )}
           </div>
         </div>
       ) : (
-        <p className="disc-place disc-empty">Pick at least one place type to see it on the map.</p>
+        result.status === 'ready' && (
+          <p className="disc-place disc-empty">
+            {types.length
+              ? 'Nothing of that type nearby. Drag the map and search another area.'
+              : 'Pick at least one place type to see it on the map.'}
+          </p>
+        )
       )}
-      <p className="disc-sample-note">Sample locations for the prototype — not real places.</p>
+
+      {shown.length > 1 && (
+        <h3 className="disc-nearby-title" id="disc-nearby-title">
+          Nearest {types.length === 1 ? PLACE_TYPES.find((t) => t.id === types[0]).plural.toLowerCase() : 'places'}
+        </h3>
+      )}
+      {shown.length > 1 && (
+        <ul className="disc-nearby" aria-labelledby="disc-nearby-title">
+          {shown.slice(0, 6).map((p) => (
+            <li key={p.id}>
+              <button
+                type="button"
+                className={picked?.id === p.id ? 'is-picked' : ''}
+                aria-pressed={picked?.id === p.id}
+                onClick={() => setPickedId(p.id)}
+              >
+                <span className={`disc-nearby-dot dot-${p.type}`} aria-hidden="true" />
+                <span className="disc-nearby-name">{p.name}</span>
+                <span className="disc-nearby-dist">{formatDistance(p.distanceKm)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="disc-sample-note">Place data from OpenStreetMap — hours and phone numbers may be out of date.</p>
     </section>
   )
 }
