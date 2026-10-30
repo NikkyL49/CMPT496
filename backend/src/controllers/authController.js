@@ -2,7 +2,7 @@ import crypto from "node:crypto"
 import User from "../models/User.js"
 import { ROLES } from "../models/User.js"
 import {
-    EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, setAuthCookie, clearAuthCookie, userIdFromRequest,
+    EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, setAuthCookie, clearAuthCookie, userFromRequest,
 } from "../utils/auth.js"
 
 const RESET_TTL_MS = 30 * 60 * 1000 // reset links expire after 30 minutes
@@ -48,7 +48,7 @@ export async function login(req, res) {
         return res.status(401).json({ message: "Incorrect email or password." })
     }
 
-    setAuthCookie(res, user._id)
+    setAuthCookie(res, user)
     res.status(200).json({ user: user.toPublic(), savedDrugs: user.savedDrugs })
 }
 
@@ -60,8 +60,7 @@ export async function logout(req, res) {
 
 // GET /api/auth/me — who is logged in (so a page refresh keeps you logged in)
 export async function me(req, res) {
-    const id = userIdFromRequest(req)
-    const user = id ? await User.findById(id) : null
+    const user = await userFromRequest(req)
     res.status(200).json({ user: user ? user.toPublic() : null, savedDrugs: user ? user.savedDrugs : [] })
 }
 
@@ -98,6 +97,7 @@ export async function resetPassword(req, res) {
     user.passwordHash = await hashPassword(password)
     user.resetTokenHash = undefined // one-time use
     user.resetTokenExpires = undefined
+    user.tokenVersion += 1 // log out every device — whoever had the account may still be logged in
     await user.save()
     res.status(200).json({ message: "Password updated." })
 }

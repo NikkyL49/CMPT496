@@ -20,6 +20,11 @@ for (const key of ["MONGO_URI", "JWT_SECRET"]) {
 const app = express()
 const PORT = process.env.PORT || 5001
 
+// When deployed behind a host's proxy (Render, Railway, Fly...), trust its
+// X-Forwarded-For header so the rate limits see each visitor's real IP
+// instead of the proxy's one IP.
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1)
+
 // middleware
 app.use(express.json({ limit: "100kb" }))
 app.use(cookieParser()) // reads the login cookie into req.cookies
