@@ -24,6 +24,15 @@ Other scripts:
 | `npm run preview` | Serve the production build locally    |
 | `npm run lint`    | Run ESLint                            |
 
+### Password-reset email
+
+The backend (`backend/src/utils/email.js`) emails reset links through any SMTP server. Fill in the `SMTP_*`, `EMAIL_FROM` and `APP_URL` lines in `backend/.env`; `backend/.env.example` explains each one, including how to use a Gmail app password.
+
+- **Without email set up** (`SMTP_HOST` empty), nothing is sent. The Forgot password page shows a "Demo only" link instead, and the server prints the link in its terminal. This only works outside production: with `NODE_ENV=production` the server won't start without the email settings.
+- **The link** opens `#/reset-password?token=...` on `APP_URL`. It works once and expires after 30 minutes. It's built from `APP_URL`, never from the request, so nobody can make reset emails link to another site.
+- **Timing:** the server answers before it sends the email, so the response time doesn't reveal which emails have accounts. A failed send is logged in the server's terminal.
+- **After a reset,** the account owner also gets a "your password was changed" email, in case someone else used the link.
+
 ## Pages
 
 The app uses a small hash router in `App.jsx`, so there are no routing dependencies. Pages are linked with `#/...` URLs.
@@ -34,7 +43,7 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/search?q=...&by=...` | Search results | Done: all 565 products from the MedDRA CSV. Searches brand, ingredient, company, condition, contraindication, drug class and DIN. `by` = `ingredient`, `condition`, `contraindication` or `class` limits it to one category. Filters for drug class, active ingredient, company and pregnancy advice; 20 results per page |
 | `#/login`            | Log in           | Done: validation and wrong-credential errors, using mock auth |
 | `#/signup`           | Create account   | Done: password strength meter, role picker and duplicate-email error, using mock auth |
-| `#/forgot-password`  | Forgot password  | Done: request a reset link (mock shows the link on screen instead of emailing it) |
+| `#/forgot-password`  | Forgot password  | Done: emails a reset link (see [Password-reset email](#password-reset-email); without email set up, a "Demo only" link shows on screen) |
 | `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
 | `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
 | `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
@@ -153,7 +162,7 @@ CMPT496-housekeeping-filestructure/
 
 ## Notes and TODOs
 
-- `TODO` comments mark the places that still need a real API: search, and the reset email.
+- `TODO` comments mark the places that still need a real API: search.
 - **Auth is mocked** in `data/auth.js`. Accounts are held in memory, and passwords are compared as plain text. That's fine for a demo, but the real backend has to hash passwords and handle sessions. To connect it, replace the bodies of `login()`, `signup()`, `requestPasswordReset()` and `resetPassword()`. The real `requestPasswordReset()` must email the link and **not** return the token. Only the mock returns it, so the page can show a "Demo only" link. The pages already handle loading states and show any error thrown as an `AuthError`.
 - **Shared state** uses the small store in `utils/store.js`. Any component that calls `useStore(sessionStore)` or `useStore(savedStore)` updates when that data changes. That's how the Save button on Search, the Saved page and the header count stay in sync.
 - **Saved drugs are kept in the browser** (localStorage), so they survive a reload but aren't tied to an account yet. A first visit starts with the three drugs from the mockup. Once the backend exists, load and save the list per user through the API instead (see `data/saved.js`).

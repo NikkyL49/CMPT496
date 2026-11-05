@@ -87,8 +87,9 @@ export async function deleteAccount(password) {
 }
 
 // ---- Password reset ----
-// TODO: the backend should email the link. Until it has an email service, it
-// returns the token outside production so the Forgot password page can show it.
+// The backend emails the link (backend/src/utils/email.js). When it has no
+// email service set up, it returns the token outside production instead, so
+// the Forgot password page can show it as a "Demo only" link.
 
 export async function requestPasswordReset(email) {
   return api('POST', '/auth/forgot-password', { email }) // { demoToken }
