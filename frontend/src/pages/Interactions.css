@@ -1,0 +1,289 @@
+/* Drug interaction check (#/interactions).
+   Bubbles + "+ Add more" picker reuse .bubble / .picker from Compare.css;
+   badges, chips and buttons come from global.css. */
+
+.ix-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.ix-title {
+  font: var(--text-h1);
+  font-size: 34px;
+  margin-bottom: 24px;
+}
+
+.ix-loading,
+.ix-none {
+  padding: 24px 0;
+  color: var(--color-text-muted);
+}
+
+.ix-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.ix-bubbles {
+  margin-bottom: 0;
+}
+
+.ix-bubbles:empty {
+  display: none;
+}
+
+.ix-count {
+  margin-left: 8px;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.ix-empty {
+  padding: 28px 24px;
+  background: var(--color-surface);
+  border: 1px dashed var(--cream-400);
+}
+
+.ix-empty h2 {
+  font: var(--text-h2);
+  margin-bottom: 8px;
+}
+
+.ix-empty p {
+  margin-bottom: 16px;
+  color: var(--color-text-muted);
+}
+
+/* Summary */
+.ix-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ix-summary .badge {
+  padding: 7px 12px;
+  font-size: 15px;
+}
+
+.ix-summary-note {
+  margin-left: 6px;
+  color: var(--color-text-muted);
+}
+
+.ix-how,
+.ix-note {
+  max-width: 75ch;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.ix-how {
+  margin-bottom: 20px;
+}
+
+.ix-note {
+  margin-top: 10px;
+}
+
+/* Pair cards */
+.ix-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ix-card {
+  padding: 18px 24px 20px;
+  border: 1px solid transparent;
+  border-left-width: 4px;
+}
+
+.ix-hi {
+  background: var(--severity-hi-ground);
+  border-color: #f3d5d8;
+  border-left-color: var(--severity-hi);
+}
+
+.ix-md {
+  background: var(--severity-md-ground);
+  border-color: #f8dccd;
+  border-left-color: var(--severity-md);
+}
+
+.ix-lo {
+  background: var(--severity-lo-ground);
+  border-color: #f6ecbd;
+  border-left-color: #d4b106;
+}
+
+.ix-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-bottom: 10px;
+}
+
+.ix-card-head .badge {
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.ix-pair {
+  font: var(--text-h2);
+  font-size: 21px;
+}
+
+.ix-pair a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.ix-pair a:hover {
+  color: var(--accent-700);
+  text-decoration: underline;
+}
+
+.ix-tag {
+  margin-left: auto;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+.ix-dirs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 17px;
+}
+
+.ix-dir.is-none {
+  color: var(--color-text-muted);
+}
+
+/* Section headings */
+.ix-h2 {
+  font: var(--text-h2);
+  font-size: 21px;
+  margin: 36px 0 14px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ix-quiet .term-chip {
+  font-weight: 500;
+  border-color: var(--cream-400);
+}
+
+/* Shared mechanisms */
+.mech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px 40px;
+  padding: 22px 24px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.mech-title {
+  font: var(--text-h2);
+  margin-bottom: 10px;
+}
+
+.mech-card .chip-row {
+  margin-bottom: 14px;
+}
+
+.mech-bar {
+  height: 10px;
+  background: var(--cream-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mech-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent-500);
+  border-radius: 999px;
+}
+
+.mech-count {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--color-text-muted);
+}
+
+/* Shared adverse events */
+.ae-list {
+  margin: 14px 0 10px;
+  padding: 4px 24px;
+  list-style: none;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.ae-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.2fr) 70px 3fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ae-row:last-child {
+  border-bottom: 0;
+}
+
+.ae-term {
+  font-weight: 600;
+}
+
+.ae-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.ae-drugs {
+  color: var(--color-text-muted);
+}
+
+.ix-notice {
+  margin-top: 40px;
+}
+
+@media (max-width: 760px) {
+  .ix-page {
+    padding: 20px 16px 48px;
+  }
+
+  .ix-tag {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .ae-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .ae-drugs {
+    grid-column: 1 / -1;
+  }
+}
