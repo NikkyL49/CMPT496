@@ -7,6 +7,7 @@ import { productsByIngredient, sameIngredientFlag } from '../utils/ingredientGro
 import { drugHref, searchHref } from '../utils/links'
 import { classesFor } from '../data/drugClasses'
 import { useCan } from '../data/access'
+import { ingredientSlug } from '../data/interactions'
 import OverviewTab from './drug/OverviewTab'
 import AdverseEventsTab from './drug/AdverseEventsTab'
 import ConflictsTab from './drug/ConflictsTab'
@@ -24,7 +25,7 @@ const TABS = [
   { id: 'research', label: 'Source' },
 ]
 
-function SameIngredientBanner({ flag, ingredient, compareHref }) {
+function SameIngredientBanner({ flag, ingredient, compareHref, reportHref }) {
   if (!flag) return null
   const { others, missingCommon, rare } = flag
   const brands = `${others} other ${ingredient} ${others === 1 ? 'brand' : 'brands'}`
@@ -55,11 +56,18 @@ function SameIngredientBanner({ flag, ingredient, compareHref }) {
           </>
         )}
       </p>
-      {compareHref && (
-        <a href={compareHref} className="banner-link">
-          See the comparison →
-        </a>
-      )}
+      <div className="banner-links">
+        {compareHref && (
+          <a href={compareHref} className="banner-link">
+            See the comparison →
+          </a>
+        )}
+        {reportHref && (
+          <a href={reportHref} className="banner-link">
+            Open in the Inconsistency report →
+          </a>
+        )}
+      </div>
     </section>
   )
 }
@@ -71,6 +79,7 @@ function Drug({ productId, listingId, tab = 'overview' }) {
   const savedIds = useStore(savedStore)
   const canCompare = useCan('/compare')
   const canCheckInteractions = useCan('/interactions')
+  const canSeeReport = useCan('/inconsistency')
 
   // Selected strength: from the URL, else the highest strength (as in the design)
   const variant =
@@ -196,6 +205,7 @@ function Drug({ productId, listingId, tab = 'overview' }) {
             flag={flag}
             ingredient={info.ingredient}
             compareHref={canCompare ? compareHref : null}
+            reportHref={canSeeReport ? `#/inconsistency/${ingredientSlug(info.ingredient)}` : null}
           />
 
           <div className="tabs drug-tabs" role="tablist" aria-label="Monograph sections">

@@ -1,6 +1,6 @@
 import { useStore } from '../utils/store'
 import { sessionStore, setViewRole } from '../data/session'
-import { RESTRICTED, PAGE_NAMES, rolesFor, useRole } from '../data/access'
+import { RESTRICTED, PAGE_NAMES, restrictedKey, rolesFor, useRole } from '../data/access'
 
 function listRoles(roles) {
   const plural = roles.map((r) => `${r}s`)
@@ -12,8 +12,9 @@ function listRoles(roles) {
 function Restricted({ path }) {
   const { user } = useStore(sessionStore)
   const role = useRole()
-  const allowed = RESTRICTED[path] ?? []
-  const name = PAGE_NAMES[path] ?? 'This page'
+  const key = restrictedKey(path)
+  const allowed = RESTRICTED[key] ?? []
+  const name = PAGE_NAMES[key] ?? 'This page'
   // The account allows a role that can open this page — the header is just set lower
   const switchTo = rolesFor(user).find((r) => allowed.includes(r))
   const next = encodeURIComponent(`#${path}`)

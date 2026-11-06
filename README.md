@@ -42,8 +42,10 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/drug/<id>?s=...&tab=...` | Drug overview | Done: warnings, contraindications and same-ingredient banners; tabs for Overview, Adverse events, Conflicts, Graphs, Alternatives and Research papers (DIN, Health Canada link, PDF). Uses the MedDRA CSV. `s` = strength, `tab` = open tab |
 | `#/discovery`        | Discovery        | Explore by category |
 | `#/analysis`         | Analysis         | Researchers only. Charts across the whole dataset |
-| `#/inconsistency`    | Inconsistency report | Researchers only. Coming soon |
-| other `#/...`        | Coming soon      | Placeholder for pages not built yet: Interaction check |
+| `#/interactions`     | Interaction check | Pharmacists, physicians, researchers. Check 2–8 drugs against each other's monographs |
+| `#/inconsistency`    | Inconsistency report | Researchers only. Every ingredient with 2+ products, scored |
+| `#/inconsistency/<ingredient>` | Same-ingredient flag | Researchers only. Term-by-term and product-by-product detail |
+| other `#/...`        | Coming soon      | Placeholder for anything not built yet |
 
 ### Who can see what
 
@@ -99,6 +101,9 @@ CMPT496-housekeeping-filestructure/
         │   ├── Drug.jsx     / .css  Drug overview page (header, banners, tabs)
         │   ├── drug/        One file per tab + parts.jsx (shared badges/chips)
         │   ├── Restricted.jsx  Shown when your role can't open a page
+        │   ├── Interactions.jsx  Drug interaction check
+        │   ├── Inconsistency.jsx  Inconsistency report (list, export, review status)
+        │   ├── InconsistencyDetail.jsx  One ingredient: terms, products, flag for review
         │   └── ComingSoon.jsx  Placeholder for unbuilt pages
         ├── data/             Data files (mostly placeholders until the API exists)
         │   ├── drug_monographs_dates.json  Real monograph dates (1,434 entries)
@@ -115,6 +120,9 @@ CMPT496-housekeeping-filestructure/
         │   ├── search.js
         │   ├── roles.js      The four user roles (header + sign-up)
         │   ├── access.js     Which roles can open which pages; useRole(), useCan()
+        │   ├── interactions.js  Interaction check logic (name + drug-class matching, CYP, shared AEs)
+        │   ├── inconsistency.js  Inconsistency score per ingredient
+        │   ├── reviews.js    Review status + flags for the report (localStorage for now)
         │   ├── auth.js       Mock auth + account settings — swap for real API calls
         │   ├── session.js    Logged-in user, header role, search history
         │   └── saved.js      Saved drugs list (shared by Search + Saved)
@@ -209,8 +217,18 @@ CMPT496-housekeeping-filestructure/
 - **Search uses the real data now** (`data/catalog.js`). It doesn't wait for MongoDB: it builds one record per product from `drug_details.json` and `adverse_event_terms.json`, the same files the drug page loads.
   - **Searches:** brand name, active ingredient, company, indication, and a DIN (type the 8 digits).
   - **Filters:** Drug class, Active ingredient, Company, and Pregnancy advice (instead of adverse-effect severity, which isn't in the CSV).
-  - **"Inconsistency flagged"** appears when a product leaves out at least `FLAG_THRESHOLD` (10) adverse-event terms that most other brands of the same ingredient list. That's 141 of 565 products. 448 miss at least one term, so a lower number would flag almost everything. It uses the same comparison as the drug page's same-ingredient banner, so the numbers match.
+  - **"Inconsistency flagged"** appears when a product leaves out at least `FLAG_THRESHOLD` (10) adverse-event terms that most other brands of the same ingredient list. That's 141 of 565 products. 448 miss at least one term, so a lower number would flag almost everything. It uses the same comparison as the drug page's same-ingredient banner, so the numbers match. For researchers the tag opens that ingredient's Inconsistency report page; for everyone else it opens the drug page.
   - **TODO:** swap `useCatalog()` for a search API call when the backend is connected.
+- **Interaction check** (`data/interactions.js`) uses each monograph's "Drug Interactions" list and "Standardized Metabolism" from `drug_details.json`. The CSV has **no severity ratings or mechanism text**, so the hi-fi design's Major/Moderate/Minor isn't used. Pairs are graded by how the monographs document them instead:
+  - **Both labels:** each drug's monographs name the other (e.g. diltiazem + apixaban).
+  - **One label:** only one side names the other.
+  - **Class only:** named through a class ("ACE inhibitors", "statins", "antihypertensive agents"). The class phrases are mapped to `drugClasses.js` in `CLASS_PATTERNS`, which is worth a check by the team's pharmacology person.
+  - Each card says how many products on each side mention the other. Pairs neither side mentions are listed separately. **Shared mechanisms** shows CYP isoforms (stated by at least half of a drug's monographs) and two drugs from the same class. **Shared adverse events** lists MedDRA terms that at least half of each drug's monographs list.
+  - Links from the drug page and Saved pass product ids (`?ids=`); the page turns them into ingredients (`?drugs=diltiazem,simvastatin`).
+- **Inconsistency report** (`data/inconsistency.js`) compares the MedDRA adverse-event terms of every product of the same ingredient (47 ingredients have 2+ products). Terms listed by at least 75% of products are the consensus; the rest are divergent. Score = 10 × Σ(1 − share) over divergent terms ÷ distinct terms, so terms only one product lists weigh the most. High is 6.0+, medium 3.0–5.9, low under 3.0 (currently 4 / 21 / 22). The detail page also lists, per product, the consensus terms it leaves out and the terms only it lists.
+  - **Export CSV** downloads the table; **Export PDF** opens the print dialog with print styles.
+  - **Review status and flags are saved in the browser (localStorage) only.** TODO: researcher-only backend routes so all researchers share them.
+  - TODO: switch to the Layer 1 concordance results (AE + warnings + contraindications, 50% consensus) once that analysis is final.
 - **Saved** starts with three real products on a first visit. It still shows older saved sample drugs (`data/search.js`), linked to their real drug pages. `data/search.js` is now only used for that.
 - **Compare's table only shows rows the dataset has** (company, strengths, dates). The hi-fi design's adverse-event, contraindication and pregnancy rows need monograph content from the backend. The cell colours are already set up for them (`safety: true` rows tint pink when they differ).
 - **Timeline colours** come from `utils/chartColors.js`: blue, aqua and violet, checked to be colour-blind safe. Red, orange and yellow are kept for severity only. A fourth drug family and beyond share grey ("Other families").
