@@ -1,0 +1,156 @@
+/* Adverse event consistency card (drug page, Graphs tab).
+   Uses only tokens from global.css. Severity colours are left out on purpose:
+   this chart shows how many labels list a term, not how serious it is. */
+
+.aec-lead {
+  margin-bottom: 10px;
+}
+
+.aec-bar {
+  display: flex;
+  gap: 2px;
+  height: 30px;
+  margin: 6px 0 10px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.aec-seg {
+  flex-basis: 0;
+  min-width: 4px;
+}
+
+.aec-every { background: var(--accent-700); }
+.aec-most { background: var(--accent-400); }
+.aec-few { background: var(--cream-400); }
+
+.aec-key,
+.aec-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.aec-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border-radius: 2px;
+}
+
+.aec-search {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--cream-300);
+}
+
+.aec-h3 {
+  font: var(--text-h2);
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.aec-suggest {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--accent-300);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.aec-suggest button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font: var(--text-body);
+  text-align: left;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 0;
+  border-bottom: 1px solid var(--accent-100);
+  cursor: pointer;
+}
+
+.aec-suggest button:hover,
+.aec-suggest button:focus-visible {
+  background: var(--accent-100);
+  outline: none;
+}
+
+.aec-note {
+  margin-top: 8px;
+  padding: 12px 14px;
+  background: var(--cream-200);
+  border-radius: 6px;
+}
+
+.aec-result {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: var(--cream-200);
+  border-radius: 6px;
+}
+
+.aec-result.is-every {
+  background: var(--accent-100);
+}
+
+.aec-answer {
+  margin: 0;
+}
+
+.aec-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.aec-dot {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1.5px solid var(--cream-400);
+}
+
+.aec-dot.is-listed {
+  background: var(--accent-500);
+  border-color: var(--accent-500);
+}
+
+.aec-dot.is-self {
+  outline: 2.5px solid var(--accent-900);
+  outline-offset: 2px;
+}
+
+.aec-legend {
+  font-size: 13px;
+  color: var(--accent-800);
+}
+
+.aec-legend .aec-dot {
+  width: 11px;
+  height: 11px;
+  margin-right: 5px;
+  vertical-align: -1px;
+}
+
+.aec-legend .aec-dot.is-self {
+  outline-width: 2px;
+  outline-offset: 1px;
+}
+
+.aec-context {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: var(--accent-900);
+}
