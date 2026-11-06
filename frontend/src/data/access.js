@@ -38,8 +38,13 @@ export const PAGE_NAMES = {
 // Access level: General Public 0, Pharmacist/Physician 1, Researcher 2
 const LEVEL = { 'General Public': 0, Pharmacist: 1, Physician: 1, Researcher: 2 }
 
+// The RESTRICTED entry a path falls under: '/inconsistency/amlodipine' → '/inconsistency'
+export function restrictedKey(path) {
+  return Object.keys(RESTRICTED).find((key) => path === key || path.startsWith(`${key}/`))
+}
+
 export function canAccess(path, role) {
-  const allowed = RESTRICTED[path]
+  const allowed = RESTRICTED[restrictedKey(path)]
   return !allowed || allowed.includes(role)
 }
 
