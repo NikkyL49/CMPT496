@@ -5,6 +5,7 @@ import { connectDB } from "./config/db.js"
 import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import savedRoutes from "./routes/savedRoutes.js"
+import monographRoutes from "./routes/monographRoutes.js"
 
 // Load backend/.env into process.env. The other files only read process.env
 // inside functions (after this has run), never at import time.
@@ -34,6 +35,7 @@ app.use(cookieParser()) // reads the login cookie into req.cookies
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/saved", savedRoutes)
+app.use("/api/monographs", monographRoutes)
 
 // Unknown /api route
 app.use((req, res) => {
