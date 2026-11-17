@@ -223,7 +223,13 @@ function Compare({ ids = [] }) {
     [safetyData, products],
   )
 
-  const allRows = buildRows(products, termSets)
+  const details = useDrugDetails()                       
+  const safetyInfos = useMemo(                           
+    () => (details ? products.map((p) => safetyInfoFor(details, p)) : null),
+    [details, products],
+  )
+
+  const allRows = buildRows(products, termSets, safetyInfos)
   const rows = diffOnly ? allRows.filter((r) => !r.identical) : allRows
 
   const add = (p) => setIds([...products.map((x) => x.id), p.id].slice(0, MAX_PRODUCTS))
