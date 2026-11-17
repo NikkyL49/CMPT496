@@ -20,12 +20,6 @@ import {
 import { useSafetySections, sectionsForProduct } from '../data/safetySections'
 import { drugHref } from '../utils/links'
 import './Compare.css'
-import {
-  useDrugDetails,
-  detailsFor,
-  prettyRecommendation
-} from '../data/drugDetails'
-
 
 const MAX_PRODUCTS = 6
 
@@ -45,20 +39,10 @@ function setIds(ids) {
   window.location.hash = ids.length ? `#/compare?ids=${ids.join(',')}` : '#/compare'
 }
 
-// Pregnancy advice and contraindication terms for one product,
-// merged across all of its strengths. null = no details for this product.
-function safetyInfoFor(details, product) {
-  const infos = product.listings.map((id) => detailsFor(details, id)).filter(Boolean)
-  if (!infos.length) return null
-  const pregnancy = [...new Set(infos.map((info) => prettyRecommendation(info.pregnancy)))]
-  const contraindications = [
-    ...new Set(infos.flatMap((info) => info.contraindicationTerms ?? [])),
-  ].sort((a, b) => a.localeCompare(b))
-  return { pregnancy, contraindications }
-}
-
 // Rows of the comparison table. `safety: true` rows tint pink when they differ.
-function buildRows(products, termSets, safetyInfos) {   // CHANGED: third parameter added
+// TODO: add contraindications and pregnancy rows from the MedDRA CSV
+// (they're in the hi-fi design).
+function buildRows(products, termSets) {
   const today = todayIso()
   return [
     { label: 'Drug family', values: products.map((p) => p.family) },
@@ -76,24 +60,6 @@ function buildRows(products, termSets, safetyInfos) {   // CHANGED: third parame
       label: 'MedDRA adverse event terms',
       values: products.map((p, i) =>
         termSets ? (termSets[i] ? String(termSets[i].size) : 'No data') : 'Loading…',
-      ),
-    },
-    {                                                    // NEW: pregnancy row
-      label: 'Pregnancy advice',
-      safety: true,
-      values: products.map((p, i) =>
-        safetyInfos ? (safetyInfos[i] ? safetyInfos[i].pregnancy.join(' / ') : 'No data') : 'Loading…',
-      ),
-    },
-    {                                                    // NEW: contraindications row
-      label: 'Contraindications',
-      safety: true,
-      values: products.map((p, i) =>
-        safetyInfos
-          ? safetyInfos[i]
-            ? safetyInfos[i].contraindications.join(', ') || 'None listed'
-            : 'No data'
-          : 'Loading…',
       ),
     },
   ].map((row) => ({ ...row, identical: new Set(row.values).size === 1 }))
