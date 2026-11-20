@@ -10,7 +10,12 @@ import savedRoutes from "./routes/savedRoutes.js"
 // inside functions (after this has run), never at import time.
 dotenv.config({ quiet: true })
 
-for (const key of ["MONGO_URI", "JWT_SECRET"]) {
+// Deployed, the reset email is the only way to get a reset link, so the email
+// settings are required there too. Locally they're optional (see .env.example).
+const required = ["MONGO_URI", "JWT_SECRET"]
+if (process.env.NODE_ENV === "production") required.push("SMTP_HOST", "EMAIL_FROM", "APP_URL")
+
+for (const key of required) {
     if (!process.env[key]) {
         console.error(`Missing ${key}. Copy backend/.env.example to backend/.env and fill it in.`)
         process.exit(1)

@@ -4,8 +4,10 @@ import { ROLES } from "../models/User.js"
 import {
     EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, setAuthCookie, clearAuthCookie, userFromRequest,
 } from "../utils/auth.js"
+import { emailEnabled, appUrl, sendPasswordResetEmail, sendPasswordChangedEmail } from "../utils/email.js"
 
-const RESET_TTL_MS = 30 * 60 * 1000 // reset links expire after 30 minutes
+const RESET_MINUTES = 30 // reset links expire after 30 minutes
+const RESET_TTL_MS = RESET_MINUTES * 60 * 1000
 
 const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex")
 const normEmail = (e) => (typeof e === "string" ? e.trim().toLowerCase() : "")
@@ -68,19 +70,31 @@ export async function me(req, res) {
 // Always answers the same way, so it doesn't reveal which emails have accounts.
 export async function requestPasswordReset(req, res) {
     const user = await User.findOne({ email: normEmail(req.body?.email) })
-    let demoToken = null
+    let token = null
 
     if (user) {
-        const token = crypto.randomBytes(32).toString("hex")
+        token = crypto.randomBytes(32).toString("hex")
         user.resetTokenHash = sha256(token)
         user.resetTokenExpires = new Date(Date.now() + RESET_TTL_MS)
         await user.save()
-        // TODO: email the link (needs an email service). Until then, outside
-        // production the token is sent back so the page can show a "Demo only" link.
-        if (process.env.NODE_ENV !== "production") demoToken = token
     }
 
-    res.status(200).json({ demoToken })
+    if (!emailEnabled()) {
+        // No email service set up (SMTP_HOST in .env): outside production, hand
+        // the token back so the page can show a "Demo only" link instead.
+        // server.js refuses to start in production without SMTP_HOST.
+        if (token) console.log(`[email off] Reset link for ${user.email}: ${appUrl(`#/reset-password?token=${token}`)}`)
+        return res.status(200).json({ demoToken: token })
+    }
+
+    // Answer first, then send: sending takes a second or so, and making only
+    // real accounts wait would let someone time which emails have accounts.
+    res.status(200).json({ demoToken: null })
+    if (user) {
+        sendPasswordResetEmail(user, token, RESET_MINUTES).catch((err) =>
+            console.error(`Couldn't send the reset email to ${user.email}:`, err.message)
+        )
+    }
 }
 
 // POST /api/auth/reset-password  { token, password }
@@ -100,4 +114,11 @@ export async function resetPassword(req, res) {
     user.tokenVersion += 1 // log out every device — whoever had the account may still be logged in
     await user.save()
     res.status(200).json({ message: "Password updated." })
+
+    // Tell the owner, in case it wasn't them who used the link
+    if (emailEnabled()) {
+        sendPasswordChangedEmail(user).catch((err) =>
+            console.error(`Couldn't send the password-changed email to ${user.email}:`, err.message)
+        )
+    }
 }

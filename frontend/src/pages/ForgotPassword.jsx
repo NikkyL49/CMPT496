@@ -20,7 +20,7 @@ function ForgotPassword() {
     setError('')
     setSubmitting(true)
     try {
-      // TODO: real API sends the email; it should not return the token
+      // demoToken is only set when the server has no email service set up
       const { demoToken } = await requestPasswordReset(email)
       setSent({ email: email.trim(), demoToken })
     } catch {
@@ -43,7 +43,7 @@ function ForgotPassword() {
 
           {sent.demoToken && (
             <div className="demo-box">
-              <span className="kicker">Demo only — no email is sent yet</span>
+              <span className="kicker">Demo only — email isn&rsquo;t set up on this server</span>
               <a href={`#/reset-password?token=${sent.demoToken}`}>
                 Open the reset link →
               </a>
