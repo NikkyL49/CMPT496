@@ -10,6 +10,17 @@ router.get("/recent", async (req, res, next) => {
 
         const docs = await mongoose.connection.db
             .collection("monographs")
+            const DRUG_DB = process.env.DRUG_DB_NAME || "ByteRX"         
+            const DRUG_COLLECTION = process.env.DRUG_COLLECTION || "Drug Monograph Data"  
+
+router.get("/recent", async (req, res, next) => {
+    try {
+        const limit = Math.min(parseInt(req.query.limit) || 5, 50)
+
+        const docs = await mongoose.connection
+            .getClient()
+            .db(DRUG_DB)
+            .collection(DRUG_COLLECTION)
             .find(
                 { "Revision Date": { $nin: [null, ""] } },
                 {
@@ -22,6 +33,15 @@ router.get("/recent", async (req, res, next) => {
                     },
                 }
             )
+            .sort({ "Revision Date": -1 })
+            .limit(limit)
+            .toArray()
+
+        // ...the existing res.json(docs.map(...)) stays the same
+    } catch (err) {
+        next(err)
+    }
+})
             .sort({ "Revision Date": -1 })
             .limit(limit)
             .toArray()
