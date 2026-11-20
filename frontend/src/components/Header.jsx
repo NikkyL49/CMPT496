@@ -13,6 +13,7 @@ const navLinks = [
   { label: 'Interaction check', path: '/interactions' },
   { label: 'Saved', path: '/saved' },
   { label: 'Analysis', path: '/analysis' }, // researchers only
+  { label: 'Inconsistency', path: '/inconsistency' }, // researchers only
 ]
 
 function Header({ currentPath = '/' }) {
@@ -38,7 +39,7 @@ function Header({ currentPath = '/' }) {
 
       <nav className="site-nav" aria-label="Main">
         {links.map(({ label, path }) => {
-          const active = path === currentPath
+          const active = currentPath === path || currentPath.startsWith(`${path}/`)
           return (
             <a
               key={label}

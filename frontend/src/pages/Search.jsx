@@ -7,6 +7,8 @@ import { savedStore, toggleSaved } from '../data/saved'
 import { recordSearch } from '../data/session'
 import { useStore } from '../utils/store'
 import { drugHref } from '../utils/links'
+import { useCan } from '../data/access'
+import { ingredientSlug } from '../data/interactions'
 import './Search.css'
 
 const PAGE_SIZE = 20
@@ -71,7 +73,7 @@ function FilterGroup({ title, options, selected, onToggle }) {
   )
 }
 
-function ResultCard({ r, saved, onToggleSave }) {
+function ResultCard({ r, saved, onToggleSave, canSeeReport }) {
   const tags = r.contraindications.slice(0, MAX_TAGS)
   const hidden = r.contraindications.length - tags.length
 
@@ -88,7 +90,8 @@ function ResultCard({ r, saved, onToggleSave }) {
         <div className="result-actions">
           {r.missingCommon >= FLAG_THRESHOLD && (
             <a
-              href={drugHref(r.id)}
+              // Researchers go to the ingredient's Inconsistency report page; everyone else to the drug page
+              href={canSeeReport ? `#/inconsistency/${ingredientSlug(r.ingredient)}` : drugHref(r.id)}
               className="pill pill-flag"
               title={`Leaves out ${r.missingCommon} adverse event terms that most other ${r.ingredient} brands list`}
             >
@@ -146,6 +149,7 @@ function Search({ initialQuery = '', mode = null }) {
   const [pregnancy, setPregnancy] = useState(new Set())
   const [limit, setLimit] = useState(PAGE_SIZE)
   const savedIds = useStore(savedStore)
+  const canSeeReport = useCan('/inconsistency')
 
   // Keep a search history for logged-in users (shown in their data export)
   useEffect(() => {
@@ -299,6 +303,7 @@ function Search({ initialQuery = '', mode = null }) {
                   r={r}
                   saved={savedIds.includes(r.id)}
                   onToggleSave={() => toggleSaved(r.id)}
+                  canSeeReport={canSeeReport}
                 />
               ))}
               {results.length > limit && (

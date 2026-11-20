@@ -6,8 +6,6 @@ export const stats = {
   productCount: 4586,
 }
 
-export const inconsistencyCount = 248
-
 export const recentMonographs = [
   {
     id: 'ach-amlodipine',

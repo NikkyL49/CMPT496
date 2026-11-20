@@ -4,6 +4,7 @@ import { prettyRecommendation, recommendationLevel } from '../../data/drugDetail
 import { productSummary } from '../../utils/ingredientGroup'
 import { drugHref } from '../../utils/links'
 import { Card, RecBadge } from './parts'
+import AdverseEventConsistency from './AdverseEventConsistency'
 
 // Severity order for the agreement bars (most severe first)
 const LEVELS = ['hi', 'md', 'lo', 'ok', 'none']
@@ -164,7 +165,15 @@ function GraphsTab({ product, group, details, aeData, ingredient }) {
   return (
     <div className="drug-stack">
       {aeData ? (
-        <TermCountChart product={product} rows={rows} ingredient={ingredient} />
+        <>
+          <AdverseEventConsistency
+            product={product}
+            group={group}
+            aeData={aeData}
+            ingredient={ingredient}
+          />
+          <TermCountChart product={product} rows={rows} ingredient={ingredient} />
+        </>
       ) : (
         <p className="muted">Loading adverse event terms…</p>
       )}

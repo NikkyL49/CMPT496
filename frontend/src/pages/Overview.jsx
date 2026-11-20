@@ -100,8 +100,8 @@ function Overview() {
           <p className="kicker card-kicker">Researcher</p>
           <h2 className="card-title">Inconsistency Report</h2>
           <p className="card-body">
-            {inconsistencyCount} same-ingredient inconsistencies flagged for
-            review.
+            Every drug with two or more brands, scored by how differently its
+            monographs list adverse events.
           </p>
           {canSeeReport ? (
             <span className="unlock-link">Open report →</span>
