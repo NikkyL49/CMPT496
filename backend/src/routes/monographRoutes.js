@@ -3,16 +3,10 @@ import mongoose from "mongoose"
 
 const router = express.Router()
 
+const DRUG_DB = process.env.DRUG_DB_NAME || "ByteRX"
+const DRUG_COLLECTION = process.env.DRUG_COLLECTION || "Drug Monograph Data"
+
 // Public: the homepage shows this before login
-router.get("/recent", async (req, res, next) => {
-    try {
-        const limit = Math.min(parseInt(req.query.limit) || 5, 50)
-
-        const docs = await mongoose.connection.db
-            .collection("monographs")
-            const DRUG_DB = process.env.DRUG_DB_NAME || "ByteRX"         
-            const DRUG_COLLECTION = process.env.DRUG_COLLECTION || "Drug Monograph Data"  
-
 router.get("/recent", async (req, res, next) => {
     try {
         const limit = Math.min(parseInt(req.query.limit) || 5, 50)
@@ -33,15 +27,6 @@ router.get("/recent", async (req, res, next) => {
                     },
                 }
             )
-            .sort({ "Revision Date": -1 })
-            .limit(limit)
-            .toArray()
-
-        // ...the existing res.json(docs.map(...)) stays the same
-    } catch (err) {
-        next(err)
-    }
-})
             .sort({ "Revision Date": -1 })
             .limit(limit)
             .toArray()
