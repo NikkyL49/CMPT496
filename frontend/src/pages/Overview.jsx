@@ -1,22 +1,19 @@
-import {
-  stats,
-  inconsistencyCount,
-  recentMonographs,
-} from '../data/overview'
+import { useEffect, useState } from 'react'
+import { stats, inconsistencyCount } from '../data/overview'
 import { drugHrefForBrand } from '../utils/links'
 import SearchBox from '../components/SearchBox'
 import { useStore } from '../utils/store'
 import { sessionStore } from '../data/session'
 import { useCan } from '../data/access'
 import './Overview.css'
-
+ 
 // Divergence score → badge colour (thresholds are a guess; tune with the team)
 function divergenceLevel(score) {
   if (score >= 7) return 'hi'
   if (score >= 3) return 'md'
   return 'lo'
 }
-
+ 
 // Text under a card the current role can't open
 function LockNote({ path, who }) {
   const { user } = useStore(sessionStore)
@@ -28,14 +25,24 @@ function LockNote({ path, who }) {
     </a>
   )
 }
-
+ 
 function Overview() {
   const canCheckInteractions = useCan('/interactions')
   const canSeeReport = useCan('/inconsistency')
   // A card is a link when the role can open the page, a locked box otherwise
   const InteractionCard = canCheckInteractions ? 'a' : 'div'
   const ReportCard = canSeeReport ? 'a' : 'div'
-
+ 
+  // Recently revised monographs now come from the backend (MongoDB)
+  const [recentMonographs, setRecentMonographs] = useState([])
+ 
+  useEffect(() => {
+    fetch('/api/monographs/recent?limit=5')
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then(setRecentMonographs)
+      .catch(() => setRecentMonographs([]))
+  }, [])
+ 
   return (
     <main className="overview">
       <section className="hero">
@@ -52,10 +59,10 @@ function Overview() {
           Search by drug, ingredient, condition, contraindication or drug class.
           See the warnings that matter before anything else.
         </p>
-
+ 
         <SearchBox />
       </section>
-
+ 
       <section className="feature-cards">
         <a href="#/discovery" className="card">
           <p className="kicker card-kicker">Discovery</p>
@@ -65,7 +72,7 @@ function Overview() {
             standing -- plus pharmacies and clinics near you.
           </p>
         </a>
-
+ 
         <InteractionCard
           {...(canCheckInteractions ? { href: '#/interactions' } : {})}
           className={`card card-raised${canCheckInteractions ? '' : ' card-locked'}`}
@@ -85,7 +92,7 @@ function Overview() {
             <LockNote path="/interactions" who="Pharmacists, physicians and researchers" />
           )}
         </InteractionCard>
-
+ 
         <ReportCard
           {...(canSeeReport ? { href: '#/inconsistency' } : {})}
           className={`card card-raised${canSeeReport ? '' : ' card-locked'}`}
@@ -103,7 +110,7 @@ function Overview() {
           )}
         </ReportCard>
       </section>
-
+ 
       <section className="recent">
         <div className="section-head">
           <h2 className="text-h1 recent-title">Recently Revised Monographs</h2>
@@ -111,7 +118,7 @@ function Overview() {
             View all
           </a>
         </div>
-
+ 
         <div className="table-wrap">
           <table className="monograph-table">
             <thead>
@@ -137,11 +144,15 @@ function Overview() {
                   <td>{m.revised}</td>
                   <td>{m.adverseEvents} terms</td>
                   <td>
-                    <span
-                      className={`badge badge-solid-${divergenceLevel(m.divergence)}`}
-                    >
-                      Divergence {m.divergence.toFixed(1)}
-                    </span>
+                    {/* The database has no divergence score yet, so only
+                        show the badge when a value exists */}
+                    {m.divergence != null && (
+                      <span
+                        className={`badge badge-solid-${divergenceLevel(m.divergence)}`}
+                      >
+                        Divergence {m.divergence.toFixed(1)}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -149,7 +160,7 @@ function Overview() {
           </table>
         </div>
       </section>
-
+ 
       <aside className="notice">
         <span className="badge badge-solid-lo">Notice</span>
         Information only, not medical advice. Always confirm against the
@@ -158,5 +169,5 @@ function Overview() {
     </main>
   )
 }
-
+ 
 export default Overview
