@@ -14,6 +14,12 @@ npm install
 npm run dev       # start the dev server (http://localhost:5173)
 ```
 
+For backend, run this additional step:
+
+```bash
+npm install csv-parse
+```
+
 Demo login (mock auth): **demo@monobyte.ca** / **Monobyte1!**. Accounts you create on the sign-up page also work until you reload the page. Reloading also logs you out.
 
 Other scripts:
