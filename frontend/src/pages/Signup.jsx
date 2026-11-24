@@ -112,12 +112,10 @@ function Signup() {
           </div>
         </fieldset>
 
-        {role === 'Researcher' && (
-          <p className="auth-note">
-            Researcher access needs verification. You can request it after
-            signing up.
-          </p>
-        )}
+        <p className="auth-note">
+          Your role decides which pages you can open, and you can&rsquo;t change it
+          after signing up.
+        </p>
 
         <button
           type="submit"

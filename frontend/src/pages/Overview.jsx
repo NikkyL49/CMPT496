@@ -1,4 +1,5 @@
-import { stats, recentMonographs } from '../data/overview'
+import { useEffect, useState } from 'react'
+import { stats } from '../data/overview'
 import { drugHrefForBrand } from '../utils/links'
 import SearchBox from '../components/SearchBox'
 import { useStore } from '../utils/store'
@@ -31,6 +32,16 @@ function Overview() {
   // A card is a link when the role can open the page, a locked box otherwise
   const InteractionCard = canCheckInteractions ? 'a' : 'div'
   const ReportCard = canSeeReport ? 'a' : 'div'
+
+  // Recently revised monographs now come from the backend (MongoDB)
+  const [recentMonographs, setRecentMonographs] = useState([])
+
+  useEffect(() => {
+    fetch('/api/monographs/recent?limit=5')
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then(setRecentMonographs)
+      .catch(() => setRecentMonographs([]))
+  }, [])
 
   return (
     <main className="overview">
@@ -133,11 +144,15 @@ function Overview() {
                   <td>{m.revised}</td>
                   <td>{m.adverseEvents} terms</td>
                   <td>
-                    <span
-                      className={`badge badge-solid-${divergenceLevel(m.divergence)}`}
-                    >
-                      Divergence {m.divergence.toFixed(1)}
-                    </span>
+                    {/* The database has no divergence score yet, so only
+                        show the badge when a value exists */}
+                    {m.divergence != null && (
+                      <span
+                        className={`badge badge-solid-${divergenceLevel(m.divergence)}`}
+                      >
+                        Divergence {m.divergence.toFixed(1)}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}

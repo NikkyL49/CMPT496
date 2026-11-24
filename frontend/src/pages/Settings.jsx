@@ -6,10 +6,9 @@ import {
   deleteAccount,
   AuthError,
 } from '../data/auth'
-import { sessionStore, setViewRole } from '../data/session'
+import { sessionStore } from '../data/session'
 import { savedStore, clearSaved } from '../data/saved'
 import { products } from '../data/search'
-import { ROLES } from '../data/roles'
 import { useStore } from '../utils/store'
 import { downloadFile, today } from '../utils/download'
 import {
@@ -314,7 +313,6 @@ function RoleSection({ user }) {
     setStatus('')
     try {
       await updatePreferences(patch)
-      if (patch.defaultRole) setViewRole(patch.defaultRole)
       setStatus('Saved')
     } catch (err) {
       setStatus(errorMessage(err))
@@ -324,26 +322,21 @@ function RoleSection({ user }) {
   return (
     <section id="role" className="settings-card">
       <div className="card-heading-row">
-        <h2 className="card-heading">Default role and landing page</h2>
+        <h2 className="card-heading">Role and landing page</h2>
         {status && (
           <span className="save-status" role="status">
             {status}
           </span>
         )}
       </div>
-      <div className="role-chips" role="group" aria-label="Default role">
-        {ROLES.map((r) => (
-          <button
-            key={r}
-            type="button"
-            className={`role-chip${user.defaultRole === r ? ' is-active' : ''}`}
-            aria-pressed={user.defaultRole === r}
-            onClick={() => save({ defaultRole: r })}
-          >
-            {r}
-          </button>
-        ))}
-      </div>
+      {/* The role is picked at sign up and can't be changed here */}
+      <p className="role-current">
+        Your role: <span className="role-chip is-active">{user.defaultRole}</span>
+      </p>
+      <p className="role-help">
+        Your role was set when you signed up and decides which pages you can open. It
+        can&rsquo;t be changed.
+      </p>
       <div className="landing-field">
         <label htmlFor="landing-page">After I log in, open</label>
         <select
