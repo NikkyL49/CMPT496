@@ -1,5 +1,4 @@
 import User from "../models/User.js"
-import { ROLES } from "../models/User.js"
 import { EMAIL_RE, passwordIsStrong, hashPassword, checkPassword, setAuthCookie, clearAuthCookie } from "../utils/auth.js"
 
 // Settings page. Every route here runs after requireAuth, so req.user is the logged-in user.
@@ -24,13 +23,13 @@ export async function updateProfile(req, res) {
     res.status(200).json({ user: req.user.toPublic() })
 }
 
-// PATCH /api/users/me/preferences  any of { defaultRole, landingPage, notifications: {...} }
+// PATCH /api/users/me/preferences  any of { landingPage, notifications: {...} }
+// The role isn't a preference: it's picked at sign up and can't be changed.
 export async function updatePreferences(req, res) {
     const { defaultRole, landingPage, notifications } = req.body ?? {}
 
-    if (defaultRole !== undefined) {
-        if (!ROLES.includes(defaultRole)) return res.status(400).json({ message: "Unknown role." })
-        req.user.defaultRole = defaultRole
+    if (defaultRole !== undefined && defaultRole !== req.user.defaultRole) {
+        return res.status(403).json({ message: "Your role can't be changed after sign up." })
     }
     if (landingPage !== undefined) {
         if (!LANDING_PAGES.includes(landingPage)) return res.status(400).json({ message: "Unknown landing page." })

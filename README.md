@@ -52,7 +52,7 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | `#/forgot-password`  | Forgot password  | Done: emails a reset link (see [Password-reset email](#password-reset-email); without email set up, a "Demo only" link shows on screen) |
 | `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
 | `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
-| `#/settings`         | Settings         | Done (log in first): change info, default role, landing page, email notification switches, change password, export my data (JSON), delete account |
+| `#/settings`         | Settings         | Done (log in first): change info, see your role (read-only), landing page, email notification switches, change password, export my data (JSON), delete account |
 | `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
 | `#/drug/<id>?s=...&tab=...` | Drug overview | Done: warnings, contraindications and same-ingredient banners; tabs for Overview, Adverse events, Conflicts, Graphs, Alternatives and Research papers (DIN, Health Canada link, PDF). Uses the MedDRA CSV. `s` = strength, `tab` = open tab |
 | `#/discovery`        | Discovery        | Explore by category |
@@ -70,9 +70,16 @@ The app uses a small hash router in `App.jsx`, so there are no routing dependenc
 | Pharmacist, Physician | Everything except Analysis and the Inconsistency report |
 | Researcher | Everything |
 
-The rules live in `frontend/src/data/access.js` (`RESTRICTED`). The role comes from the logged-in account (`defaultRole`); logged out counts as General Public. The header's Role dropdown only offers the account's own role and the roles below it, so a researcher can preview the public view but a pharmacist can't switch to Researcher. Opening a page your role can't use shows a "Restricted" page (log in, or switch back to your role). Nav links and buttons that lead to those pages (Compare, Add to interaction check, Check interactions, Compare with this, the Inconsistency Report card) are hidden or locked.
+The rules live in `frontend/src/data/access.js` (`RESTRICTED`). The role comes from the logged-in account (`defaultRole`); logged out counts as General Public.
 
-This only hides pages in the browser. Data that must stay private (e.g. the analysis data) also has to be protected by the backend, and right now users pick their own role at sign-up and in Settings.
+**Roles are fixed at sign up.** People pick General Public, Pharmacist, Physician or Researcher when they create an account and can't change it afterwards:
+- The header just shows "Role: …" (no dropdown), so nobody can switch the view to another role.
+- Settings shows the role read-only.
+- The backend refuses a role change: `PATCH /api/users/me/preferences` with a different `defaultRole` returns 403.
+
+To change someone's role for now, edit `defaultRole` on their user document in MongoDB. Opening a page your role can't use shows a "Restricted" page (log in, or a note that your role can't open it). Nav links and buttons that lead to those pages (Compare, Add to interaction check, Check interactions, Compare with this, the Inconsistency Report card) are hidden or locked.
+
+This only hides pages in the browser. Data that must stay private (e.g. the analysis data, which ships with the site) also has to be protected by the backend. People still choose Pharmacist, Physician or Researcher themselves at sign up, with no check that they are one.
 
 ## Project structure
 

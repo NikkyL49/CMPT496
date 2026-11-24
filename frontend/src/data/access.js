@@ -5,10 +5,10 @@
 // - Pharmacist + Physician: everything except Analysis and the Inconsistency report
 // - Researcher: everything
 //
-// The role comes from the logged-in account (user.defaultRole from the backend).
-// Logged out = General Public. The header dropdown can switch to a role at or
-// below the account's own role (e.g. a researcher can preview the public view),
-// never above it.
+// The role comes from the logged-in account (user.defaultRole from the backend)
+// and is fixed: it's picked at sign up and can't be switched afterwards (the
+// header only shows it, Settings shows it read-only, and the backend refuses a
+// change). Logged out = General Public.
 //
 // NOTE: this only hides pages in the browser. Anything that must stay private
 // (e.g. the analysis data) has to be protected by the backend too.
@@ -35,9 +35,6 @@ export const PAGE_NAMES = {
   '/inconsistency': 'Inconsistency report',
 }
 
-// Access level: General Public 0, Pharmacist/Physician 1, Researcher 2
-const LEVEL = { 'General Public': 0, Pharmacist: 1, Physician: 1, Researcher: 2 }
-
 // The RESTRICTED entry a path falls under: '/inconsistency/amlodipine' → '/inconsistency'
 export function restrictedKey(path) {
   return Object.keys(RESTRICTED).find((key) => path === key || path.startsWith(`${key}/`))
@@ -48,20 +45,15 @@ export function canAccess(path, role) {
   return !allowed || allowed.includes(role)
 }
 
-// Roles the header dropdown offers: the account's own role and anything below it.
-// Pharmacist and Physician don't get each other's role.
-export function rolesFor(user) {
-  if (!user) return [DEFAULT_ROLE]
-  const own = ROLES.includes(user.defaultRole) ? user.defaultRole : DEFAULT_ROLE
-  const level = LEVEL[own]
-  // Researcher can preview all four; others get their own role + General Public
-  return ROLES.filter((r) => r === own || LEVEL[r] < level || own === 'Researcher')
+// The account's role: what it signed up with, or General Public when logged out
+export function accountRole(user) {
+  return user && ROLES.includes(user.defaultRole) ? user.defaultRole : DEFAULT_ROLE
 }
 
-// The role the site is acting as right now: the header pick if the account
-// allows it, otherwise General Public.
-export function effectiveRole({ user, viewRole }) {
-  return rolesFor(user).includes(viewRole) ? viewRole : DEFAULT_ROLE
+// The role the site is acting as right now. Always the account's own role:
+// nothing in the browser (an old "viewRole" in the session) can raise it.
+export function effectiveRole({ user }) {
+  return accountRole(user)
 }
 
 export function useRole() {
