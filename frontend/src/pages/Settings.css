@@ -153,6 +153,22 @@
 }
 
 /* Role chips */
+.role-current {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.role-current .role-chip {
+  cursor: default;
+}
+
+.role-help {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
 .role-chips {
   display: flex;
   flex-wrap: wrap;

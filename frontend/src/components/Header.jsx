@@ -1,8 +1,8 @@
-import { sessionStore, setViewRole } from '../data/session'
+import { sessionStore } from '../data/session'
 import { savedStore } from '../data/saved'
 import { logout } from '../data/auth'
 import { useStore } from '../utils/store'
-import { canAccess, effectiveRole, rolesFor } from '../data/access'
+import { canAccess, effectiveRole } from '../data/access'
 import logoMark from '../assets/logo-mark.png'
 import './Header.css'
 
@@ -20,7 +20,6 @@ function Header({ currentPath = '/' }) {
   const session = useStore(sessionStore)
   const { user } = session
   const role = effectiveRole(session)
-  const roleOptions = rolesFor(user)
   // Only show the pages this role can open (rules in data/access.js)
   const links = navLinks.filter(({ path }) => canAccess(path, role))
   const savedCount = useStore(savedStore).length
@@ -59,19 +58,13 @@ function Header({ currentPath = '/' }) {
       </nav>
 
       <div className="header-actions">
-        <label className="role-select">
-          <span>Role:</span>
-          <select
-            value={role}
-            onChange={(e) => setViewRole(e.target.value)}
-            disabled={roleOptions.length < 2}
-            title={user ? 'View the site as this role' : 'Log in to use your account role'}
-          >
-            {roleOptions.map((r) => (
-              <option key={r}>{r}</option>
-            ))}
-          </select>
-        </label>
+        {/* The role is fixed to the account (picked at sign up), so it's shown, not chosen */}
+        <span
+          className="role-select role-fixed"
+          title={user ? 'Your account role, picked when you signed up' : 'Log in to use your account role'}
+        >
+          <span>Role:</span> {role}
+        </span>
         {user ? (
           <>
             <a

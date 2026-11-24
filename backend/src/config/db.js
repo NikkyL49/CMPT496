@@ -7,11 +7,14 @@ dns.setServers(["8.8.8.8", "1.1.1.1"])
 
 export const connectDB = async () => {
     try {
-        // dbName picks the database inside the cluster (users go in their own DB, not the drug data)
-        await mongoose.connect(process.env.MONGO_URI, { dbName: process.env.DB_NAME || "monobyte" })
+        await mongoose.connect(process.env.MONGO_URI, {
+            dbName: process.env.DB_NAME || "monobyte",
+            serverSelectionTimeoutMS: 5000, // fail fast so the fallback kicks in quickly
+        })
         console.log("MONGODB CONNECTED SUCCESSFULLY!")
     } catch (error) {
         console.error("Error connecting to MONGODB:", error.message)
-        process.exit(1) // exit with failure
+        console.warn("Continuing without MongoDB; drug data will come from the CSV.")
+        setTimeout(connectDB, 30000) // keep retrying in the background
     }
 }
