@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
   ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, ReferenceLine, ResponsiveContainer, Cell,
 } from "recharts";
-import { withinDrugCoverage } from "../../data/analysis";
 import "./Charts.css";
 
 function DrugTooltip({ active, payload }) {
@@ -23,10 +22,11 @@ function DrugTooltip({ active, payload }) {
   );
 }
 
-export default function WithinDrugChart() {
+// `table` = { meta, rows } from the backend (see data/analysis.js)
+export default function WithinDrugChart({ table }) {
   const [minProducts, setMinProducts] = useState(10);
   const [sortBy, setSortBy] = useState("correlation");
-  const rows = withinDrugCoverage.rows;
+  const rows = table.rows;
 
   const data = useMemo(() => {
     const kept = rows.filter(

@@ -5,7 +5,8 @@
 //   rows: one object per spreadsheet row, with the sheet row number kept for tracing
 //
 // Usage:  node convert.js [inputFolder] [outputFolder]
-// Default: node convert.js ./csv ./json
+// Default: node convert.js ./csv ../backend/data/analysis
+// (the backend serves these to researchers: backend/src/routes/analysisRoutes.js)
 //
 // Export each tab with File > Download > Comma-separated values (.csv)
 // and save them in the input folder using the file names in TABLES below.
@@ -13,8 +14,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const inputDir = process.argv[2] || "./csv";
-const outputDir = process.argv[3] || "./json";
+const inputDir = process.argv[2] || path.join(__dirname, "csv");
+const outputDir = process.argv[3] || path.join(__dirname, "../backend/data/analysis");
 
 // ---------- CSV parsing (handles quoted cells with commas or line breaks) ----------
 

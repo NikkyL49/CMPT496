@@ -1,12 +1,13 @@
 // Review status for the Inconsistency report: Open → Reviewed → Resolved,
 // plus "Flag for review" notes (companies + reason) from the detail page.
 //
-// TODO: move to the backend (MongoDB, researcher-only routes) so every
-// researcher sees the same status. For now it's kept in this browser's
-// localStorage, like the logged-out saved list.
-import { createStore } from '../utils/store'
-
-const KEY = 'monobyte.inconsistencyReviews'
+// Saved in MongoDB through the researcher-only /api/reviews routes
+// (backend/src/routes/reviewRoutes.js), so every researcher sees the same
+// status and who changed it. Reloaded each time a report page opens.
+import { useEffect } from 'react'
+import { api } from './api'
+import { sessionStore } from './session'
+import { createStore, useStore } from '../utils/store'
 
 export const STATUSES = {
   open: 'Open',
@@ -14,52 +15,72 @@ export const STATUSES = {
   resolved: 'Resolved',
 }
 
-function read() {
-  try {
-    return JSON.parse(localStorage.getItem(KEY)) ?? {}
-  } catch {
-    return {}
-  }
+// reviews: { [ingredientSlug]: { status, statusBy, statusAt, flags: [{ companies, reason, by, at }] } }
+// error: last load or save error, shown on the report pages
+export const reviewsStore = createStore({ reviews: {}, loaded: false, error: null })
+
+// Status used to be kept in the browser only; that copy is no longer read
+try {
+  localStorage.removeItem('monobyte.inconsistencyReviews')
+} catch {
+  // storage blocked, nothing to clean up
 }
 
-// { [ingredientSlug]: { status, updated, flags: [{ companies, reason, by, at }] } }
-export const reviewsStore = createStore(read())
+let loading = null
 
-reviewsStore.subscribe(() => {
-  try {
-    localStorage.setItem(KEY, JSON.stringify(reviewsStore.get()))
-  } catch {
-    // storage blocked — changes last for this visit only
-  }
-})
+export function loadReviews() {
+  loading ??= api('GET', '/reviews')
+    .then(({ reviews }) => reviewsStore.set({ reviews, loaded: true, error: null }))
+    .catch((err) => reviewsStore.set((s) => ({ ...s, error: `Couldn't load review status: ${err.message}` })))
+    .finally(() => {
+      loading = null
+    })
+  return loading
+}
 
-function today() {
-  return new Date().toISOString().slice(0, 10)
+// Loads (or reloads) the shared status when a report page opens or the user changes
+export function useReviews() {
+  const { user } = useStore(sessionStore)
+  const email = user?.email
+  useEffect(() => {
+    if (email) loadReviews()
+  }, [email])
+  return useStore(reviewsStore)
 }
 
 export function reviewFor(reviews, slug) {
-  return reviews[slug] ?? { status: 'open', flags: [] }
+  return reviews[slug] ?? { status: 'open', statusBy: null, statusAt: null, flags: [] }
+}
+
+// Resolves to the saved review, or null if saving failed (the error goes in the store)
+function save(request) {
+  return request
+    .then(({ review }) => {
+      reviewsStore.set((s) => ({ ...s, reviews: { ...s.reviews, [review.slug]: review }, error: null }))
+      return review
+    })
+    .catch((err) => {
+      reviewsStore.set((s) => ({ ...s, error: `Couldn't save: ${err.message}` }))
+      return null
+    })
 }
 
 export function setStatus(slug, status) {
-  reviewsStore.set((all) => ({
-    ...all,
-    [slug]: { ...reviewFor(all, slug), status, updated: today() },
-  }))
+  return save(api('PUT', `/reviews/${slug}/status`, { status }))
 }
 
-export function addFlag(slug, { companies, reason, by }) {
-  reviewsStore.set((all) => {
-    const current = reviewFor(all, slug)
-    return {
-      ...all,
-      [slug]: {
-        ...current,
-        // a new flag reopens a resolved ingredient
-        status: current.status === 'resolved' ? 'open' : current.status,
-        updated: today(),
-        flags: [...current.flags, { companies, reason, by, at: today() }],
-      },
-    }
-  })
+// A new flag reopens a resolved ingredient (done by the backend)
+export function addFlag(slug, { companies, reason }) {
+  return save(api('POST', `/reviews/${slug}/flags`, { companies, reason }))
+}
+
+// "2026-11-24" from an ISO timestamp
+export function day(iso) {
+  return iso ? iso.slice(0, 10) : ''
+}
+
+// "Reviewed by Sam Lee on 2026-11-24"
+export function statusNote(review) {
+  if (!review.statusBy) return ''
+  return `${STATUSES[review.status]} by ${review.statusBy} on ${day(review.statusAt)}`
 }

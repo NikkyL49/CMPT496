@@ -2,9 +2,28 @@ import MatchResultsChart from "../components/charts/MatchResultsChart";
 import ReciprocityScatter from "../components/charts/ReciprocityScatter";
 import CoverageByYearChart from "../components/charts/CoverageByYearChart";
 import WithinDrugChart from "../components/charts/WithinDrugChart";
+import { useAnalysisTables } from "../data/analysis";
 import "./Analysis.css";
 
 export default function Analysis() {
+  // Researchers only: the backend checks the role before sending the data
+  const { tables, error } = useAnalysisTables();
+
+  if (!tables) {
+    return (
+      <main className="analysis-page">
+        <h1>Label analysis</h1>
+        {error ? (
+          <p className="form-alert" role="alert">
+            {error}
+          </p>
+        ) : (
+          <p className="analysis-intro">Loading analysis results…</p>
+        )}
+      </main>
+    );
+  }
+
   return (
     <main className="analysis-page">
       <h1>Label analysis</h1>
@@ -19,7 +38,7 @@ export default function Analysis() {
           For pregnancy, combinations usually match their components. For breastfeeding, they match
           less often, and missing categories block many comparisons.
         </p>
-        <MatchResultsChart />
+        <MatchResultsChart table={tables["combination-alignment"]} />
       </section>
 
       <section className="analysis-section">
@@ -27,7 +46,7 @@ export default function Analysis() {
         <p className="chart-takeaway">
           Most documented interactions appear on only one of the two drugs' labels.
         </p>
-        <ReciprocityScatter />
+        <ReciprocityScatter table={tables["reciprocity"]} />
       </section>
 
       <section className="analysis-section">
@@ -36,7 +55,7 @@ export default function Analysis() {
           Across all drugs, labels revised from 2022 onward name more of their expected interaction
           partners than labels revised from 2018 to 2021.
         </p>
-        <CoverageByYearChart />
+        <CoverageByYearChart table={tables["coverage-by-year"]} />
       </section>
 
       <section className="analysis-section">
@@ -45,7 +64,7 @@ export default function Analysis() {
           Only weakly. Within most drugs, revision year has little relationship with coverage, and
           the stronger results point in both directions.
         </p>
-        <WithinDrugChart />
+        <WithinDrugChart table={tables["within-drug-coverage"]} />
       </section>
     </main>
   );

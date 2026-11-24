@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { combinationAlignment } from "../../data/analysis";
 import "./Charts.css";
 
 const RESULTS = [
@@ -15,8 +14,9 @@ const POPULATIONS = [
   { key: "pregnancy", label: "Pregnancy" },
 ];
 
-export default function MatchResultsChart() {
-  const rows = combinationAlignment.rows;
+// `table` = { meta, rows } from the backend (see data/analysis.js)
+export default function MatchResultsChart({ table }) {
+  const rows = table.rows;
   const [selected, setSelected] = useState(null);
 
   // One bar per population, counting each combination-vs-component comparison
