@@ -6,6 +6,8 @@ import authRoutes from "./routes/authRoutes.js"
 import userRoutes from "./routes/userRoutes.js"
 import savedRoutes from "./routes/savedRoutes.js"
 import monographRoutes from "./routes/monographRoutes.js"
+import analysisRoutes from "./routes/analysisRoutes.js"
+import reviewRoutes from "./routes/reviewRoutes.js"
 
 // Load backend/.env into process.env. The other files only read process.env
 // inside functions (after this has run), never at import time.
@@ -41,6 +43,8 @@ app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/saved", savedRoutes)
 app.use("/api/monographs", monographRoutes)
+app.use("/api/analysis", analysisRoutes) // researchers only
+app.use("/api/reviews", reviewRoutes) // researchers only
 
 // Unknown /api route
 app.use((req, res) => {

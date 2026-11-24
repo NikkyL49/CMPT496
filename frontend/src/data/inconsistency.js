@@ -3,22 +3,27 @@
 // drug_details.json (ingredient per product) + adverse_event_terms.json, the
 // same files the drug page and Search use.
 //
-// For each ingredient with 2+ products:
+// For each ingredient with 2+ products (rules shared with the drug page and the
+// Layer 1 card, see utils/ingredientGroup.js):
+//   products with a "possible data gap" (very short lists) are left out
 //   share(term) = products listing the term ÷ products compared
-//   most  = terms listed by ≥ 75% of products (the consensus)
-//   some  = listed by 2+ products but < 75%
+//   most  = terms listed by more than half of the products (the consensus)
+//   some  = listed by 2+ products but not more than half
 //   one   = listed by exactly one product
 //   divergent terms = some + one
 //   score = 10 × Σ (1 − share) over divergent terms ÷ distinct terms
 // Terms unique to one product weigh the most, partly shared terms less.
 // 0 = every product lists the same terms; ~10 = almost nothing in common.
-// TODO: switch to the team's Layer 1 concordance results once they're final.
+// Fewer than 3 products compared = low confidence.
+// The full Layer 1 workbook results (warnings, contraindications, guidance,
+// manufacturer flags) are shown next to this on each ingredient's page.
 import { useDrugDetails } from './drugDetails'
 import { useAdverseEvents, termsForProduct } from './adverseEvents'
-import { productsByIngredient } from '../utils/ingredientGroup'
+import { productsByIngredient, dataGaps, isCommon, MIN_CONFIDENT_GROUP } from '../utils/ingredientGroup'
 import { ingredientSlug } from './interactions'
 
-export const CONSENSUS = 0.75
+// Words for the consensus rule, used in labels on the report pages
+export const CONSENSUS_LABEL = 'more than half'
 
 export const LEVELS = [
   { id: 'hi', label: 'High', min: 6, range: 'score 6.0 and above' },
@@ -39,9 +44,14 @@ function latest(products) {
 }
 
 function buildRow(name, group, aeData) {
-  const products = group
+  const gaps = dataGaps(aeData, group)
+  const withTerms = group
     .map((product) => ({ product, terms: termsForProduct(aeData, product) }))
     .filter((p) => p.terms?.size)
+  const products = withTerms.filter((p) => !gaps.has(p.product.id))
+  const gapProducts = withTerms
+    .filter((p) => gaps.has(p.product.id))
+    .map((p) => ({ ...p, dataGap: gaps.get(p.product.id) }))
   const n = products.length
   if (n < 2) return null
 
@@ -53,9 +63,10 @@ function buildRow(name, group, aeData) {
     .map(([term, idx]) => ({ term, listedBy: idx, share: idx.length / n }))
     .sort((a, b) => a.share - b.share || a.term.localeCompare(b.term))
 
-  const most = terms.filter((t) => t.share >= CONSENSUS)
-  const one = terms.filter((t) => t.listedBy.length === 1 && t.share < CONSENSUS)
-  const some = terms.filter((t) => t.listedBy.length > 1 && t.share < CONSENSUS)
+  const common = (t) => isCommon(t.listedBy.length, n)
+  const most = terms.filter(common)
+  const one = terms.filter((t) => t.listedBy.length === 1 && !common(t))
+  const some = terms.filter((t) => t.listedBy.length > 1 && !common(t))
   const weight = [...one, ...some].reduce((s, t) => s + (1 - t.share), 0)
   const score = Math.round((100 * weight) / terms.length) / 10
 
@@ -71,6 +82,8 @@ function buildRow(name, group, aeData) {
     name,
     slug: ingredientSlug(name),
     products: productRows,
+    gapProducts,
+    lowConfidence: n < MIN_CONFIDENT_GROUP,
     terms,
     most,
     some,
@@ -78,7 +91,7 @@ function buildRow(name, group, aeData) {
     divergent: some.length + one.length,
     score,
     level: levelFor(score).id,
-    latestRevision: latest(products.map((p) => p.product)),
+    latestRevision: latest(withTerms.map((p) => p.product)),
   }
 }
 

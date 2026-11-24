@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Cell, LabelList,
 } from "recharts";
-import { coverageByYear } from "../../data/analysis";
 import "./Charts.css";
 
 const SMALL_SAMPLE = 20;
@@ -22,9 +21,10 @@ function YearTooltip({ active, payload }) {
   );
 }
 
-export default function CoverageByYearChart() {
+// `table` = { meta, rows } from the backend (see data/analysis.js)
+export default function CoverageByYearChart({ table }) {
   const [hideSmall, setHideSmall] = useState(false);
-  const { rows, meta } = coverageByYear;
+  const { rows, meta } = table;
   const overall = (meta.grandTotal?.averageCoverage ?? 0) * 100;
   const periods = meta.summary?.periods ?? [];
 

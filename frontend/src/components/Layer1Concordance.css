@@ -1,0 +1,163 @@
+/* Layer 1 section on the Inconsistency report's ingredient page.
+   Tables reuse .inc-table / .inc-table-wrap from pages/Inconsistency.css */
+
+.l1-lead {
+  max-width: 80ch;
+  margin-bottom: 18px;
+  color: var(--color-text-muted);
+}
+
+.l1-muted {
+  color: var(--color-text-muted);
+}
+
+.l1-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.l1-kpi {
+  padding: 18px 22px;
+  background: var(--color-surface);
+  border-left: 4px solid var(--cream-300);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.l1-kpi-label {
+  font-size: 11px;
+}
+
+.l1-kpi-value {
+  margin: 8px 0 6px;
+  font: var(--text-h1);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+}
+
+.l1-kpi-sub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.l1-kpi.tone-ok {
+  border-left-color: var(--accent-500);
+}
+
+.l1-kpi.tone-md {
+  border-left-color: var(--severity-md);
+}
+
+.l1-kpi.tone-hi {
+  border-left-color: var(--severity-hi);
+}
+
+.l1-h3 {
+  font: var(--text-h3);
+  font-size: 17px;
+  margin: 26px 0 10px;
+}
+
+.l1-table td,
+.l1-table tbody th {
+  vertical-align: top;
+}
+
+.l1-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.l1-meter-track {
+  display: inline-block;
+  width: 110px;
+  height: 10px;
+  background: var(--cream-200);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.l1-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent-500);
+  border-radius: 999px;
+}
+
+.l1-meter-value {
+  min-width: 40px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.l1-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.l1-cats strong {
+  color: var(--color-text);
+}
+
+.l1-brands {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.l1-flag {
+  display: inline-block;
+  min-width: 54px;
+  padding: 5px 8px;
+  font: 600 14px/1 var(--font-serif);
+  text-align: center;
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.l1-flag.tone-hi {
+  color: #fff;
+  background: var(--severity-hi);
+}
+
+.l1-flag.tone-md {
+  background: var(--severity-md);
+}
+
+.l1-flag.tone-ok {
+  background: var(--accent-100);
+}
+
+.l1-flag.tone-none {
+  background: var(--cream-200);
+}
+
+.l1-flag-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.l1-note {
+  max-width: 90ch;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 760px) {
+  .l1-kpis {
+    grid-template-columns: 1fr;
+  }
+}
