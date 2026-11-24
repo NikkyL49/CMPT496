@@ -27,13 +27,21 @@ const TABS = [
 
 function SameIngredientBanner({ flag, ingredient, compareHref, reportHref }) {
   if (!flag) return null
-  const { others, missingCommon, rare } = flag
+  const { others, missingCommon, rare, dataGap, lowConfidence } = flag
   const brands = `${others} other ${ingredient} ${others === 1 ? 'brand' : 'brands'}`
   return (
     <section className="drug-banner banner-lo" aria-label="Same-ingredient flag">
-      <span className="banner-label">Same-ingredient flag</span>
+      <span className="banner-label">{dataGap ? 'Possible data gap' : 'Same-ingredient flag'}</span>
       <p>
-        {missingCommon.length === 0 && rare.length === 0 ? (
+        {dataGap ? (
+          // Too short to compare fairly: most likely an extraction or mapping gap
+          <>
+            Our data lists only <strong>{dataGap.terms}</strong> adverse event{' '}
+            {dataGap.terms === 1 ? 'term' : 'terms'} for this monograph, far fewer than other{' '}
+            {ingredient} brands (typically {Math.round(dataGap.peerMedian)}). The list may be
+            incomplete, so check the official monograph before relying on it.
+          </>
+        ) : missingCommon.length === 0 && rare.length === 0 ? (
           <>This monograph&rsquo;s adverse event list closely matches the {brands}.</>
         ) : (
           <>
@@ -41,7 +49,7 @@ function SameIngredientBanner({ flag, ingredient, compareHref, reportHref }) {
             {missingCommon.length > 0 && (
               <>
                 leaves out <strong>{missingCommon.length}</strong>{' '}
-                {missingCommon.length === 1 ? 'term' : 'terms'} that most of them list
+                {missingCommon.length === 1 ? 'term' : 'terms'} that more than half of them list
                 {missingCommon.length <= 4 && ` (${missingCommon.join(', ')})`}
               </>
             )}
@@ -53,6 +61,7 @@ function SameIngredientBanner({ flag, ingredient, compareHref, reportHref }) {
               </>
             )}
             .
+            {lowConfidence && ' With so few brands to compare, treat this as a rough guide.'}
           </>
         )}
       </p>
@@ -93,7 +102,7 @@ function Drug({ productId, listingId, tab = 'overview' }) {
   const others = group.filter((p) => p.id !== productId)
   const termIdx = aeData && variant ? aeData.byId[variant.id] : null
   const myTerms = termIdx ? new Set(termIdx.map((i) => aeData.terms[i])) : null
-  const flag = aeData && myTerms && others.length ? sameIngredientFlag(aeData, myTerms, others) : null
+  const flag = aeData && myTerms && others.length ? sameIngredientFlag(aeData, myTerms, others, group) : null
 
   if (!product) {
     return (

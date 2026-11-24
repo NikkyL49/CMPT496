@@ -1,260 +1,126 @@
 # CMPT496 — MonoByte
 
-MonoByte puts every Canadian drug monograph in one place. You can search by drug, ingredient or condition, and the serious warnings, contraindications and adverse events show up first. It uses Health Canada monograph data coded with MedDRA terms.
+MonoByte puts Canadian drug monographs (Health Canada product labels, coded with MedDRA v27) in one place. You can search drugs, read each monograph in plain sections, compare brands, check drugs against each other, and see where labels disagree.
 
-This repo holds the capstone project. Right now that's the React frontend. All data is placeholder data until the backend API exists.
+> Information only, not medical advice. Always confirm against the official Health Canada monograph.
 
-## Getting started
+## Run it locally
 
-You need Node.js 20.19+ or 22.12+ (Vite 8 requires one of these).
+You need **Node.js 20.19+ or 22.12+**.
+
+**1. Backend** (Express + MongoDB, port 5001)
+
+```bash
+cd backend
+cp .env.example .env    # then fill in MONGO_URI and JWT_SECRET (see the comments in the file)
+npm install
+npm run dev
+```
+
+**2. Frontend** (React 19 + Vite, port 5173), in a second terminal
 
 ```bash
 cd frontend
 npm install
-npm run dev       # start the dev server (http://localhost:5173)
+npm run dev             # open http://localhost:5173
 ```
 
-For backend, run this additional step:
+The frontend sends `/api/...` requests to the backend through the Vite proxy (`frontend/vite.config.js`).
 
-```bash
-npm install csv-parse
-```
+| Command (in `frontend/`) | What it does |
+| --- | --- |
+| `npm run build` | Production build into `frontend/dist` |
+| `npm run preview` | Serve that build locally |
+| `npm run lint` | Run ESLint |
 
-Demo login (mock auth): **demo@monobyte.ca** / **Monobyte1!**. Accounts you create on the sign-up page also work until you reload the page. Reloading also logs you out.
+### Environment variables (`backend/.env`)
 
-Other scripts:
+| Variable | Needed | What it's for |
+| --- | --- | --- |
+| `MONGO_URI`, `DB_NAME` | Yes | MongoDB Atlas connection, and the database for users and saved drugs |
+| `JWT_SECRET` | Yes | Signs the login cookie (any long random string) |
+| `DRUG_DB_NAME`, `DRUG_COLLECTION` | Optional | Where the monograph data lives in MongoDB (defaults: `ByteRX`, `Drug Monograph Data`) |
+| `APP_URL`, `SMTP_*`, `EMAIL_FROM` | Production | Password-reset emails. Locally, leave `SMTP_HOST` empty and the Forgot password page shows a "Demo only" link instead |
+| `PORT`, `NODE_ENV` | Optional | Defaults: `5001`, `development` |
 
-| Command           | What it does                          |
-| ----------------- | ------------------------------------- |
-| `npm run build`   | Production build into `frontend/dist` |
-| `npm run preview` | Serve the production build locally    |
-| `npm run lint`    | Run ESLint                            |
+Never commit `.env`.
 
-### Password-reset email
+## Roles and pages
 
-The backend (`backend/src/utils/email.js`) emails reset links through any SMTP server. Fill in the `SMTP_*`, `EMAIL_FROM` and `APP_URL` lines in `backend/.env`; `backend/.env.example` explains each one, including how to use a Gmail app password.
+People pick a role when they sign up, and **it can't be changed afterwards**. The header and Settings only show it, and the backend refuses a change. To change someone's role, edit `defaultRole` on their user in MongoDB. Logged out counts as General Public.
 
-- **Without email set up** (`SMTP_HOST` empty), nothing is sent. The Forgot password page shows a "Demo only" link instead, and the server prints the link in its terminal. This only works outside production: with `NODE_ENV=production` the server won't start without the email settings.
-- **The link** opens `#/reset-password?token=...` on `APP_URL`. It works once and expires after 30 minutes. It's built from `APP_URL`, never from the request, so nobody can make reset emails link to another site.
-- **Timing:** the server answers before it sends the email, so the response time doesn't reveal which emails have accounts. A failed send is logged in the server's terminal.
-- **After a reset,** the account owner also gets a "your password was changed" email, in case someone else used the link.
+| Page | URL | General Public | Pharmacist / Physician | Researcher |
+| --- | --- | --- | --- | --- |
+| Home, Search, Drug page, Saved, Discovery, Settings | `#/`, `#/search`, `#/drug/<id>`, … | ✓ | ✓ | ✓ |
+| Compare | `#/compare?ids=…` | | ✓ | ✓ |
+| Interaction check | `#/interactions?drugs=…` | | ✓ | ✓ |
+| Analysis | `#/analysis` | | | ✓ |
+| Inconsistency report | `#/inconsistency`, `#/inconsistency/<ingredient>` | | | ✓ |
 
-## Pages
-
-The app uses a small hash router in `App.jsx`, so there are no routing dependencies. Pages are linked with `#/...` URLs.
-
-| URL                  | Page             | Status |
-| -------------------- | ---------------- | ------ |
-| `#/`                 | Overview (home)  | Done, placeholder data |
-| `#/search?q=...&by=...` | Search results | Done: all 565 products from the MedDRA CSV. Searches brand, ingredient, company, condition, contraindication, drug class and DIN. `by` = `ingredient`, `condition`, `contraindication` or `class` limits it to one category. Filters for drug class, active ingredient, company and pregnancy advice; 20 results per page |
-| `#/login`            | Log in           | Done: validation and wrong-credential errors, using mock auth |
-| `#/signup`           | Create account   | Done: password strength meter, role picker and duplicate-email error, using mock auth |
-| `#/forgot-password`  | Forgot password  | Done: emails a reset link (see [Password-reset email](#password-reset-email); without email set up, a "Demo only" link shows on screen) |
-| `#/reset-password?token=...` | Reset password | Done: new password + confirm; links expire after 30 min and work once |
-| `#/saved`            | Saved drugs      | Done: remove with undo, Export CSV, Share link (`#/saved?shared=...`), list kept in the browser |
-| `#/settings`         | Settings         | Done (log in first): change info, see your role (read-only), landing page, email notification switches, change password, export my data (JSON), delete account |
-| `#/compare?ids=...`  | Compare          | Done: pick up to 6 products (bubbles, Add More search, same-family suggestions), Show differences only, Tables tab (with an adverse-event term grid), Graphs tab (term-overlap chart and monograph timeline). Uses the real datasets |
-| `#/drug/<id>?s=...&tab=...` | Drug overview | Done: warnings, contraindications and same-ingredient banners; tabs for Overview, Adverse events, Conflicts, Graphs, Alternatives and Research papers (DIN, Health Canada link, PDF). Uses the MedDRA CSV. `s` = strength, `tab` = open tab |
-| `#/discovery`        | Discovery        | Explore by category |
-| `#/analysis`         | Analysis         | Researchers only. Charts across the whole dataset |
-| `#/interactions`     | Interaction check | Pharmacists, physicians, researchers. Check 2–8 drugs against each other's monographs |
-| `#/inconsistency`    | Inconsistency report | Researchers only. Every ingredient with 2+ products, scored |
-| `#/inconsistency/<ingredient>` | Same-ingredient flag | Researchers only. Term-by-term and product-by-product detail |
-| other `#/...`        | Coming soon      | Placeholder for anything not built yet |
-
-### Who can see what
-
-| Role | Pages |
-| ---- | ----- |
-| General Public (or logged out) | Home, Search, Drug overview, Saved, Discovery, Settings |
-| Pharmacist, Physician | Everything except Analysis and the Inconsistency report |
-| Researcher | Everything |
-
-The rules live in `frontend/src/data/access.js` (`RESTRICTED`). The role comes from the logged-in account (`defaultRole`); logged out counts as General Public.
-
-**Roles are fixed at sign up.** People pick General Public, Pharmacist, Physician or Researcher when they create an account and can't change it afterwards:
-- The header just shows "Role: …" (no dropdown), so nobody can switch the view to another role.
-- Settings shows the role read-only.
-- The backend refuses a role change: `PATCH /api/users/me/preferences` with a different `defaultRole` returns 403.
-
-To change someone's role for now, edit `defaultRole` on their user document in MongoDB. Opening a page your role can't use shows a "Restricted" page (log in, or a note that your role can't open it). Nav links and buttons that lead to those pages (Compare, Add to interaction check, Check interactions, Compare with this, the Inconsistency Report card) are hidden or locked.
-
-This only hides pages in the browser. Data that must stay private (e.g. the analysis data, which ships with the site) also has to be protected by the backend. People still choose Pharmacist, Physician or Researcher themselves at sign up, with no check that they are one.
+The page rules live in `frontend/src/data/access.js`. Hiding a page in the browser isn't security on its own, so private data must also be checked by the backend. `/api/analysis` (analysis data) and `/api/reviews` (Inconsistency report status) are for researchers only (`requireRole("Researcher")`).
 
 ## Project structure
 
 ```
-CMPT496-housekeeping-filestructure/
-├── README.md
-└── frontend/                 React 19 + Vite
-    ├── scripts/
-    │   ├── build-adverse-events.mjs  Makes adverse_event_terms.json from the MedDRA CSV
-    │   ├── build-drug-details.mjs    Makes drug_details.json from the CSV + pdf_links_cache.json
-    │   ├── build-safety-sections.mjs Makes safety_sections.json from the MedDRA CSV
-    │   └── lib/csv.mjs               CSV reader shared by the build scripts
-    ├── index.html
-    ├── package.json
-    └── src/
-        ├── main.jsx          Entry point; imports global.css
-        ├── App.jsx           Hash router and page switch
-        ├── global.css        Design tokens and shared components
-        ├── components/
-        │   ├── Header.jsx    Top nav, role selector, log-in / account links
-        │   ├── Header.css
-        │   ├── PasswordStrength.jsx  Strength meter (sign-up, reset, settings)
-        │   ├── Switch.jsx    On/off toggle
-        │   ├── SearchBox.jsx / .css  Search box with suggestions + "By …" buttons (home + Search)
-        │   ├── ProductPicker.jsx     "+ Add More" search on Compare
-        │   ├── CompareTimeline.jsx / .css  Timeline graph on Compare
-        │   ├── AdverseEventGrid.jsx / .css Which MedDRA terms each product lists (Tables tab)
-        │   ├── TermOverlapChart.jsx / .css Stacked bars of shared/missing terms (Graphs tab)
-        │   └── SafetySunburst.jsx / .css   Zoomable d3 sunburst of safety sections (Graphs tab)
-        ├── pages/
-        │   ├── Overview.jsx / .css
-        │   ├── Search.jsx   / .css
-        │   ├── Login.jsx
-        │   ├── Signup.jsx
-        │   ├── ForgotPassword.jsx
-        │   ├── ResetPassword.jsx
-        │   ├── Auth.css      Shared by all auth pages
-        │   ├── Saved.jsx    / .css
-        │   ├── Settings.jsx / .css
-        │   ├── Compare.jsx  / .css
-        │   ├── Drug.jsx     / .css  Drug overview page (header, banners, tabs)
-        │   ├── drug/        One file per tab + parts.jsx (shared badges/chips)
-        │   ├── Restricted.jsx  Shown when your role can't open a page
-        │   ├── Interactions.jsx  Drug interaction check
-        │   ├── Inconsistency.jsx  Inconsistency report (list, export, review status)
-        │   ├── InconsistencyDetail.jsx  One ingredient: terms, products, flag for review
-        │   └── ComingSoon.jsx  Placeholder for unbuilt pages
-        ├── data/             Data files (mostly placeholders until the API exists)
-        │   ├── drug_monographs_dates.json  Real monograph dates (1,434 entries)
-        │   ├── monographs.js Cleans that file and groups it into products
-        │   ├── adverse_event_terms.json    MedDRA adverse-event terms per monograph (generated)
-        │   ├── adverseEvents.js  Loads that file on demand
-        │   ├── safety_sections.json        Organ categories per safety section, per monograph (generated)
-        │   ├── safetySections.js Loads that file on demand; section colours
-        │   ├── drug_details.json     Monograph content + DIN/links per monograph (generated)
-        │   ├── drugDetails.js    Loads that file on demand; recommendation helpers
-        │   ├── catalog.js    Search records, matching and suggestions for every product
-        │   ├── drugClasses.js  Drug class for each of the 60 ingredients (not in the CSV)
-        │   ├── overview.js
-        │   ├── search.js
-        │   ├── roles.js      The four user roles (header + sign-up)
-        │   ├── access.js     Which roles can open which pages; useRole(), useCan()
-        │   ├── interactions.js  Interaction check logic (name + drug-class matching, CYP, shared AEs)
-        │   ├── inconsistency.js  Inconsistency score per ingredient
-        │   ├── reviews.js    Review status + flags for the report (localStorage for now)
-        │   ├── auth.js       Mock auth + account settings — swap for real API calls
-        │   ├── session.js    Logged-in user, header role, search history
-        │   └── saved.js      Saved drugs list (shared by Search + Saved)
-        ├── utils/
-        │   ├── validation.js Email check + password strength scoring
-        │   ├── store.js      Tiny shared-state store (useStore hook)
-        │   ├── dates.js      Date maths for the timeline
-        │   ├── termOverlap.js  Splits terms into shared / only-this / missing
-        │   ├── chartColors.js Colours for drug families in charts
-        │   ├── ingredientGroup.js  Other brands of the same ingredient; same-ingredient flag
-        │   ├── links.js      drugHref() and drugHrefForBrand() for linking to drug pages
-        │   └── download.js   File download + CSV helpers
-        └── assets/           logo-mark.png (header), logo-full.png
+CMPT496/
+├── backend/                Express API
+│   ├── src/
+│   │   ├── server.js       Routes are mounted here
+│   │   ├── routes/         auth, users, saved, monographs, analysis, reviews
+│   │   ├── controllers/    Route logic
+│   │   ├── middleware/     requireAuth, requireRole, rate limits
+│   │   ├── models/         User accounts, Inconsistency report reviews (MongoDB)
+│   │   └── utils/          Auth cookie, email, CSV fallback
+│   ├── data/
+│   │   ├── canadian_drug_monographs_all_applicable_meddra_v27.csv
+│   │   └── analysis/       Analysis results served to researchers
+│   └── scripts/build-layer1.mjs
+├── frontend/               React + Vite website
+│   ├── scripts/            Build the data files from the CSV (see Data)
+│   └── src/
+│       ├── App.jsx         Hash router: #/path → page
+│       ├── global.css      Design tokens and shared classes
+│       ├── pages/          One file (+ .css) per page; pages/drug/ = drug page tabs
+│       ├── components/     Header, SearchBox, charts, …
+│       ├── data/           Data files and the code that reads them
+│       └── utils/          Shared helpers (store, comparisons, downloads)
+└── analysis/               Google Sheets exports (csv/) → JSON (convert.js)
 ```
 
-## Styling conventions
+## Data
 
-- **Use `global.css` first.** It holds the MonoByte "Broadsheet" design tokens as CSS variables:
-  - colours: `--color-*`, `--accent-100…900`, `--cream-100…400`, `--severity-hi|md|lo` and their `-ground` and `-ink` versions
-  - the Source Serif 4 type ramp: `--text-hero`, `--text-h1…h3`, `--text-body`, `--text-kicker`
+Everything comes from `canadian_drug_monographs_all_applicable_meddra_v27.csv`. Rebuild these files whenever the CSV changes:
 
-  Use these variables instead of hardcoded colours or fonts.
-- **Shared component classes live in `global.css` too:**
-  - `.btn-primary`, `.btn-secondary`, `.btn-block`, `.btn-danger`, `.btn-danger-outline`
-  - `.pill` with `.pill-flag`, `.pill-severity-md|lo`, `.pill-action`, `.pill-quiet`
-  - `.switch` (use the `Switch` component)
-  - `.form-alert`, `.form-success`, `.link-button`
-  - `.search-box`
-  - `.badge` and `.badge-solid-hi|md|lo`
-  - `.field`, `.input`, `.field-error`
-  - `.kicker`
+| Output | Used by | Rebuild with |
+| --- | --- | --- |
+| `frontend/src/data/drug_details.json` | Search, drug page, interaction check | `node scripts/build-drug-details.mjs <csv> <pdf_links_cache.json>` (in `frontend/`) |
+| `frontend/src/data/adverse_event_terms.json` | Search, drug page, Compare, Inconsistency report | `node scripts/build-adverse-events.mjs <csv>` (in `frontend/`) |
+| `frontend/src/data/safety_sections.json` | Safety sunburst on Compare | `node scripts/build-safety-sections.mjs <csv>` (in `frontend/`) |
+| `backend/data/analysis/layer1_concordance.json` | Inconsistency report (Manufacturer agreement) | `npm run build:layer1` (in `backend/`) |
+| `backend/data/analysis/analysis*.json` | Analysis page | Export the Google Sheets tabs to `analysis/csv/`, then `node convert.js` (in `analysis/`) |
 
-  Reuse them before writing new ones.
-- **Each page gets its own CSS file** (`pages/Name.css`) for layout specific to that page. Vite bundles all CSS globally, so prefix page classes (e.g. `.search-page`, `.auth-form`) to avoid clashes.
-- **Severity colours mean something.** Use `hi` (red) for severe or major, `md` (orange) for moderate, and `lo` (yellow) for mild or minor.
+`node scripts/list-link-review.mjs` (in `frontend/`) writes `link_review.csv`, a checklist of monograph links that may point to the wrong PDF.
 
-## Notes and TODOs
+## How the analyses work
 
-- `TODO` comments mark the places that still need a real API: search.
-- **Auth is mocked** in `data/auth.js`. Accounts are held in memory, and passwords are compared as plain text. That's fine for a demo, but the real backend has to hash passwords and handle sessions. To connect it, replace the bodies of `login()`, `signup()`, `requestPasswordReset()` and `resetPassword()`. The real `requestPasswordReset()` must email the link and **not** return the token. Only the mock returns it, so the page can show a "Demo only" link. The pages already handle loading states and show any error thrown as an `AuthError`.
-- **Shared state** uses the small store in `utils/store.js`. Any component that calls `useStore(sessionStore)` or `useStore(savedStore)` updates when that data changes. That's how the Save button on Search, the Saved page and the header count stay in sync.
-- **Saved drugs are kept in the browser** (localStorage), so they survive a reload but aren't tied to an account yet. A first visit starts with the three drugs from the mockup. Once the backend exists, load and save the list per user through the API instead (see `data/saved.js`).
-- **Settings needs a login.** Changes are saved straight away, like the mockup, except name/email (Change Info) and password, which have their own Save buttons. Deleting an account asks for the password, and then clears the saved list.
-- The mockup's danger-zone text also mentions *deactivating* an account. Only delete is built; deactivate needs a decision on how it should work.
-- **Compare uses `drug_monographs_dates.json`.** `data/monographs.js` cleans it when the app loads:
-  - **Dates:** spreadsheet date numbers like `45180` and dates such as "November 28, 2019" are converted. "No date available", "NO INFORMATION" and "EXTRACTION_FAILED" count as missing.
-  - **Products:** strengths of the same brand and company are merged into one product (e.g. ACH-AMLODIPINE 2.5/5/10 mg), which turns 1,434 entries into 565 products. One exact duplicate (PMS-QUINAPRIL 10mg) is dropped.
-  - **Drug family:** worked out from the name. Manufacturer prefixes like APO-, TEVA- and ACH- are removed, and brand names are looked up in `BRAND_INGREDIENT` (e.g. NORVASC → Amlodipine). Add new brands to that list.
-  - **Data issues to fix at the source:**
-    - 4 products have a revision date earlier than their authorization date. The timeline greys these out and warns about them.
-    - Some entries are named only by company, with no drug name (e.g. "Apotex 500mg", "Teva 250mg5ml suspension"), so they can't be grouped properly.
-- **Adverse-event views on Compare.**
-  - **Graphs tab:** a stacked bar per product. Every bar has the same length (all terms listed by any selected product). It's split into *shared by all*, *shared with some*, *only this product* and a hatched *missing* part. Hovering a segment shows its terms, and clicking it opens the term grid on the Tables tab, filtered to those terms. The bar colours are one blue ramp, checked with the dataviz validator.
-  - **Tables tab:** the term grid, one row per term, where a filled dot means listed.
+- **Comparing brands** (`frontend/src/utils/ingredientGroup.js`): the drug page, Search, the Inconsistency report and the Manufacturer agreement card all use the same rules.
+  - A side effect is *common* when **more than half** of an ingredient's brands list it.
+  - A brand whose list is under **20%** of the other brands' typical length is a **possible data gap** and is left out.
+  - Fewer than **3** brands to compare is **low confidence**.
+- **"Inconsistency flagged" in Search:** a product leaves out 20 or more common side effects (`FLAG_THRESHOLD` in `data/catalog.js`).
+- **Brand divergence** (0–10, Inconsistency report) measures how differently an ingredient's brands list side effects; higher = more disagreement. High is 6.0 and up, medium 3.0–5.9, low under 3.0. Review status (Open → Reviewed → Resolved) and flags are saved in MongoDB (`reviews` collection) with who changed them, so every researcher sees the same status.
+- **Manufacturer agreement** (0–1, higher = more agreement; "Layer 1" in the analysis workbook): a card on the drug page's Graphs tab, plus the full analysis on each Inconsistency report page (term overlap, guidance agreement, manufacturer flags). It reproduces the team's Analysis 1 workbook; the method is described at the top of `backend/scripts/build-layer1.mjs`.
+- **Interaction check:** the data has no severity ratings. Pairs are graded by how the monographs document them (named on both labels, on one label, or by drug class only), not by clinical severity. Drug-class phrases are matched by `CLASS_PATTERNS` in `data/interactions.js`.
 
-  Both use `src/data/adverse_event_terms.json`. That file is generated from the full MedDRA CSV (16.8 MB, 55 columns), keeping only what these views need: each monograph's ID and its MedDRA preferred terms. To rebuild it after the CSV changes:
+## Known issues
 
-  ```bash
-  cd frontend
-  node scripts/build-adverse-events.mjs path/to/canadian_drug_monographs_all_applicable_meddra_v27.csv
-  ```
+- Anyone can choose "Researcher" at sign-up; there's no verification yet.
+- `CLASS_PATTERNS` (interaction check) still needs a pharmacist to review it.
+- 34 companies appear under two spellings (e.g. "Sanis Health Inc" and "Sanis Health Inc."), so Manufacturer agreement counts them as separate manufacturers.
+- 454 monograph links need a manual check (213 low-confidence PDF matches, 320 monographs sharing a DIN). The drug page's Source tab warns about them.
 
-  - **Format:** each term string is stored once, and each monograph points to its terms by number. The file is 0.5 MB (48 KB compressed), and it only downloads when someone opens Compare.
-  - **Merging:** a product's strengths are combined. The CSV lists PMS-QUINAPRIL 10mg twice with different terms, so the two lists are merged.
-  - **Banner:** "X of Y MedDRA terms not reported consistently" only appears when every product is the same drug. Different drugs are supposed to list different terms.
-- **Safety sunburst on Compare (Graphs tab).** A zoomable [d3](https://d3js.org) sunburst: products → safety sections (adverse events, contraindications, warnings, pregnancy, breastfeeding) → the MedDRA organ categories each section mentions. Click a slice to zoom in, and the centre or the breadcrumb to zoom out. Arcs work with the keyboard (Tab, then Enter), and "Show as a table" lists the same data.
-  - Each organ category counts as 1, so a section's size is how many categories it covers, not how many terms.
-  - The CSV doesn't say which category each term belongs to (see below), so terms can't be the outer ring yet. Once the source data pairs each term with its category, add them as a fourth level in `buildTree()`.
-  - Section colours are in `data/safetySections.js`, checked with the dataviz validator.
-  - The data comes from `src/data/safety_sections.json`. To rebuild it: `node scripts/build-safety-sections.mjs path/to/the.csv`. The script skips rows with broken quoting. The Google Sheets export of the CSV has 18 of them, so 8 strengths currently have no sunburst data.
-  - **Not in the CSV:** a severity rating for each adverse event. The CSV's term list and organ-category list also aren't matched up term by term, so the design's organ-category pie chart can't be built from it yet.
-- **The drug overview page** (`#/drug/...`) reads `src/data/drug_details.json`. That file is generated from the MedDRA CSV plus `pdf_links_cache.json`, keeping only the columns the page shows. Pharmacokinetics, Pharmacodynamics and the raw adverse-event text are left out, because they're most of the CSV's size and aren't on the page yet. To rebuild it:
+## Styling
 
-  ```bash
-  cd frontend
-  node scripts/build-drug-details.mjs path/to/canadian_drug_monographs_all_applicable_meddra_v27.csv path/to/pdf_links_cache.json
-  ```
-
-  - **Size:** 2.7 MB (≈250 KB compressed). It only downloads when someone opens a drug page.
-  - **Research papers tab:** one card per strength, each showing its DIN. The link is the Health Canada Drug Product Database page (`dpd_info_url`), and Open/Download PDF use `pdf_url`. "Download" opens the PDF in a new tab, because browsers block downloading files straight from other websites.
-  - **DIN warnings:** the links were matched automatically. 213 monographs have a match score below 0.8, and 138 DINs are attached to more than one monograph, often at a 1.0 score. For example, AG-AMLODIPINE and Angita's plain AMLODIPINE share DINs, and PRO-ENALAPRIL 2.5/10/20 mg all got the 5 mg DIN. The tab shows a warning in both cases. The matching should be fixed in the pipeline that makes `pdf_links_cache.json`.
-  - **Same-ingredient flag:** compares this monograph's adverse-event terms with the other brands that have the same "Normalized Active Ingredient". It counts the terms that 75% or more of them list but this one doesn't, and the terms this one lists that 25% or fewer of them do.
-  - **Graphs tab:** adverse-event term counts per brand of the same ingredient, and whether those brands agree on pregnancy, breastfeeding, kidney and liver advice.
-  - **Severity:** the CSV has no severity rating for adverse events, so their tags aren't colour-coded like in the mockup. Recommendations (pregnancy, kidney, …) do use the severity colours.
-  - **Data issue:** NRA-AMLODIPINE lists only 9 adverse-event terms, while the other amlodipine brands list 82–100. That's probably an extraction problem.
-- **Search box with suggestions** (`components/SearchBox.jsx`, on the home page and Search).
-  - **Suggestions:** as you type, a dropdown lists the ingredients, conditions, contraindications and drug classes that have a word starting with what you typed. "ac" gives *Acute* myocardial infarction, Lactic *ac*idosis, *AC*E inhibitor, and so on. Each suggestion shows how many products it appears in.
-  - **"By …" buttons:** with none selected, all four categories are suggested and searched. Click one to suggest and search only that category, and click it again to go back to all four. On the Search page, switching button re-runs the search.
-  - **Picking a suggestion** searches for that exact term. For example, "Dihydropyridine calcium channel blocker" doesn't also bring back the *Non-*dihydropyridine ones. Pressing Enter on partial text searches more broadly, including drug names and DINs.
-  - **Data loading:** on the home page, the data loads when you first click into the search box, not when the page opens.
-- **Drug classes** aren't in the CSV, so `data/drugClasses.js` maps each of the 60 "Normalized Active Ingredient" values to its class or classes (combination products have more than one). That gives 26 classes. They're used for the "By drug class" search, the Drug class filter, and the drug page's class line (e.g. "Amlodipine · Dihydropyridine calcium channel blocker"). Add new ingredients there when the data grows; anything missing shows as "Unclassified".
-- **Search uses the real data now** (`data/catalog.js`). It doesn't wait for MongoDB: it builds one record per product from `drug_details.json` and `adverse_event_terms.json`, the same files the drug page loads.
-  - **Searches:** brand name, active ingredient, company, indication, and a DIN (type the 8 digits).
-  - **Filters:** Drug class, Active ingredient, Company, and Pregnancy advice (instead of adverse-effect severity, which isn't in the CSV).
-  - **"Inconsistency flagged"** appears when a product leaves out at least `FLAG_THRESHOLD` (10) adverse-event terms that most other brands of the same ingredient list. That's 141 of 565 products. 448 miss at least one term, so a lower number would flag almost everything. It uses the same comparison as the drug page's same-ingredient banner, so the numbers match. For researchers the tag opens that ingredient's Inconsistency report page; for everyone else it opens the drug page.
-  - **TODO:** swap `useCatalog()` for a search API call when the backend is connected.
-- **Interaction check** (`data/interactions.js`) uses each monograph's "Drug Interactions" list and "Standardized Metabolism" from `drug_details.json`. The CSV has **no severity ratings or mechanism text**, so the hi-fi design's Major/Moderate/Minor isn't used. Pairs are graded by how the monographs document them instead:
-  - **Both labels:** each drug's monographs name the other (e.g. diltiazem + apixaban).
-  - **One label:** only one side names the other.
-  - **Class only:** named through a class ("ACE inhibitors", "statins", "antihypertensive agents"). The class phrases are mapped to `drugClasses.js` in `CLASS_PATTERNS`, which is worth a check by the team's pharmacology person.
-  - Each card says how many products on each side mention the other. Pairs neither side mentions are listed separately. **Shared mechanisms** shows CYP isoforms (stated by at least half of a drug's monographs) and two drugs from the same class. **Shared adverse events** lists MedDRA terms that at least half of each drug's monographs list.
-  - Links from the drug page and Saved pass product ids (`?ids=`); the page turns them into ingredients (`?drugs=diltiazem,simvastatin`).
-- **Inconsistency report** (`data/inconsistency.js`) compares the MedDRA adverse-event terms of every product of the same ingredient (47 ingredients have 2+ products). Terms listed by at least 75% of products are the consensus; the rest are divergent. Score = 10 × Σ(1 − share) over divergent terms ÷ distinct terms, so terms only one product lists weigh the most. High is 6.0+, medium 3.0–5.9, low under 3.0 (currently 4 / 21 / 22). The detail page also lists, per product, the consensus terms it leaves out and the terms only it lists.
-  - **Export CSV** downloads the table; **Export PDF** opens the print dialog with print styles.
-  - **Review status and flags are saved in the browser (localStorage) only.** TODO: researcher-only backend routes so all researchers share them.
-  - TODO: switch to the Layer 1 concordance results (AE + warnings + contraindications, 50% consensus) once that analysis is final.
-- **Saved** starts with three real products on a first visit. It still shows older saved sample drugs (`data/search.js`), linked to their real drug pages. `data/search.js` is now only used for that.
-- **Compare's table only shows rows the dataset has** (company, strengths, dates). The hi-fi design's adverse-event, contraindication and pregnancy rows need monograph content from the backend. The cell colours are already set up for them (`safety: true` rows tint pink when they differ).
-- **Timeline colours** come from `utils/chartColors.js`: blue, aqua and violet, checked to be colour-blind safe. Red, orange and yellow are kept for severity only. A fourth drug family and beyond share grey ("Other families").
-- On the Search page, the severity filter shows only tags at the chosen levels and hides products with none. This behaviour is an assumption and needs team confirmation.
-- **Logo files** are in `frontend/src/assets`: `logo-mark.png` (the capsule icon, used in the header) and `logo-full.png` (icon plus the MonoByte wordmark). Both have transparent backgrounds. The browser-tab icon is `frontend/public/favicon.png`.
-
-> Information only, not medical advice. Always confirm against the official Health Canada monograph.
+- Use the variables and shared classes in `global.css` (colours, type, `.btn-*`, `.pill-*`, `.badge-*`, `.input`, …) before writing new ones.
+- Each page has its own CSS file. Prefix its classes with the page name (e.g. `.search-page`), because Vite bundles all CSS together.
+- Severity colours have a fixed meaning: `hi` red = severe, `md` orange = moderate, `lo` yellow = mild. Don't use them for anything else.

@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { useInconsistencyReport, listedByLabel, CONSENSUS } from '../data/inconsistency'
-import { reviewsStore, reviewFor, addFlag, setStatus, STATUSES } from '../data/reviews'
-import { sessionStore } from '../data/session'
-import { useStore } from '../utils/store'
+import { useInconsistencyReport, listedByLabel, CONSENSUS_LABEL } from '../data/inconsistency'
+import Layer1Concordance from '../components/Layer1Concordance'
+import { useReviews, reviewFor, addFlag, setStatus, statusNote, day, STATUSES } from '../data/reviews'
 import { drugHref, searchHref } from '../utils/links'
 import './Inconsistency.css'
 
@@ -14,7 +13,7 @@ const GROUPS = [
   { id: 'all', label: 'All terms' },
   { id: 'one', label: 'One product only' },
   { id: 'some', label: 'Some products' },
-  { id: 'most', label: `Most products (≥ ${CONSENSUS * 100}%)` },
+  { id: 'most', label: `Most products (${CONSENSUS_LABEL})` },
 ]
 
 function SummaryCard({ tone, title, terms }) {
@@ -35,11 +34,11 @@ function SummaryCard({ tone, title, terms }) {
 }
 
 function FlagDialog({ row, onClose }) {
-  const { user } = useStore(sessionStore)
   const companies = [...new Set(row.products.map((p) => p.product.company))].sort()
   const [picked, setPicked] = useState([])
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
   const firstRef = useRef(null)
 
   // Focus the first company when the dialog opens
@@ -47,12 +46,15 @@ function FlagDialog({ row, onClose }) {
     firstRef.current?.focus()
   }, [])
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault()
     if (!picked.length) return setError('Pick at least one company.')
     if (!reason.trim()) return setError('Say what should be reviewed.')
-    addFlag(row.slug, { companies: picked, reason: reason.trim(), by: user?.name ?? 'Researcher' })
-    onClose()
+    setSaving(true)
+    const saved = await addFlag(row.slug, { companies: picked, reason: reason.trim() })
+    setSaving(false)
+    if (saved) onClose()
+    else setError("Couldn't save the flag. Please try again.")
   }
 
   return (
@@ -104,7 +106,7 @@ function FlagDialog({ row, onClose }) {
           </p>
         )}
         <div className="modal-actions">
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn-primary" disabled={saving}>
             Submit
           </button>
           <button type="button" className="btn-outline" onClick={onClose}>
@@ -118,7 +120,7 @@ function FlagDialog({ row, onClose }) {
 
 function InconsistencyDetail({ slug }) {
   const rows = useInconsistencyReport()
-  const reviews = useStore(reviewsStore)
+  const { reviews, error: reviewError } = useReviews()
   const [group, setGroup] = useState('all')
   const [query, setQuery] = useState('')
   const [limit, setLimit] = useState(PAGE_SIZE)
@@ -174,7 +176,10 @@ function InconsistencyDetail({ slug }) {
       <section className={`inc-banner banner-${row.level}`}>
         <div className="inc-banner-top">
           <span className={`badge badge-solid-${row.level}`}>Inconsistency</span>
-          <span className={`score score-${row.level} score-lg`}>Divergence {row.score.toFixed(1)}</span>
+          <span className="inc-banner-scores">
+            {row.lowConfidence && <span className="pill pill-quiet">Low confidence</span>}
+            <span className={`score score-${row.level} score-lg`}>Brand divergence {row.score.toFixed(1)}</span>
+          </span>
         </div>
         <h1 className="inc-banner-title">
           {row.name} — {n} products compared, {row.divergent} terms not reported consistently
@@ -183,11 +188,20 @@ function InconsistencyDetail({ slug }) {
           {names.slice(0, 4).join(', ')}
           {names.length > 4 && ` and ${names.length - 4} more`} · {row.terms.length} distinct terms ·
           MedDRA v27 · status: {STATUSES[review.status]}
+          {review.statusBy && ` (${review.statusBy}, ${day(review.statusAt)})`}
         </p>
+        {(row.lowConfidence || row.gapProducts.length > 0) && (
+          <p className="inc-banner-note">
+            {row.lowConfidence &&
+              `Only ${n} products to compare, so one label moves the score a lot. `}
+            {row.gapProducts.length > 0 &&
+              `${row.gapProducts.length} ${row.gapProducts.length === 1 ? 'product is' : 'products are'} left out as a possible data gap (very short adverse event list in our data).`}
+          </p>
+        )}
       </section>
 
       <section className="inc-groups" aria-label="Terms by how many products list them">
-        <SummaryCard tone="ok" title={`Reported by most (≥ ${CONSENSUS * 100}%)`} terms={row.most} />
+        <SummaryCard tone="ok" title={`Reported by most (${CONSENSUS_LABEL})`} terms={row.most} />
         <SummaryCard tone="md" title="Reported by some" terms={row.some} />
         <SummaryCard tone="hi" title="Reported by one only" terms={row.one} />
       </section>
@@ -216,9 +230,25 @@ function InconsistencyDetail({ slug }) {
                 <td title={p.unique.join(', ')}>{p.unique.length}</td>
               </tr>
             ))}
+            {row.gapProducts.map((p) => (
+              <tr key={p.product.id} className="is-gap">
+                <th scope="row">
+                  <a href={drugHref(p.product.id)}>{p.product.label}</a>
+                </th>
+                <td>{p.product.company}</td>
+                <td>{p.terms.size}</td>
+                <td colSpan={2}>
+                  <span className="pill pill-quiet">Possible data gap</span> Left out of the score:
+                  other brands list about {Math.round(p.dataGap.peerMedian)} terms
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
+
+      <h2 className="inc-h2">Manufacturer agreement</h2>
+      <Layer1Concordance ingredient={row.name} />
 
       <h2 className="inc-h2">MedDRA terms</h2>
       <div className="inc-term-tools">
@@ -268,7 +298,7 @@ function InconsistencyDetail({ slug }) {
                 <td>
                   <span className="share" title={`${Math.round(t.share * 100)}%`}>
                     <span
-                      className={`share-fill ${t.share >= CONSENSUS ? 'is-most' : t.listedBy.length === 1 ? 'is-one' : 'is-some'}`}
+                      className={`share-fill ${row.most.includes(t) ? 'is-most' : t.listedBy.length === 1 ? 'is-one' : 'is-some'}`}
                       style={{ width: `${t.share * 100}%` }}
                     />
                   </span>
@@ -304,13 +334,19 @@ function InconsistencyDetail({ slug }) {
             {review.flags.map((f, i) => (
               <li key={i} className="inc-flag">
                 <p className="inc-flag-meta">
-                  {f.at} · {f.by} · {f.companies.join(', ')}
+                  {day(f.at)} · {f.by ?? 'Researcher'} · {f.companies.join(', ')}
                 </p>
                 <p>{f.reason}</p>
               </li>
             ))}
           </ul>
         </section>
+      )}
+
+      {reviewError && (
+        <p className="form-alert" role="alert">
+          {reviewError}
+        </p>
       )}
 
       <div className="inc-actions">
@@ -321,9 +357,19 @@ function InconsistencyDetail({ slug }) {
           Opens the {compareIds.length} products furthest from the consensus
         </span>
         <div className="inc-actions-right">
-          {review.status !== 'reviewed' && (
+          {review.status === 'open' && (
             <button type="button" className="btn-outline" onClick={() => setStatus(slug, 'reviewed')}>
               Mark reviewed
+            </button>
+          )}
+          {review.status === 'reviewed' && (
+            <button type="button" className="btn-outline" onClick={() => setStatus(slug, 'resolved')}>
+              Resolve
+            </button>
+          )}
+          {review.status === 'resolved' && (
+            <button type="button" className="btn-outline" onClick={() => setStatus(slug, 'open')} title={statusNote(review)}>
+              Reopen
             </button>
           )}
           <button type="button" className="btn-primary" onClick={() => setFlagging(true)}>

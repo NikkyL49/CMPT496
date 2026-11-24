@@ -15,11 +15,13 @@ import { productsByIngredient, productSummary, sameIngredientFlag } from '../uti
 const cache = new WeakMap()
 
 // Search shows "Inconsistency flagged" when a product leaves out at least this
-// many adverse-event terms that most other brands of the same ingredient list.
-// Almost every product misses a few (448 of 565 miss at least 1), so a low
-// number would flag nearly everything; 10 flags about a quarter (141).
-// Team decision — adjust as needed.
-export const FLAG_THRESHOLD = 10
+// many adverse-event terms that more than half of the other brands of the same
+// ingredient list (the shared rule in utils/ingredientGroup.js). Almost every
+// product misses a few (514 of 537 miss at least 1, median 9), so a low number
+// would flag nearly everything; 20 flags about a quarter (142). Products marked
+// "possible data gap" (11) or with fewer than 3 brands to compare (4) are never
+// flagged. Team decision — adjust as needed.
+export const FLAG_THRESHOLD = 20
 
 // The "By …" buttons under the search box. No button selected = search all.
 export const SEARCH_MODES = [
@@ -38,8 +40,9 @@ function buildCatalog(details, aeData) {
     const defaultId = p.variants.at(-1)?.id
     const idx = defaultId ? aeData.byId[defaultId] : null
     const myTerms = idx ? new Set(idx.map((i) => aeData.terms[i])) : null
-    const others = (groups.get(summary?.ingredient) ?? []).filter((q) => q.id !== p.id)
-    const flag = myTerms && others.length ? sameIngredientFlag(aeData, myTerms, others) : null
+    const group = groups.get(summary?.ingredient) ?? []
+    const others = group.filter((q) => q.id !== p.id)
+    const flag = myTerms && others.length ? sameIngredientFlag(aeData, myTerms, others, group) : null
     const dins = p.listings.map((id) => detailsFor(details, id)?.din).filter(Boolean)
     const ingredient = summary?.ingredient ?? p.family
     const classes = classesFor(ingredient)
@@ -63,6 +66,8 @@ function buildCatalog(details, aeData) {
       warnings: summary?.warningTerms ?? [], // MedDRA terms from the Warnings section (Discovery's "Caution")
       aeCount: termsForProduct(aeData, p)?.size ?? 0,
       missingCommon: flag?.missingCommon.length ?? 0,
+      dataGap: flag?.dataGap ?? null,
+      lowConfidence: flag?.lowConfidence ?? false,
       dins,
       // lower-case text the search box looks through
       haystack: {

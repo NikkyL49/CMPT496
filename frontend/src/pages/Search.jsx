@@ -88,12 +88,20 @@ function ResultCard({ r, saved, onToggleSave, canSeeReport }) {
         </span>
 
         <div className="result-actions">
-          {r.missingCommon >= FLAG_THRESHOLD && (
+          {r.dataGap ? (
+            <a
+              href={drugHref(r.id)}
+              className="pill pill-quiet"
+              title={`Only ${r.dataGap.terms} adverse event terms in our data (other ${r.ingredient} brands list about ${Math.round(r.dataGap.peerMedian)}). The list may be incomplete.`}
+            >
+              Possible data gap
+            </a>
+          ) : r.missingCommon >= FLAG_THRESHOLD && !r.lowConfidence && (
             <a
               // Researchers go to the ingredient's Inconsistency report page; everyone else to the drug page
               href={canSeeReport ? `#/inconsistency/${ingredientSlug(r.ingredient)}` : drugHref(r.id)}
               className="pill pill-flag"
-              title={`Leaves out ${r.missingCommon} adverse event terms that most other ${r.ingredient} brands list`}
+              title={`Leaves out ${r.missingCommon} adverse event terms that more than half of the other ${r.ingredient} brands list`}
             >
               Inconsistency flagged
             </a>

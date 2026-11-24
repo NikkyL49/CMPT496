@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import {
   ScatterChart, Scatter, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Cell,
 } from "recharts";
-import { reciprocity } from "../../data/analysis";
 import "./Charts.css";
 
 const pct = (v) => `${Math.round(v * 100)}%`;
@@ -21,17 +20,18 @@ function PairTooltip({ active, payload }) {
   );
 }
 
-export default function ReciprocityScatter() {
+// `table` = { meta, rows } from the backend (see data/analysis.js)
+export default function ReciprocityScatter({ table }) {
   const [drug, setDrug] = useState("");
   const [selected, setSelected] = useState(null);
 
   // Only pairs where both directions could be measured
   const pairs = useMemo(
     () =>
-      reciprocity.rows
+      table.rows
         .filter((r) => r.bToAAvailable)
         .map((r) => ({ x: r.aToB, y: r.bToA, drugA: r.drugA, drugB: r.drugB, status: r.status })),
-    []
+    [table]
   );
 
   const drugs = useMemo(
@@ -42,7 +42,7 @@ export default function ReciprocityScatter() {
   const twoWay = pairs.filter((p) => p.status === "Two-way");
   const oneWay = pairs.filter((p) => p.status === "One-way");
   const involves = (p) => !drug || p.drugA === drug || p.drugB === drug;
-  const excluded = reciprocity.rows.length - pairs.length;
+  const excluded = table.rows.length - pairs.length;
 
   const drugPairs = drug ? pairs.filter(involves) : [];
 
